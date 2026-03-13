@@ -146,9 +146,9 @@ public class MenuItem extends JPanel {
         button.putClientProperty(FlatClientProperties.STYLE, ""
                 + bgStyle
                 + "foreground:$Menu.foreground;"
-                + "selectedBackground:$Menu.button.selectedBackground;"
-                + "selectedForeground:$Menu.button.selectedForeground;"
-                + "hoverBackground:mix($Menu.button.selectedBackground,rgba(255,255,255,0),50%);"
+                + "selectedBackground:$MenuItem.selectionBackground;"
+                + "selectedForeground:$MenuItem.selectionForeground;"
+                + "hoverBackground:mix($MenuItem.selectionBackground,rgba(255,255,255,0),50%);"
                 + "borderWidth:0;"
                 + "focusWidth:0;"
                 + "innerFocusWidth:0;"

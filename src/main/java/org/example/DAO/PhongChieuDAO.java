@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 package org.example.DAO;
 
 
@@ -42,11 +41,4 @@ public class PhongChieuDAO {
         }
         return list;
     }
-} 
-    
-
-=======
-public class PhongChieuDAO { 
-    
-} 
->>>>>>> 56f360b (feat : new PhongChieu Layer)
+}

@@ -11,6 +11,7 @@ public class FormPhongChieu extends JPanel {
     // ====================== DANH SÁCH PHÒNG ======================
     private JTable tablePhong;
     private DefaultTableModel modelPhong;
+    private JButton btnMoChiTiet;
 
     // ====================== CHI TIẾT PHÒNG (khi chọn) ======================
     private JPanel panelChiTiet;
@@ -66,10 +67,13 @@ public class FormPhongChieu extends JPanel {
         JButton btnThemPhong = createModernButton("➕ Thêm Phòng", new Color(34, 197, 151));
         JButton btnSuaPhong = createModernButton("✏️ Sửa", new Color(234, 179, 8));
         JButton btnXoaPhong = createModernButton("🗑️ Xóa", new Color(239, 68, 68));
+        btnMoChiTiet = createModernButton("🪑 Mở chi tiết", new Color(96, 165, 250));
+        btnMoChiTiet.setEnabled(false);
         
         toolBarTrai.add(btnThemPhong);
         toolBarTrai.add(btnSuaPhong);
         toolBarTrai.add(btnXoaPhong);
+        toolBarTrai.add(btnMoChiTiet);
         panelTrai.add(toolBarTrai, BorderLayout.NORTH);
 
         // ====================== PHẢI: CHI TIẾT PHÒNG (HIỆN ĐẠI) ======================
@@ -154,12 +158,23 @@ public class FormPhongChieu extends JPanel {
             if (!e.getValueIsAdjusting() && tablePhong.getSelectedRow() != -1) {
                 phongDangChon = tablePhong.getSelectedRow();
                 hienThiChiTietPhong(phongDangChon);
+                btnMoChiTiet.setEnabled(true);
+            }
+        });
+
+        tablePhong.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                    moChiTietPhongDangChon();
+                }
             }
         });
 
         btnThemPhong.addActionListener(e -> themPhongMoi());
         btnSuaPhong.addActionListener(e -> suaPhong());
         btnXoaPhong.addActionListener(e -> xoaPhong());
+        btnMoChiTiet.addActionListener(e -> moChiTietPhongDangChon());
 
         btnTuDongSinh.addActionListener(e -> tuDongSinhGhe());
         btnThemGhe.addActionListener(e -> themGheThuCong());
@@ -195,12 +210,10 @@ public class FormPhongChieu extends JPanel {
         lblThongTinPhong.setText("Phòng: " + tenPhong + " | Loại: " + loai + 
                                  " | Tổng ghế: " + (soHang * gheMoiHang));
 
-        // Xóa dữ liệu cũ
         panelBanDoGhe.removeAll();
         danhSachButtonGhe.clear();
         modelGhe.setRowCount(0);
 
-        // Tạo bản đồ ghế hiện đại
         panelBanDoGhe.setLayout(new GridLayout(soHang, gheMoiHang, 8, 8));
         String[] trangThaiMau = {"Trống", "Đang đặt", "Đã bán", "Bảo trì"};
         Color[] mau = {new Color(34, 197, 151), new Color(234, 179, 8), new Color(239, 68, 68), Color.GRAY};
@@ -366,6 +379,33 @@ public class FormPhongChieu extends JPanel {
 
     private void lamMoiDuLieu() {
         if (phongDangChon != -1) hienThiChiTietPhong(phongDangChon);
+    }
+
+    private void moChiTietPhongDangChon() {
+        int viewRow = tablePhong.getSelectedRow();
+        if (viewRow < 0) {
+            JOptionPane.showMessageDialog(this, "Chọn phòng trước!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int modelRow = tablePhong.convertRowIndexToModel(viewRow);
+        Object maPhongObj = modelPhong.getValueAt(modelRow, 0);
+        if (!(maPhongObj instanceof Number)) {
+            JOptionPane.showMessageDialog(this, "Mã phòng không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int maPhong = ((Number) maPhongObj).intValue();
+        Window owner = SwingUtilities.getWindowAncestor(this);
+
+        JDialog dialog = new JDialog(owner);
+        dialog.setTitle("Chi tiết phòng " + maPhong);
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.setContentPane(new FormChiTietPhongChieu(maPhong));
+        dialog.setSize(900, 650);
+        dialog.setLocationRelativeTo(owner);
+        dialog.setModal(false);
+        dialog.setVisible(true);
     }
 
     private void themPhongMoi() { /* Giữ nguyên code cũ, bạn có thể copy từ lần trước */ }

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 package org.example.DTO;
 
 public class PhongChieuDTO {
@@ -23,10 +22,3 @@ public class PhongChieuDTO {
     public String getLoaiPhong() { return loaiPhong; }
     public void setLoaiPhong(String loaiPhong) { this.loaiPhong = loaiPhong; }
 }
-=======
-public class PhongChieuDTO { 
-private int maPhong ; 
-private String tenPhong ; 
-private String loaiPhong ; 
-} 
->>>>>>> 56f360b (feat : new PhongChieu Layer)
