@@ -25,10 +25,14 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import org.example.BUS.PhongChieuBUS;
+import org.example.DTO.PhongChieuDTO;
+
 public class FormPhongChieu extends JPanel {
 
     private DefaultTableModel model;
     private JTable tablePhongChieu;
+    private final PhongChieuBUS phongChieuBUS = new PhongChieuBUS();
 
     public FormPhongChieu() {
         setLayout(new BorderLayout(10, 10));
@@ -70,8 +74,13 @@ public class FormPhongChieu extends JPanel {
         topPanel.add(buttonPanel, BorderLayout.WEST);
         topPanel.add(searchPanel, BorderLayout.EAST);
 
-        String[] columnNames = {"Mã Phòng", "Tên Phòng", "Loại Phòng"};
-        model = new DefaultTableModel(columnNames, 0);
+        String[] columnNames = {"Mã Phòng", "Tên Phòng", "Loại Phòng", "Số Hàng", "Ghế/Hàng"};
+        model = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         tablePhongChieu = new JTable(model);
 
         tablePhongChieu.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -80,9 +89,7 @@ public class FormPhongChieu extends JPanel {
         tablePhongChieu.getTableHeader().setForeground(Color.WHITE);
         tablePhongChieu.setRowHeight(40);
 
-        model.addRow(new Object[]{"1", "Phòng 1", "2D"});
-        model.addRow(new Object[]{"2", "Phòng 2", "3D"});
-        model.addRow(new Object[]{"3", "Phòng 3", "2D"});
+        loadDataToTable();
 
         JScrollPane scrollPane = new JScrollPane(tablePhongChieu);
         scrollPane.getViewport().setBackground(Color.WHITE);
@@ -101,6 +108,19 @@ public class FormPhongChieu extends JPanel {
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setFocusPainted(false);
         return button;
+    }
+
+    private void loadDataToTable() {
+        model.setRowCount(0);
+        for (PhongChieuDTO pc : phongChieuBUS.getList()) {
+            model.addRow(new Object[]{
+                    pc.getMaPhong(),
+                    pc.getTenPhong(),
+                    pc.getLoaiPhong(),
+                    pc.getSoHang(),
+                    pc.getSoGheMoiHang()
+            });
+        }
     }
 
     private void moXemPhongDaChon() {

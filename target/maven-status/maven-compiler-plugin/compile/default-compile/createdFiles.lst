@@ -5,6 +5,7 @@ org/example/GUI/Components/FormTypeProduct/FormTypeProduct.class
 org/example/GUI/menu/PopupSubmenu.class
 org/example/GUI/Application/Application.class
 org/example/DAO/SanPhamDAO.class
+org/example/BUS/PhongChieuBUS.class
 org/example/GUI/Components/FormShowTime/FormShowTime.class
 org/example/GUI/Components/FormHoaDon/FormHoaDon.class
 org/example/GUI/Components/FormPhongChieu/FormPhongChieu.class
@@ -23,6 +24,7 @@ org/example/GUI/Components/FormTicket/FormTicket.class
 org/example/DAO/PhongChieuDAO.class
 org/example/DTO/PhimDTO.class
 org/example/GUI/Components/FormProduct/AddProductDialog.class
+org/example/GUI/Components/FormPhongChieu/FormPhongChieu$2.class
 org/example/UtilsDate/FormattedDatePicker.class
 org/example/BUS/HoaDonBUS.class
 org/example/BUS/SuatChieuPhimBUS.class
