@@ -1,3 +1,4 @@
+package org.example.GUI.Components.PhongChieu.Form;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -16,16 +17,17 @@ public class FormChiTietPhongChieu extends JPanel {
     private String tenPhong;
     private int soHang;
     private int soGheMoiHang;
-
     private JPanel gridPanel;
+    
     private Map<String, JButton> mapGheButtons = new HashMap<>(); // key = "A1", value = button
 
     // Giả sử bạn có class kết nối DB (thay đổi theo project của bạn)
     private static final String DB_URL = "jdbc:mysql://localhost:3306/bookticket";
     private static final String DB_USER = "root";
-    private static final String DB_PASS = "your_password"; // ← thay bằng pass thật của bạn
+    private static final String DB_PASS = ""; // ← thay bằng pass thật của bạn
 
-    public FormChiTietPhongChieu(int maPhong) {
+    public FormChiTietPhongChieu(int maPhong) 
+    {
         this.maPhong = maPhong;
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createTitledBorder("Quản lý ghế của phòng"));
@@ -52,6 +54,8 @@ public class FormChiTietPhongChieu extends JPanel {
         loadPhongChieuInfo();
         createSeatGrid();
     }
+
+
 
     /**
      * Lấy thông tin phòng (số hàng, số ghế mỗi hàng, tên phòng)

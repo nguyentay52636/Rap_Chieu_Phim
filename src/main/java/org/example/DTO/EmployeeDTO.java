@@ -3,68 +3,36 @@ package org.example.DTO;
 import java.sql.Date;
 
 public class EmployeeDTO {
-
-    private String maNV;
-    private String tenNV;
+    private int maNV;
+    private String hoTen;
     private Date ngaySinh;
-    private String diaChi;
-    private String sdt;
-    private int trangThai;
+    private Date ngayVaoLam;
+    private double luongCoBan;
 
-    public EmployeeDTO(String maNV, String tenNV, Date ngaySinh, String diaChi, String sdt, int trangThai) {
+    public EmployeeDTO() {
+    }
+
+    public EmployeeDTO(int maNV, String hoTen, Date ngaySinh, Date ngayVaoLam, double luongCoBan) {
         this.maNV = maNV;
-        this.tenNV = tenNV;
+        this.hoTen = hoTen;
         this.ngaySinh = ngaySinh;
-        this.diaChi = diaChi;
-        this.sdt = sdt;
-        this.trangThai = trangThai;
+        this.ngayVaoLam = ngayVaoLam;
+        this.luongCoBan = luongCoBan;
     }
 
-    public String getMaNV() {
-        return maNV;
-    }
+    // --- GETTER & SETTER ---
+    public int getMaNV() { return maNV; }
+    public void setMaNV(int maNV) { this.maNV = maNV; }
 
-    public void setMaNV(String maNV) {
-        this.maNV = maNV;
-    }
+    public String getHoTen() { return hoTen; }
+    public void setHoTen(String hoTen) { this.hoTen = hoTen; }
 
-    public String getTenNV() {
-        return tenNV;
-    }
+    public Date getNgaySinh() { return ngaySinh; }
+    public void setNgaySinh(Date ngaySinh) { this.ngaySinh = ngaySinh; }
 
-    public void setTenNV(String tenNV) {
-        this.tenNV = tenNV;
-    }
+    public Date getNgayVaoLam() { return ngayVaoLam; }
+    public void setNgayVaoLam(Date ngayVaoLam) { this.ngayVaoLam = ngayVaoLam; }
 
-    public Date getNgaySinh() {
-        return ngaySinh;
-    }
-
-    public void setNgaySinh(Date ngaySinh) {
-        this.ngaySinh = ngaySinh;
-    }
-
-    public String getDiaChi() {
-        return diaChi;
-    }
-
-    public void setDiaChi(String diaChi) {
-        this.diaChi = diaChi;
-    }
-
-    public String getSdt() {
-        return sdt;
-    }
-
-    public void setSdt(String sdt) {
-        this.sdt = sdt;
-    }
-
-    public int getTrangThai() {
-        return trangThai;
-    }
-
-    public void setTrangThai(int trangThai) {
-        this.trangThai = trangThai;
-    }
+    public double getLuongCoBan() { return luongCoBan; }
+    public void setLuongCoBan(double luongCoBan) { this.luongCoBan = luongCoBan; }
 }
