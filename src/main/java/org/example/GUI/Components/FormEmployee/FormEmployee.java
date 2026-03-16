@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
+import java.io.File;
 
 import org.example.BUS.EmployeeBUS;
 import org.example.DTO.EmployeeDTO;
@@ -129,10 +130,29 @@ public class FormEmployee extends JPanel {
             }
         });
 
+    btnExcel.addActionListener(e -> {
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Chọn file Excel nhân viên");
+    int result = fileChooser.showOpenDialog(this);
+
+    if (result == JFileChooser.APPROVE_OPTION) 
+        {
+        File selectedFile = fileChooser.getSelectedFile();
+        int successCount = employeeBUS.importExcel(selectedFile);
+        
+        if (successCount > 0) {
+            JOptionPane.showMessageDialog(this, "Đã nhập thành công " + successCount + " nhân viên!");
+            loadDataToTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Nhập Excel thất bại! Kiểm tra lại định dạng file.");
+        }
+    }
+});
+
         btnDelete.addActionListener(e -> {
     int row = table.getSelectedRow();
     if (row == -1) {
-        JOptionPane.showMessageDialog(this, "Chọn nhân viên đã chứ!");
+        JOptionPane.showMessageDialog(this, "Phải chon 1 dòng để xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
@@ -158,26 +178,83 @@ public class FormEmployee extends JPanel {
         }
     }
 });
-        // 4. Sự kiện bấm nút Thêm
-        btnAdd.addActionListener(e -> {
-        AddEmployeeDialog dialog = new AddEmployeeDialog(this, employeeBUS);
-        dialog.setVisible(true);
-    });
 
-    // 5. Sự kiện bấm nút Sửa (Tạm thời thông báo, mình làm sau)
-    btnEdit.addActionListener(e -> {
-        JOptionPane.showMessageDialog(this, "Chức năng Sửa: Chọn 1 dòng rồi nhấn Sửa để cập nhật!");
-    });
-
-
-        // 3. Sự kiện Tìm kiếm Real-time (Gõ đến đâu lọc đến đó)
+// 3. Sự kiện Tìm kiếm Real-time (Gõ đến đâu lọc đến đó)
         txtSearch.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 performSearch();
             }
         });
+    
+       // 4. Sự kiện bấm nút Thêm
+        btnAdd.addActionListener(e -> {
+        AddEmployeeDialog dialog = new AddEmployeeDialog(this, employeeBUS);
+        dialog.setVisible(true);
+    });
+    // 5. Sự kiện bấm nút Sửa
+    btnEdit.addActionListener(e -> {
+        int row = table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần sửa!");
+            return;
+        }
+
+        int maNV = Integer.parseInt(table.getValueAt(row, 0).toString());
+        
+        // Tìm DTO của nhân viên đang chọn
+        EmployeeDTO selectedEmp = null;
+        for (EmployeeDTO emp : employeeBUS.getDanhSach()) {
+            if (emp.getMaNV() == maNV) {
+                selectedEmp = emp;
+                break;
+            }
+        }
+
+        if (selectedEmp != null) {
+            EditEmployeeDialog dialog = new EditEmployeeDialog(this, employeeBUS, selectedEmp);
+            dialog.setVisible(true);
+        }
+    });
+
+    btnView.addActionListener(e -> {
+        int row = table.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 nhân viên để xem chi tiết!");
+            return;
+        }
+
+        // 1. Lấy mã NV từ dòng đang chọn
+        int maNV = Integer.parseInt(table.getValueAt(row, 0).toString());
+        
+        // 2. Tìm EmployeeDTO tương ứng trong danh sách (để lấy đủ dữ liệu)
+        EmployeeDTO selectedEmp = null;
+        for (EmployeeDTO emp : employeeBUS.getDanhSach()) {
+            if (emp.getMaNV() == maNV) {
+                selectedEmp = emp;
+                break;
+            }
+        }
+
+        // 3. Mở Dialog chi tiết
+        if (selectedEmp != null) {
+            DetailEmployeeDialog dialog = new DetailEmployeeDialog(
+                (JFrame) SwingUtilities.getWindowAncestor(this), selectedEmp);
+            dialog.setVisible(true);
+        }
+    });
+    
+    
+    
+    
+    
+    
+    
+    
     }
+
+
+
 
     private void performSearch() {
         String keyword = txtSearch.getText().toLowerCase().trim();
