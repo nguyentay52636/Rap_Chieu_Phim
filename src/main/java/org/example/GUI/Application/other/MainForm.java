@@ -87,7 +87,7 @@ public class MainForm extends JLayeredPane {
             case 4 -> showForm(new FormShowTime());             
             case 5 -> showForm(new FormTicket());              
             case 6 -> showForm(new FormHoaDon(" Hoá đơn"));
-            case 7 -> showForm(new FormCustomer("Khách hàng"));
+            case 7 -> showForm(new FormCustomer());
             case 8 -> showForm(new FormEmployee("Nhân viên"));
             case 9 -> showForm(new FormThongKe());
             case 10 -> Application.logout();                    

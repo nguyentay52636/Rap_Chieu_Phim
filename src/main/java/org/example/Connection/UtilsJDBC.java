@@ -10,18 +10,18 @@ public class UtilsJDBC {
     private static Connection connection = null;
 
     public static Connection getConnectDB() {
-        if (connection == null) {
-            try {
+        try {
+            if (connection == null || connection.isClosed()) {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = java.sql.DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println(" Kết nối CSDL thành công!");
-            } catch (ClassNotFoundException e) {
-                System.err.println(" Không tìm thấy driver MySQL!");
-                e.printStackTrace();
-            } catch (java.sql.SQLException e) {
-                System.err.println(" Lỗi kết nối CSDL: " + e.getMessage());
-                e.printStackTrace();
+                System.out.println("✅ Kết nối CSDL thành công!");
             }
+        } catch (ClassNotFoundException e) {
+            System.err.println("❌ Không tìm thấy driver MySQL!");
+            e.printStackTrace();
+        } catch (java.sql.SQLException e) {
+            System.err.println("❌ Lỗi kết nối CSDL: " + e.getMessage());
+            e.printStackTrace();
         }
         return connection;
     }
