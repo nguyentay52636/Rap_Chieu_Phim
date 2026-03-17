@@ -1,0 +1,22 @@
+TheLoaiPhim
+      │
+      ▼
+Phim
+      │
+      ▼
+SuatChieu
+   ┌──┴────┐
+   ▼       ▼
+PhongChieu
+      │
+      ▼
+Ghe
+      │
+      ▼
+Ve
+      │
+      ▼
+ChiTietHoaDonVe
+      │
+      ▼
+HoaDon

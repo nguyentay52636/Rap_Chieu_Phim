@@ -51,7 +51,7 @@ public class ChiTietPhimDialog extends JDialog {
         JTextField txtTenPhim = createStyledTextField(phim.getTenPhim(), textFont);
 
         JLabel lblThoiLuong = createStyledLabel("Thời lượng:", labelFont);
-        JTextField txtThoiLuong = createStyledTextField(phim.getThoiLuong(), textFont);
+        JTextField txtThoiLuong = createStyledTextField(String.valueOf(phim.getThoiLuong()), textFont);
 
         JLabel lblDaoDien = createStyledLabel("Đạo diễn:", labelFont);
         JTextField txtDaoDien = createStyledTextField(phim.getDaoDien(), textFont);

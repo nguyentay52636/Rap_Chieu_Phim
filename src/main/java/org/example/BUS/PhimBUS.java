@@ -18,10 +18,10 @@ public class PhimBUS {
 
     public PhimBUS() {
         // Dữ liệu mẫu
-        list.add(new PhimDTO(1, 1, "Avengers: Endgame", "03:01", "Anthony Russo",
-                2019, 13, null));
-        list.add(new PhimDTO(2, 2, "Your Name", "01:46", "Makoto Shinkai",
-                2016, 13, null));
+        list.add(new PhimDTO(1, 1, "Avengers: Endgame", 181, "Anthony Russo",
+                2019, 13, "https://picsum.photos/id/1015/800/1200"));
+        list.add(new PhimDTO(2, 2, "Your Name", 106, "Makoto Shinkai",
+                2016, 13, "https://picsum.photos/id/201/800/1200"));
     }
 
     public ArrayList<PhimDTO> getList() {
