@@ -20,6 +20,12 @@ public class PhimDTO {
 
     // Constructor gọn cho các form/UI đang dùng
     public PhimDTO(int maPhim, int maLoaiPhim, String tenPhim, int thoiLuong,
+                   String daoDien, int namSanXuat, String posterURL) {
+        this(maPhim, maLoaiPhim, tenPhim, thoiLuong, daoDien, namSanXuat, 0, posterURL);
+    }
+
+    // Constructor gọn đầy đủ (FormBooking/PhimBUS đang dùng)
+    public PhimDTO(int maPhim, int maLoaiPhim, String tenPhim, int thoiLuong,
                    String daoDien, int namSanXuat, int gioiHanTuoi, String posterURL) {
         this.maPhim = maPhim;
         this.maLoaiPhim = maLoaiPhim;
@@ -34,7 +40,7 @@ public class PhimDTO {
     public PhimDTO(int maPhim, int maLoaiPhim, String tenPhim, int thoiLuong,
                    String daoDien, int namSanXuat, String anhMauPhim,
                    Date ngayKhoiChieu, String trangThai) {
-        this.maPhim = maPhim;
+        this.maPhim = maPhim;   
         this.maLoaiPhim = maLoaiPhim;
         this.tenPhim = tenPhim;
         this.thoiLuong = thoiLuong;

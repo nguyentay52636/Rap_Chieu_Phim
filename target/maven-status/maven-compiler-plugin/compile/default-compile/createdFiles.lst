@@ -22,6 +22,7 @@ org/example/DAO/KhachHangDAO.class
 org/example/BUS/SuatChieuPhimBUS.class
 org/example/GUI/Components/FormAuth/LoginForm$3.class
 org/example/GUI/Components/FormBooking/FormBooking$1.class
+org/example/GUI/Components/FormPhim/Dialog/DialogAddPhim.class
 org/example/GUI/Components/FormCustomer/ViewCustomerDialog.class
 org/example/GUI/Components/FormPhongChieu/FormPhongChieu$1.class
 org/example/GUI/menu/MenuAction.class
@@ -31,6 +32,7 @@ org/example/GUI/menu/PopupSubmenu$MenuLayout.class
 org/example/GUI/Components/FormBooking/FormBooking.class
 org/example/GUI/Components/FormProduct/EditProductDialog.class
 org/example/GUI/Components/FormEmployee/FormEmployee$2.class
+org/example/GUI/Components/FormPhim/Dialog/DialogEditPhim.class
 org/example/DTO/VeDTO.class
 org/example/GUI/menu/MenuItem.class
 org/example/GUI/Components/FormProduct/FormProduct$1.class

@@ -10,6 +10,9 @@ import javax.imageio.ImageIO;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.example.GUI.Components.FormPhim.Dialog.DialogAddPhim;
+import org.example.GUI.Components.FormPhim.Dialog.DialogEditPhim;
+
 public class FormPhim extends JPanel {
 
     private DefaultTableModel tableModel;
@@ -18,7 +21,6 @@ public class FormPhim extends JPanel {
     private JTextField txtSearch;
     private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimKiem;
 
-    // Chỉ dùng để preview poster (demo)
     private final Map<Integer, String> posterMap = new HashMap<>();
     private int nextMaPhim = 6;
 
@@ -111,7 +113,6 @@ public class FormPhim extends JPanel {
         btnXoa    = createStyledButton("Xóa", new Color(220, 53, 69), Color.WHITE);
         btnLamMoi = createStyledButton("Làm mới", new Color(108, 117, 125), Color.WHITE);
 
-        // Icon giống FormProduct
         btnThem.setIcon(loadImageIcon("/org/example/GUI/resources/images/plus.png"));
         btnSua.setIcon(loadImageIcon("/org/example/GUI/resources/images/editing.png"));
         btnXoa.setIcon(loadImageIcon("/org/example/GUI/resources/images/bin.png"));
@@ -235,7 +236,25 @@ public class FormPhim extends JPanel {
     }
 
     private void themPhimDialog() {
-        showDialog(null);
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        DialogAddPhim dialog = new DialogAddPhim(owner);
+        dialog.setVisible(true);
+        if (!dialog.isSaved()) {
+            return;
+        }
+
+        Object[] rowData = {
+                nextMaPhim++,
+                dialog.getTenPhim(),
+                dialog.getTheLoai(),
+                dialog.getThoiLuongPhutText() + " phút",
+                dialog.getDaoDien(),
+                Integer.parseInt(dialog.getNamSanXuatText()),
+                dialog.getNgayKhoiChieu(),
+                dialog.getTrangThai()
+        };
+        tableModel.addRow(rowData);
+        posterMap.put((Integer) rowData[0], dialog.getPosterUrl());
     }
 
     private void suaPhimDialog() {
@@ -244,100 +263,33 @@ public class FormPhim extends JPanel {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn một phim để sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        showDialog(row);
-    }
+        int modelRow = table.convertRowIndexToModel(row);
+        int maPhim = (Integer) tableModel.getValueAt(modelRow, 0);
 
-    private void showDialog(Integer editRow) {
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
-                editRow == null ? "➕ Thêm Phim Mới" : "✏️ Sửa Phim", true);
-        dialog.setSize(580, 720);
-        dialog.setLocationRelativeTo(this);
-        dialog.getContentPane().setBackground(new Color(15, 23, 42));
+        String tenPhim = String.valueOf(tableModel.getValueAt(modelRow, 1));
+        String theLoai = String.valueOf(tableModel.getValueAt(modelRow, 2));
+        String thoiLuongText = String.valueOf(tableModel.getValueAt(modelRow, 3)).replace(" phút", "").trim();
+        String daoDien = String.valueOf(tableModel.getValueAt(modelRow, 4));
+        String namText = String.valueOf(tableModel.getValueAt(modelRow, 5));
+        String ngayKC = String.valueOf(tableModel.getValueAt(modelRow, 6));
+        String trangThai = String.valueOf(tableModel.getValueAt(modelRow, 7));
+        String posterUrl = posterMap.getOrDefault(maPhim, "");
 
-        JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(new Color(15, 23, 42));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(12, 25, 12, 25);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        JTextField ten = new JTextField(30);
-        JComboBox<String> theLoai = new JComboBox<>(new String[]{"Hành động", "Tình cảm", "Kinh dị", "Hài hước", "Khoa học viễn tưởng"});
-        JTextField thoiLuong = new JTextField();
-        JTextField daoDien = new JTextField();
-        JTextField nam = new JTextField();
-        JTextField ngayKC = new JTextField();
-        JComboBox<String> trangThai = new JComboBox<>(new String[]{"Đang chiếu", "Sắp chiếu", "Ngừng chiếu"});
-        JTextField posterUrl = new JTextField();
-
-        if (editRow != null) {
-            ten.setText((String) tableModel.getValueAt(editRow, 1));
-            theLoai.setSelectedItem(tableModel.getValueAt(editRow, 2));
-            thoiLuong.setText(((String) tableModel.getValueAt(editRow, 3)).replace(" phút", ""));
-            daoDien.setText((String) tableModel.getValueAt(editRow, 4));
-            nam.setText(tableModel.getValueAt(editRow, 5).toString());
-            ngayKC.setText((String) tableModel.getValueAt(editRow, 6));
-            trangThai.setSelectedItem(tableModel.getValueAt(editRow, 7));
-            posterUrl.setText(posterMap.getOrDefault((Integer) tableModel.getValueAt(editRow, 0), ""));
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        DialogEditPhim dialog = new DialogEditPhim(owner, tenPhim, theLoai, thoiLuongText, daoDien, namText, ngayKC, trangThai, posterUrl);
+        dialog.setVisible(true);
+        if (!dialog.isSaved()) {
+            return;
         }
 
-        addFormRow(form, gbc, 0, "Tên phim:", ten);
-        addFormRow(form, gbc, 1, "Thể loại:", theLoai);
-        addFormRow(form, gbc, 2, "Thời lượng (phút):", thoiLuong);
-        addFormRow(form, gbc, 3, "Đạo diễn:", daoDien);
-        addFormRow(form, gbc, 4, "Năm sản xuất:", nam);
-        addFormRow(form, gbc, 5, "Ngày khởi chiếu:", ngayKC);
-        addFormRow(form, gbc, 6, "Trạng thái:", trangThai);
-        addFormRow(form, gbc, 7, "URL Poster:", posterUrl);
-
-        JButton luu = createStyledButton("💾 LƯU PHIM", new Color(40, 167, 69), Color.WHITE);
-        gbc.gridy = 8; gbc.gridwidth = 2;
-        form.add(luu, gbc);
-
-        dialog.add(form);
-
-        luu.addActionListener(e -> {
-            try {
-                if (editRow == null) {
-                    Object[] rowData = {
-                            nextMaPhim++,
-                            ten.getText().trim(),
-                            theLoai.getSelectedItem(),
-                            thoiLuong.getText() + " phút",
-                            daoDien.getText(),
-                            Integer.parseInt(nam.getText()),
-                            ngayKC.getText(),
-                            trangThai.getSelectedItem()
-                    };
-                    tableModel.addRow(rowData);
-                    posterMap.put((Integer) rowData[0], posterUrl.getText());
-                } else {
-                    tableModel.setValueAt(ten.getText().trim(), editRow, 1);
-                    tableModel.setValueAt(theLoai.getSelectedItem(), editRow, 2);
-                    tableModel.setValueAt(thoiLuong.getText() + " phút", editRow, 3);
-                    tableModel.setValueAt(daoDien.getText(), editRow, 4);
-                    tableModel.setValueAt(Integer.parseInt(nam.getText()), editRow, 5);
-                    tableModel.setValueAt(ngayKC.getText(), editRow, 6);
-                    tableModel.setValueAt(trangThai.getSelectedItem(), editRow, 7);
-                    posterMap.put((Integer) tableModel.getValueAt(editRow, 0), posterUrl.getText());
-                }
-                dialog.dispose();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, "Vui lòng kiểm tra dữ liệu nhập!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        dialog.setVisible(true);
-    }
-
-    private void addFormRow(JPanel p, GridBagConstraints gbc, int y, String label, JComponent comp) {
-        gbc.gridx = 0; gbc.gridy = y; gbc.gridwidth = 1;
-        JLabel lbl = new JLabel(label);
-        lbl.setForeground(Color.WHITE);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        p.add(lbl, gbc);
-
-        gbc.gridx = 1;
-        p.add(comp, gbc);
+        tableModel.setValueAt(dialog.getTenPhim(), modelRow, 1);
+        tableModel.setValueAt(dialog.getTheLoai(), modelRow, 2);
+        tableModel.setValueAt(dialog.getThoiLuongPhutText() + " phút", modelRow, 3);
+        tableModel.setValueAt(dialog.getDaoDien(), modelRow, 4);
+        tableModel.setValueAt(Integer.parseInt(dialog.getNamSanXuatText()), modelRow, 5);
+        tableModel.setValueAt(dialog.getNgayKhoiChieu(), modelRow, 6);
+        tableModel.setValueAt(dialog.getTrangThai(), modelRow, 7);
+        posterMap.put(maPhim, dialog.getPosterUrl());
     }
 
     private void xoaPhim() {
