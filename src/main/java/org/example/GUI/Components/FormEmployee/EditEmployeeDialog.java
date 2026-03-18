@@ -9,11 +9,11 @@ import org.example.BUS.EmployeeBUS;
 import org.example.DTO.EmployeeDTO;
 
 public class EditEmployeeDialog extends JDialog {
-    private JTextField txtMaNV, txtName, txtDob, txtJoinDate, txtSalary;
+    private JTextField txtName, txtDob, txtJoinDate, txtSalary;
     private JButton btnSave, btnCancel;
     private EmployeeBUS employeeBUS;
     private FormEmployee parent;
-    private EmployeeDTO currentEmp;
+    private EmployeeDTO currentEmp; // Giữ thông tin nhân viên đang sửa
 
     public EditEmployeeDialog(FormEmployee parent, EmployeeBUS bus, EmployeeDTO emp) {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "CẬP NHẬT NHÂN VIÊN", true);
@@ -22,100 +22,138 @@ public class EditEmployeeDialog extends JDialog {
         this.currentEmp = emp;
         
         setLayout(new BorderLayout());
-        setSize(450, 550);
+        setSize(450, 500); 
         setLocationRelativeTo(parent);
         
         initComponents();
-        fillData(); // Đổ dữ liệu cũ vào form
+        loadDataToForm(); // Load dữ liệu cũ lên form
         initEvents();
     }
 
     private void initComponents() {
-        // --- HEADER ---
+        // --- PANEL TIÊU ĐỀ ---
         JPanel pnlHeader = new JPanel();
-        pnlHeader.setBackground(new Color(240, 173, 78)); // Màu vàng cam cho nút Sửa
-        JLabel lblTitle = new JLabel("CHỈNH SỬA THÔNG TIN");
+        pnlHeader.setBackground(new Color(240, 173, 78)); // Màu cam cho hành động Sửa
+        JLabel lblTitle = new JLabel("SỬA THÔNG TIN NHÂN VIÊN");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblTitle.setForeground(Color.WHITE);
         lblTitle.setBorder(new EmptyBorder(15, 0, 15, 0));
         pnlHeader.add(lblTitle);
         add(pnlHeader, BorderLayout.NORTH);
 
-        // --- CONTENT ---
-        JPanel pnlContent = new JPanel(new GridLayout(5, 1, 10, 10));
-        pnlContent.setBorder(new EmptyBorder(20, 40, 20, 40));
+        // --- PANEL NHẬP LIỆU ---
+        JPanel pnlContent = new JPanel(new GridLayout(4, 1, 15, 15));
+        pnlContent.setBorder(new EmptyBorder(25, 40, 25, 40));
         pnlContent.setBackground(Color.WHITE);
 
-        txtMaNV = new JTextField();
-        txtMaNV.setEditable(false); // Khóa không cho sửa mã
-        txtMaNV.setBackground(new Color(240, 240, 240));
-        
-        txtName = createField("Họ và Tên...");
-        txtDob = createField("yyyy-MM-dd");
-        txtJoinDate = createField("yyyy-MM-dd");
-        txtSalary = createField("Mức lương...");
+        txtName = createModernField("Họ và Tên", "Nhập tên nhân viên...");
+        txtDob = createModernField("Ngày Sinh", "yyyy-MM-dd");
+        txtJoinDate = createModernField("Ngày Vào Làm", "yyyy-MM-dd");
+        txtSalary = createModernField("Lương Cơ Bản", "Nhập số tiền lương...");
 
-        pnlContent.add(createWrapper("Mã nhân viên (Không được sửa):", txtMaNV));
-        pnlContent.add(createWrapper("Họ và Tên:", txtName));
-        pnlContent.add(createWrapper("Ngày sinh:", txtDob));
-        pnlContent.add(createWrapper("Ngày vào làm:", txtJoinDate));
-        pnlContent.add(createWrapper("Lương cơ bản:", txtSalary));
+        pnlContent.add(createFieldWrapper("Họ và Tên nhân viên:", txtName));
+        pnlContent.add(createFieldWrapper("Ngày sinh (Năm-Tháng-Ngày):", txtDob));
+        pnlContent.add(createFieldWrapper("Ngày vào làm (Năm-Tháng-Ngày):", txtJoinDate));
+        pnlContent.add(createFieldWrapper("Mức lương cơ bản (VNĐ):", txtSalary));
 
         add(pnlContent, BorderLayout.CENTER);
 
-        // --- BUTTONS ---
+        // --- PANEL NÚT BẤM ---
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
-        btnCancel = new JButton("Hủy");
+        pnlButtons.setBackground(new Color(248, 249, 250));
+        
+        btnCancel = new JButton("Hủy bỏ");
+        btnCancel.putClientProperty(FlatClientProperties.STYLE, "arc:10; background:#6c757d; foreground:#ffffff");
+        btnCancel.setPreferredSize(new Dimension(100, 40));
+
         btnSave = new JButton("Lưu thay đổi");
-        btnSave.setBackground(new Color(240, 173, 78));
-        btnSave.setForeground(Color.WHITE);
+        btnSave.putClientProperty(FlatClientProperties.STYLE, "arc:10; background:#28a745; foreground:#ffffff");
+        btnSave.setPreferredSize(new Dimension(150, 40));
+        btnSave.setFont(new Font("Segoe UI", Font.BOLD, 14));
         
         pnlButtons.add(btnCancel);
         pnlButtons.add(btnSave);
         add(pnlButtons, BorderLayout.SOUTH);
     }
 
-    private void fillData() {
-        txtMaNV.setText(String.valueOf(currentEmp.getMaNV()));
-        txtName.setText(currentEmp.getHoTen());
-        txtDob.setText(currentEmp.getNgaySinh().toString());
-        txtJoinDate.setText(currentEmp.getNgayVaoLam().toString());
-        txtSalary.setText(String.valueOf(currentEmp.getLuongCoBan()));
+    private JTextField createModernField(String title, String placeholder) {
+        JTextField txt = new JTextField();
+        txt.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
+        txt.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:2");
+        return txt;
     }
 
-    private JTextField createField(String placeholder) {
-        JTextField t = new JTextField();
-        t.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
-        t.putClientProperty(FlatClientProperties.STYLE, "arc:8");
-        return t;
+    private JPanel createFieldWrapper(String labelText, JTextField field) {
+        JPanel pnl = new JPanel(new BorderLayout(5, 5));
+        pnl.setBackground(Color.WHITE);
+        JLabel lbl = new JLabel(labelText);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        pnl.add(lbl, BorderLayout.NORTH);
+        pnl.add(field, BorderLayout.CENTER);
+        return pnl;
     }
 
-    private JPanel createWrapper(String label, JTextField field) {
-        JPanel p = new JPanel(new BorderLayout(5, 2));
-        p.setBackground(Color.WHITE);
-        JLabel l = new JLabel(label);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        p.add(l, BorderLayout.NORTH);
-        p.add(field, BorderLayout.CENTER);
-        return p;
+    // --- HÀM LOAD DỮ LIỆU CŨ LÊN FORM ---
+    private void loadDataToForm() {
+        if (currentEmp != null) {
+            txtName.setText(currentEmp.getHoTen());
+            txtDob.setText(currentEmp.getNgaySinh() != null ? currentEmp.getNgaySinh().toString() : "");
+            txtJoinDate.setText(currentEmp.getNgayVaoLam() != null ? currentEmp.getNgayVaoLam().toString() : "");
+            // Bỏ phần thập phân .0 khi hiển thị lương
+            txtSalary.setText(String.format("%.0f", currentEmp.getLuongCoBan())); 
+        }
     }
 
     private void initEvents() {
         btnCancel.addActionListener(e -> dispose());
+
         btnSave.addActionListener(e -> {
             try {
-                currentEmp.setHoTen(txtName.getText().trim());
-                currentEmp.setNgaySinh(Date.valueOf(txtDob.getText().trim()));
-                currentEmp.setNgayVaoLam(Date.valueOf(txtJoinDate.getText().trim()));
-                currentEmp.setLuongCoBan(Double.parseDouble(txtSalary.getText().trim()));
+                String name = txtName.getText().trim();
+                if (name.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
 
-                if (employeeBUS.suaNhanVien(currentEmp)) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                Date dob = Date.valueOf(txtDob.getText().trim());
+                Date joinDate = Date.valueOf(txtJoinDate.getText().trim());
+                
+                double salary;
+                try {
+                    salary = Double.parseDouble(txtSalary.getText().trim());
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Lương cơ bản phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                // Cập nhật thông tin vào đối tượng hiện tại (Giữ nguyên Mã NV)
+                currentEmp.setHoTen(name);
+                currentEmp.setNgaySinh(dob);
+                currentEmp.setNgayVaoLam(joinDate);
+                currentEmp.setLuongCoBan(salary);
+                
+                // GỌI BUS ĐỂ KIỂM TRA LOGIC VÀ LƯU
+                if (employeeBUS.suaNhanVien(currentEmp)) { 
+                    JOptionPane.showMessageDialog(this, "Cập nhật thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                     parent.loadDataToTable();
                     dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this, 
+                        "Dữ liệu không hợp lệ! Vui lòng kiểm tra lại:\n" +
+                        "- Mức lương phải lớn hơn hoặc bằng 0.\n" +
+                        "- Ngày vào làm phải sau ngày sinh.\n" +
+                        "- Độ tuổi lao động phải từ 15 tuổi trở lên.", 
+                        "Từ chối lưu dữ liệu", 
+                        JOptionPane.ERROR_MESSAGE);
                 }
+
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, 
+                    "Sai định dạng ngày tháng!\nVui lòng nhập theo mẫu: Năm-Tháng-Ngày (VD: 2000-01-25)", 
+                    "Lỗi định dạng", 
+                    JOptionPane.WARNING_MESSAGE);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi dữ liệu: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
             }
         });
     }
