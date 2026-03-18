@@ -6,6 +6,7 @@ import org.example.DTO.PhimDTO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 public class PhimBUS {
 
     private final List<PhimDTO> list = new ArrayList<>();
@@ -72,6 +73,70 @@ public class PhimBUS {
         ArrayList<Integer> result = new ArrayList<>();
         result.add(1);
         result.add(2);
+        return result;
+    }
+
+    // Tìm kiếm phim theo keyword + loại tiêu chí (Tất cả, Mã phim, Tên phim, Đạo diễn, Năm sản xuất, Thể loại, Trạng thái)
+    public ArrayList<PhimDTO> search(String keyword, String type) {
+        ArrayList<PhimDTO> result = new ArrayList<>();
+        if (keyword == null) {
+            return new ArrayList<>(list);
+        }
+        String kw = keyword.trim().toLowerCase();
+        if (kw.isEmpty()) {
+            return new ArrayList<>(list);
+        }
+
+        for (PhimDTO p : list) {
+            String maPhimStr = String.valueOf(p.getMaPhim());
+            String maLoaiStr = String.valueOf(p.getMaTheLoaiPhim());
+            String ten = p.getTenPhim() != null ? p.getTenPhim() : "";
+            String daoDien = p.getDaoDien() != null ? p.getDaoDien() : "";
+            String namSXStr = String.valueOf(p.getNamSanXuat());
+            String trangThai = p.getTrangThai() != null ? p.getTrangThai() : "";
+
+            switch (type) {
+                case "Mã phim" -> {
+                    if (maPhimStr.toLowerCase().contains(kw)) result.add(p);
+                }
+                case "Tên phim" -> {
+                    if (ten.toLowerCase().contains(kw)) result.add(p);
+                }
+                case "Đạo diễn" -> {
+                    if (daoDien.toLowerCase().contains(kw)) result.add(p);
+                }
+                case "Năm sản xuất" -> {
+                    if (namSXStr.toLowerCase().contains(kw)) result.add(p);
+                }
+                case "Thể loại" -> {
+                    if (maLoaiStr.toLowerCase().contains(kw)) result.add(p);
+                }
+                case "Trạng thái" -> {
+                    if (trangThai.toLowerCase().contains(kw)) result.add(p);
+                }
+                case "Tất cả" -> {
+                    if (maPhimStr.toLowerCase().contains(kw)
+                            || maLoaiStr.toLowerCase().contains(kw)
+                            || ten.toLowerCase().contains(kw)
+                            || daoDien.toLowerCase().contains(kw)
+                            || namSXStr.toLowerCase().contains(kw)
+                            || trangThai.toLowerCase().contains(kw)) {
+                        result.add(p);
+                    }
+                }
+                default -> {
+                    // mặc định coi như "Tất cả"
+                    if (maPhimStr.toLowerCase().contains(kw)
+                            || maLoaiStr.toLowerCase().contains(kw)
+                            || ten.toLowerCase().contains(kw)
+                            || daoDien.toLowerCase().contains(kw)
+                            || namSXStr.toLowerCase().contains(kw)
+                            || trangThai.toLowerCase().contains(kw)) {
+                        result.add(p);
+                    }
+                }
+            }
+        }
         return result;
     }
 

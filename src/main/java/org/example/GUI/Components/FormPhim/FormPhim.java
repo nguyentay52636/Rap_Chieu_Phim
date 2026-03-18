@@ -228,21 +228,22 @@ public class FormPhim extends JPanel {
             return;
         }
 
+        // Tìm kiếm qua BUS (trên tất cả các trường chính)
+        java.util.ArrayList<PhimDTO> found = phimBUS.search(key, "Tất cả");
         tableModel.setRowCount(0);
-        for (PhimDTO p : listPhim) {
-            String combined = (p.getTenPhim() + " " + p.getDaoDien()).toLowerCase();
-            if (combined.contains(key)) {
-                tableModel.addRow(new Object[]{
-                        p.getMaPhim(),
-                        p.getTenPhim(),
-                        p.getMaTheLoaiPhim(),
-                        p.getThoiLuong() + " phút",
-                        p.getDaoDien(),
-                        p.getNamSanXuat(),
-                        p.getNgayKhoiChieu(),
-                        p.getTrangThai()
-                });
-            }
+        posterMap.clear();
+        for (PhimDTO p : found) {
+            tableModel.addRow(new Object[]{
+                    p.getMaPhim(),
+                    p.getTenPhim(),
+                    p.getMaTheLoaiPhim(),
+                    p.getThoiLuong() + " phút",
+                    p.getDaoDien(),
+                    p.getNamSanXuat(),
+                    p.getNgayKhoiChieu(),
+                    p.getTrangThai()
+            });
+            posterMap.put(p.getMaPhim(), p.getPosterURL());
         }
     }
 
