@@ -59,9 +59,6 @@ public class ChiTietPhimDialog extends JDialog {
         JLabel lblNamSX = createStyledLabel("Năm sản xuất:", labelFont);
         JTextField txtNamSX = createStyledTextField(String.valueOf(phim.getNamSanXuat()), textFont);
 
-        JLabel lblGioiHanTuoi = createStyledLabel("Giới hạn tuổi:", labelFont);
-        JTextField txtGioiHanTuoi = createStyledTextField(String.valueOf(phim.getGioiHanTuoi()), textFont);
-
         JLabel lblPoster = createStyledLabel("Poster:", labelFont);
         JLabel imgPoster = new JLabel();
         if (phim.getPosterURL() != null) {
@@ -76,8 +73,6 @@ public class ChiTietPhimDialog extends JDialog {
         panel.add(txtDaoDien);
         panel.add(lblNamSX);
         panel.add(txtNamSX);
-        panel.add(lblGioiHanTuoi);
-        panel.add(txtGioiHanTuoi);
         panel.add(lblPoster);
         panel.add(imgPoster);
 

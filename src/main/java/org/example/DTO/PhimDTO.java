@@ -13,27 +13,19 @@ public class PhimDTO {
     private String anhMauPhim;
     private Date ngayKhoiChieu;
     private String trangThai;
-    private int gioiHanTuoi;
 
     public PhimDTO() {
     }
 
-    // Constructor gọn cho các form/UI đang dùng
+    // Constructor gọn cho các form/UI đang dùng (không dùng NgàyKC & Trạng thái)
     public PhimDTO(int maPhim, int maLoaiPhim, String tenPhim, int thoiLuong,
                    String daoDien, int namSanXuat, String posterURL) {
-        this(maPhim, maLoaiPhim, tenPhim, thoiLuong, daoDien, namSanXuat, 0, posterURL);
-    }
-
-    // Constructor gọn đầy đủ (FormBooking/PhimBUS đang dùng)
-    public PhimDTO(int maPhim, int maLoaiPhim, String tenPhim, int thoiLuong,
-                   String daoDien, int namSanXuat, int gioiHanTuoi, String posterURL) {
         this.maPhim = maPhim;
         this.maLoaiPhim = maLoaiPhim;
         this.tenPhim = tenPhim;
         this.thoiLuong = thoiLuong;
         this.daoDien = daoDien;
         this.namSanXuat = namSanXuat;
-        this.gioiHanTuoi = gioiHanTuoi;
         this.anhMauPhim = posterURL;
     }
 
@@ -66,14 +58,6 @@ public class PhimDTO {
 
     public void setPosterURL(String posterURL) {
         this.anhMauPhim = posterURL;
-    }
-
-    public int getGioiHanTuoi() {
-        return gioiHanTuoi;
-    }
-
-    public void setGioiHanTuoi(int gioiHanTuoi) {
-        this.gioiHanTuoi = gioiHanTuoi;
     }
 
     public int getMaPhim() {

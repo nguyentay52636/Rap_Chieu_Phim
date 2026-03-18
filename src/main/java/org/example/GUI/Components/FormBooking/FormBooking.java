@@ -140,7 +140,6 @@ public class FormBooking extends JPanel {
         modelPhim.addColumn("Thời Lượng");
         modelPhim.addColumn("Đạo Diễn");
         modelPhim.addColumn("Năm Sản Xuất");
-        modelPhim.addColumn("Giới Hạn Tuổi");
 
         loadDanhSachPhim();
         tablePhim.setModel(modelPhim);
@@ -205,8 +204,7 @@ public class FormBooking extends JPanel {
                     phim.getTenPhim(),
                     phim.getThoiLuong(),
                     phim.getDaoDien(),
-                    phim.getNamSanXuat(),
-                    phim.getGioiHanTuoi()
+                    phim.getNamSanXuat()
             };
             modelPhim.addRow(row);
         }

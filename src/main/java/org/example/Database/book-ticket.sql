@@ -228,4 +228,15 @@ INSERT INTO ChiTietHoaDonSanPham (MaHoaDon, MaSanPham, SoLuong, DonGia, ThanhTie
 (3, 1, 1, 45000, 45000),
 (4, 4, 1, 35000, 35000),
 (5, 2, 1, 25000, 25000),
-(1, 5, 2, 15000, 30000);   -- Hóa đơn 1 mua thêm 2 nước suối
+(1, 5, 2, 15000, 30000);  
+INSERT INTO Phim (MaLoaiPhim, TenPhim, ThoiLuong, DaoDien, NamSanXuat, AnhMauPhim, NgayKhoiChieu, TrangThai)
+VALUES
+(1, 'Avengers: Endgame', 181, 'Anh em nhà Russo', 2019, 'https://picsum.photos/id/1015/800/1200', '2025-12-01', 'DangChieu'),
+
+(2, 'Titanic', 195, 'James Cameron', 1997, 'https://picsum.photos/id/201/800/1200', '2026-01-15', 'DangChieu'),
+
+(3, 'The Conjuring', 112, 'James Wan', 2013, 'https://picsum.photos/id/301/800/1200', '2026-02-20', 'DangChieu'),
+
+(4, 'Deadpool & Wolverine', 128, 'Shawn Levy', 2024, 'https://picsum.photos/id/401/800/1200', '2025-07-10', 'DangChieu'),
+
+(5, 'Dune: Part Two', 166, 'Denis Villeneuve', 2024, 'https://picsum.photos/id/501/800/1200', '2026-03-01', 'DangChieu');

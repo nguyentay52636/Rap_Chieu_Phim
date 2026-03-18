@@ -12,6 +12,9 @@ import java.util.Map;
 
 import org.example.GUI.Components.FormPhim.Dialog.DialogAddPhim;
 import org.example.GUI.Components.FormPhim.Dialog.DialogEditPhim;
+import org.example.BUS.PhimBUS;
+import org.example.DTO.PhimDTO;
+import java.util.List;
 
 public class FormPhim extends JPanel {
 
@@ -23,6 +26,8 @@ public class FormPhim extends JPanel {
 
     private final Map<Integer, String> posterMap = new HashMap<>();
     private int nextMaPhim = 6;
+    private final PhimBUS phimBUS = new PhimBUS();
+    private List<PhimDTO> listPhim;
 
     public FormPhim() {
         setBackground(new Color(245, 245, 250));
@@ -132,8 +137,8 @@ public class FormPhim extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
         add(posterPanel, BorderLayout.EAST);
 
-        // ==================== DỮ LIỆU DEMO ====================
-        loadDemoData();
+        // ==================== DỮ LIỆU TỪ BUS/DAO ====================
+        loadFromBus();
 
         // ==================== SỰ KIỆN ====================
         table.getSelectionModel().addListSelectionListener(e -> {
@@ -146,7 +151,7 @@ public class FormPhim extends JPanel {
         btnThem.addActionListener(e -> themPhimDialog());
         btnSua.addActionListener(e -> suaPhimDialog());
         btnXoa.addActionListener(e -> xoaPhim());
-        btnLamMoi.addActionListener(e -> loadDemoData());
+        btnLamMoi.addActionListener(e -> loadFromBus());
 
         table.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -174,23 +179,24 @@ public class FormPhim extends JPanel {
         return null;
     }
 
-    private void loadDemoData() {
+    private void loadFromBus() {
         tableModel.setRowCount(0);
         posterMap.clear();
-
-        Object[][] data = {
-            {1, "Avengers: Endgame", "Hành động", "181 phút", "Anh em nhà Russo", 2019, "2025-12-01", "Đang chiếu", "https://picsum.photos/id/1015/800/1200"},
-            {2, "Titanic", "Tình cảm", "195 phút", "James Cameron", 1997, "2026-01-15", "Đang chiếu", "https://picsum.photos/id/201/800/1200"},
-            {3, "The Conjuring", "Kinh dị", "112 phút", "James Wan", 2013, "2026-02-20", "Đang chiếu", "https://picsum.photos/id/301/800/1200"},
-            {4, "Deadpool & Wolverine", "Hài hước", "128 phút", "Shawn Levy", 2024, "2025-07-10", "Đang chiếu", "https://picsum.photos/id/401/800/1200"},
-            {5, "Dune: Part Two", "Khoa học viễn tưởng", "166 phút", "Denis Villeneuve", 2024, "2026-03-01", "Đang chiếu", "https://picsum.photos/id/501/800/1200"}
-        };
-
-        for (Object[] row : data) {
-            tableModel.addRow(new Object[]{row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]});
-            posterMap.put((Integer) row[0], (String) row[8]);
+        listPhim = phimBUS.getList();
+        for (PhimDTO p : listPhim) {
+            tableModel.addRow(new Object[]{
+                    p.getMaPhim(),
+                    p.getTenPhim(),
+                    p.getMaTheLoaiPhim(),        // tạm hiển thị mã thể loại
+                    p.getThoiLuong() + " phút",
+                    p.getDaoDien(),
+                    p.getNamSanXuat(),
+                    p.getNgayKhoiChieu(),
+                    p.getTrangThai()
+            });
+            posterMap.put(p.getMaPhim(), p.getPosterURL());
         }
-        nextMaPhim = 6;
+        nextMaPhim = listPhim.stream().mapToInt(PhimDTO::getMaPhim).max().orElse(0) + 1;
     }
 
     private void showPoster() {
@@ -218,20 +224,25 @@ public class FormPhim extends JPanel {
     private void timKiem() {
         String key = txtSearch.getText().trim().toLowerCase();
         if (key.isEmpty()) {
-            loadDemoData();
+            loadFromBus();
             return;
         }
 
-        // Lọc trực tiếp trên bảng
-        for (int i = tableModel.getRowCount() - 1; i >= 0; i--) {
-            boolean match = false;
-            for (int c = 1; c < 8; c++) {
-                if (tableModel.getValueAt(i, c).toString().toLowerCase().contains(key)) {
-                    match = true;
-                    break;
-                }
+        tableModel.setRowCount(0);
+        for (PhimDTO p : listPhim) {
+            String combined = (p.getTenPhim() + " " + p.getDaoDien()).toLowerCase();
+            if (combined.contains(key)) {
+                tableModel.addRow(new Object[]{
+                        p.getMaPhim(),
+                        p.getTenPhim(),
+                        p.getMaTheLoaiPhim(),
+                        p.getThoiLuong() + " phút",
+                        p.getDaoDien(),
+                        p.getNamSanXuat(),
+                        p.getNgayKhoiChieu(),
+                        p.getTrangThai()
+                });
             }
-            if (!match) tableModel.removeRow(i);
         }
     }
 
@@ -243,13 +254,16 @@ public class FormPhim extends JPanel {
             return;
         }
 
+        Integer thoiLuong = dialog.getThoiLuong();
+        Integer namSX = dialog.getNamSanXuat();
+
         Object[] rowData = {
                 nextMaPhim++,
                 dialog.getTenPhim(),
                 dialog.getTheLoai(),
-                dialog.getThoiLuongPhutText() + " phút",
+                (thoiLuong != null ? thoiLuong : 0) + " phút",
                 dialog.getDaoDien(),
-                Integer.parseInt(dialog.getNamSanXuatText()),
+                namSX != null ? namSX : 0,
                 dialog.getNgayKhoiChieu(),
                 dialog.getTrangThai()
         };

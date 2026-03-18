@@ -39,11 +39,9 @@ org/example/GUI/Components/FormProduct/FormProduct$1.class
 org/example/GUI/Components/FormBooking/components/DatVeDialog.class
 org/example/GUI/menu/mode/LightDarkMode$LightDarkModeLayout.class
 org/example/BUS/SanPhamBUS.class
-org/example/GUI/Components/FormPhim/FormPhim$2.class
 org/example/Connection/UtilsJDBC.class
 org/example/GUI/Components/FormCustomer/FormCustomer$7.class
 org/example/GUI/Components/FormEmployee/FormEmployee.class
-org/example/GUI/Components/FormPhim/FormPhim$1.class
 org/example/GUI/menu/Menu.class
 org/example/DTO/SuatChieuPhimDTO.class
 org/example/GUI/Components/FormCustomer/AdvancedSearchCustomerDialog.class
@@ -97,5 +95,4 @@ org/example/GUI/Components/FormProduct/FormProduct.class
 org/example/GUI/Components/FormAuth/LoginForm.class
 org/example/GUI/Application/other/BeginForm.class
 org/example/GUI/Components/PhongChieu/Form/FormChiTietPhongChieu.class
-org/example/GUI/Components/FormPhim/FormPhim.class
 org/example/GUI/menu/mode/LightDarkMode.class

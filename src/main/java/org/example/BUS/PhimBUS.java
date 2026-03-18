@@ -1,27 +1,18 @@
 package org.example.BUS;
 
+import org.example.DAO.PhimDAO;
 import org.example.DTO.PhimDTO;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
-
-/**
- * Stub implementation using in-memory data so that FormBooking can run
- * without a real database. Replace with JDBC logic later.
- */
 public class PhimBUS {
 
     private final List<PhimDTO> list = new ArrayList<>();
-    private int nextId = 3;
+    private final PhimDAO phimDAO = new PhimDAO();
 
     public PhimBUS() {
-        // Dữ liệu mẫu
-        list.add(new PhimDTO(1, 1, "Avengers: Endgame", 181, "Anthony Russo",
-                2019, 13, "https://picsum.photos/id/1015/800/1200"));
-        list.add(new PhimDTO(2, 2, "Your Name", 106, "Makoto Shinkai",
-                2016, 13, "https://picsum.photos/id/201/800/1200"));
+        list.addAll(phimDAO.selectAll());
     }
 
     public ArrayList<PhimDTO> getList() {
@@ -40,7 +31,6 @@ public class PhimBUS {
         if (theLoai == null || theLoai.equals("Tất cả")) {
             return new ArrayList<>(list);
         }
-        // Ở đây chỉ lọc đơn giản theo mã thể loại
         int maTheLoai = theLoai.equals("Hành động") ? 1 : 2;
         return list.stream()
                 .filter(p -> p.getMaTheLoaiPhim() == maTheLoai)
@@ -86,10 +76,7 @@ public class PhimBUS {
     }
 
     public void add(PhimDTO phim) {
-        PhimDTO stored = new PhimDTO(nextId++, phim.getMaTheLoaiPhim(), phim.getTenPhim(),
-                phim.getThoiLuong(), phim.getDaoDien(), phim.getNamSanXuat(),
-                phim.getGioiHanTuoi(), phim.getPosterURL());
-        list.add(stored);
+        list.add(phim);
     }
 
     public void delete(int maPhim) {

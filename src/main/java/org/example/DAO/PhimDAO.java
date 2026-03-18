@@ -13,7 +13,7 @@ public class PhimDAO {
 
     public ArrayList<PhimDTO> selectAll() {
         ArrayList<PhimDTO> list = new ArrayList<>();
-        String sql = "SELECT MaPhim, MaLoaiPhim, TenPhim, ThoiLuong, DaoDien, NamSanXuat, AnhMauPhim FROM Phim";
+        String sql = "SELECT MaPhim, MaLoaiPhim, TenPhim, ThoiLuong, DaoDien, NamSanXuat, AnhMauPhim, NgayKhoiChieu, TrangThai FROM Phim";
 
         try (Connection con = UtilsJDBC.getConnectDB();
              PreparedStatement pst = con.prepareStatement(sql);
@@ -27,8 +27,9 @@ public class PhimDAO {
                         rs.getInt("ThoiLuong"),
                         rs.getString("DaoDien"),
                         rs.getInt("NamSanXuat"),
-                        0,
-                        rs.getString("AnhMauPhim")
+                        rs.getString("AnhMauPhim"),
+                        rs.getDate("NgayKhoiChieu"),
+                        rs.getString("TrangThai")
                 );
                 list.add(phim);
             }
