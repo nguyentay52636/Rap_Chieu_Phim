@@ -30,22 +30,21 @@ public class DialogAddPhim extends JDialog {
         setLocationRelativeTo(getOwner());
         setResizable(false);
 
-getContentPane().setBackground(Color.WHITE);
+        getContentPane().setBackground(Color.WHITE);
 
-
- JPanel mainPanel = new JPanel(new BorderLayout(0, 15));
-mainPanel.setBackground(Color.WHITE);
+        JPanel mainPanel = new JPanel(new BorderLayout(0, 15));
+        mainPanel.setBackground(Color.WHITE);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 30, 30, 30));
 
         JLabel titleLabel = new JLabel("THÊM PHIM MỚI", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLabel.setForeground(new Color(224, 231, 255));
+        titleLabel.setForeground(new Color(33, 37, 41));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
         // Form chính
         JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(new Color(30, 41, 59));
+        form.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -85,11 +84,11 @@ mainPanel.setBackground(Color.WHITE);
     private JTextField createStyledTextField(int columns) {
         JTextField tf = new JTextField(columns);
         tf.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        tf.setBackground(new Color(40, 55, 71));
-        tf.setForeground(Color.WHITE);
-        tf.setCaretColor(Color.WHITE);
+        tf.setBackground(Color.WHITE);
+        tf.setForeground(new Color(33, 37, 41));
+        tf.setCaretColor(new Color(33, 37, 41));
         tf.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(70, 90, 110), 1, true),
+                BorderFactory.createLineBorder(new Color(204, 204, 204), 1, true),
                 BorderFactory.createEmptyBorder(10, 12, 10, 12)
         ));
         return tf;
@@ -98,10 +97,12 @@ mainPanel.setBackground(Color.WHITE);
     private JComboBox<String> createStyledComboBox(String[] items) {
         JComboBox<String> cb = new JComboBox<>(items);
         cb.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        cb.setBackground(new Color(40, 55, 71));
-        cb.setForeground(Color.WHITE);
-        cb.setBorder(BorderFactory.createLineBorder(new Color(70, 90, 110), 1, true));
-        ((JLabel)cb.getRenderer()).setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        cb.setBackground(Color.WHITE);
+        cb.setForeground(new Color(33, 37, 41));
+        cb.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 204), 1, true));
+        if (cb.getRenderer() instanceof JLabel lbl) {
+            lbl.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        }
         return cb;
     }
 
