@@ -1,4 +1,5 @@
 package org.example.GUI.Components.PhongChieu;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
@@ -6,6 +7,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
+
+import org.example.GUI.Components.PhongChieu.Form.FormChiTietPhongChieu;
 
 public class FormPhongChieu extends JPanel {
 

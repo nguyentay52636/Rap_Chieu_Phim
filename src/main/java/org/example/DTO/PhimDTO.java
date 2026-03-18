@@ -1,59 +1,134 @@
 package org.example.DTO;
 
+import java.sql.Date;
+
 public class PhimDTO {
 
     private int maPhim;
-    private int maTheLoaiPhim;
+    private int maLoaiPhim;
     private String tenPhim;
-    private String thoiLuong; // ví dụ \"02:00\"
+    private int thoiLuong;
     private String daoDien;
     private int namSanXuat;
-    private int gioiHanTuoi;
-    private String posterURL;
+    private String anhMauPhim;
+    private Date ngayKhoiChieu;
+    private String trangThai;
 
-    public PhimDTO(int maPhim, int maTheLoaiPhim, String tenPhim,
-                   String thoiLuong, String daoDien, int namSanXuat,
-                   int gioiHanTuoi, String posterURL) {
+    public PhimDTO() {
+    }
+
+    // Constructor gọn cho các form/UI đang dùng (không dùng NgàyKC & Trạng thái)
+    public PhimDTO(int maPhim, int maLoaiPhim, String tenPhim, int thoiLuong,
+                   String daoDien, int namSanXuat, String posterURL) {
         this.maPhim = maPhim;
-        this.maTheLoaiPhim = maTheLoaiPhim;
+        this.maLoaiPhim = maLoaiPhim;
         this.tenPhim = tenPhim;
         this.thoiLuong = thoiLuong;
         this.daoDien = daoDien;
         this.namSanXuat = namSanXuat;
-        this.gioiHanTuoi = gioiHanTuoi;
-        this.posterURL = posterURL;
+        this.anhMauPhim = posterURL;
+    }
+
+    public PhimDTO(int maPhim, int maLoaiPhim, String tenPhim, int thoiLuong,
+                   String daoDien, int namSanXuat, String anhMauPhim,
+                   Date ngayKhoiChieu, String trangThai) {
+        this.maPhim = maPhim;   
+        this.maLoaiPhim = maLoaiPhim;
+        this.tenPhim = tenPhim;
+        this.thoiLuong = thoiLuong;
+        this.daoDien = daoDien;
+        this.namSanXuat = namSanXuat;
+        this.anhMauPhim = anhMauPhim;
+        this.ngayKhoiChieu = ngayKhoiChieu;
+        this.trangThai = trangThai;
+    }
+
+    // Alias để khớp naming trong một số form/BUS cũ
+    public int getMaTheLoaiPhim() {
+        return maLoaiPhim;
+    }
+
+    public void setMaTheLoaiPhim(int maTheLoaiPhim) {
+        this.maLoaiPhim = maTheLoaiPhim;
+    }
+
+    public String getPosterURL() {
+        return anhMauPhim;
+    }
+
+    public void setPosterURL(String posterURL) {
+        this.anhMauPhim = posterURL;
     }
 
     public int getMaPhim() {
         return maPhim;
     }
 
-    public int getMaTheLoaiPhim() {
-        return maTheLoaiPhim;
+    public void setMaPhim(int maPhim) {
+        this.maPhim = maPhim;
+    }
+
+    public int getMaLoaiPhim() {
+        return maLoaiPhim;
+    }
+
+    public void setMaLoaiPhim(int maLoaiPhim) {
+        this.maLoaiPhim = maLoaiPhim;
     }
 
     public String getTenPhim() {
         return tenPhim;
     }
 
-    public String getThoiLuong() {
+    public void setTenPhim(String tenPhim) {
+        this.tenPhim = tenPhim;
+    }
+
+    public int getThoiLuong() {
         return thoiLuong;
+    }
+
+    public void setThoiLuong(int thoiLuong) {
+        this.thoiLuong = thoiLuong;
     }
 
     public String getDaoDien() {
         return daoDien;
     }
 
+    public void setDaoDien(String daoDien) {
+        this.daoDien = daoDien;
+    }
+
     public int getNamSanXuat() {
         return namSanXuat;
     }
 
-    public int getGioiHanTuoi() {
-        return gioiHanTuoi;
+    public void setNamSanXuat(int namSanXuat) {
+        this.namSanXuat = namSanXuat;
     }
 
-    public String getPosterURL() {
-        return posterURL;
+    public String getAnhMauPhim() {
+        return anhMauPhim;
+    }
+
+    public void setAnhMauPhim(String anhMauPhim) {
+        this.anhMauPhim = anhMauPhim;
+    }
+
+    public Date getNgayKhoiChieu() {
+        return ngayKhoiChieu;
+    }
+
+    public void setNgayKhoiChieu(Date ngayKhoiChieu) {
+        this.ngayKhoiChieu = ngayKhoiChieu;
+    }
+
+    public String getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
     }
 }
-

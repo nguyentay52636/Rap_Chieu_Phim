@@ -33,7 +33,6 @@ CREATE TABLE Ghe (
     MaLoaiGhe INT,
     HangGhe CHAR(1),
     SoGhe INT,
-    TrangThai VARCHAR(20) DEFAULT 'Trong',
 
     FOREIGN KEY (MaPhong) REFERENCES PhongChieu(MaPhong),
     FOREIGN KEY (MaLoaiGhe) REFERENCES LoaiGhe(MaLoaiGhe)
@@ -51,15 +50,20 @@ CREATE TABLE Phim (
     NamSanXuat YEAR,
     AnhMauPhim VARCHAR(255),
 
+    NgayKhoiChieu DATE,
+    TrangThai VARCHAR(20) DEFAULT 'DangChieu',
+
     FOREIGN KEY (MaLoaiPhim) REFERENCES TheLoaiPhim(MaLoaiPhim)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 CREATE TABLE SuatChieu (
     MaSuatChieu INT AUTO_INCREMENT PRIMARY KEY,
     MaPhim INT,
     MaPhong INT,
-    GioBatDau DATETIME,
-    GioKetThuc DATETIME,
+    NgayChieu DATE,
+    GioBatDau TIME,
+    GioKetThuc TIME,
     GiaVeGoc INT,
+    TrangThai VARCHAR(20) DEFAULT 'SapChieu',
 
     FOREIGN KEY (MaPhim) REFERENCES Phim(MaPhim),
     FOREIGN KEY (MaPhong) REFERENCES PhongChieu(MaPhong)
@@ -69,8 +73,8 @@ CREATE TABLE Ve (
     MaGhe INT,
     MaSuatChieu INT,
     GiaVe INT,
-    TrangThai VARCHAR(20),
-
+    TrangThai VARCHAR(20) DEFAULT 'Trong',
+    UNIQUE (MaGhe, MaSuatChieu),
     FOREIGN KEY (MaGhe) REFERENCES Ghe(MaGhe),
     FOREIGN KEY (MaSuatChieu) REFERENCES SuatChieu(MaSuatChieu)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -121,132 +125,118 @@ CREATE TABLE ChiTietHoaDonSanPham (
 
 USE bookticket;
 
--- =============================================
--- 1. KhachHang - 5 dòng dữ liệu mẫu
--- =============================================
+
+-- 1. Bảng KhachHang
 INSERT INTO KhachHang (HoTen, SDT, NgaySinh, DiemTichLuy, HangThanhVien) VALUES
-('Nguyễn Văn An', '0901234567', '1990-05-15', 250, 'Thành viên vàng'),
-('Trần Thị Bình', '0912345678', '1995-08-20', 120, 'Thành viên bạc'),
-('Lê Văn Cường', '0987654321', '1988-12-10', 450, 'VIP'),
-('Phạm Thị Dung', '0934567890', '2000-03-25', 50, 'Thành viên mới'),
-('Hoàng Văn Em', '0978901234', '1992-07-30', 180, 'Thành viên vàng');
+('Nguyễn Văn An', '0912345678', '1985-03-12', 150, 'Thành viên bạc'),
+('Trần Thị Bình', '0987654321', '1992-07-20', 320, 'Thành viên vàng'),
+('Lê Văn Cường', '0971122334', '2000-11-05', 0, 'Thành viên mới'),
+('Phạm Thị Dung', '0934567890', '1997-02-28', 80, 'Thành viên bạc'),
+('Hoàng Văn Em', '0909876543', '1988-09-15', 450, 'Thành viên kim cương');
 
--- =============================================
--- 2. NhanVien - 5 dòng dữ liệu mẫu
--- =============================================
+-- 2. Bảng NhanVien
 INSERT INTO NhanVien (HoTen, NgaySinh, NgayVaoLam, LuongCoBan) VALUES
-('Nguyễn Thị Quản Lý', '1995-01-01', '2020-06-01', 15000000.00),
-('Trần Văn Bảo', '1992-03-15', '2021-09-10', 12000000.00),
-('Lê Thị Hương', '1998-07-20', '2022-01-05', 13500000.00),
-('Phạm Minh Quân', '1990-11-30', '2019-04-15', 18000000.00),
-('Hoàng Thị Lan', '1996-05-10', '2023-02-20', 11000000.00);
+('Nguyễn Thị Hương', '1990-01-15', '2018-06-01', 8500000.00),
+('Trần Minh Quân', '1987-04-22', '2016-09-15', 12000000.00),
+('Lê Thị Ngọc', '1995-08-10', '2021-03-01', 7500000.00),
+('Phạm Văn Hải', '1992-12-05', '2019-11-20', 9500000.00),
+('Hoàng Thị Lan', '1989-06-30', '2017-02-10', 11000000.00);
 
--- =============================================
--- 3. LoaiGhe - 5 dòng dữ liệu mẫu
--- =============================================
+-- 3. Bảng LoaiGhe
 INSERT INTO LoaiGhe (TenLoaiGhe, GiaPhuThu) VALUES
-('Ghế Thường', 0),
-('Ghế VIP', 50000),
-('Sweetbox', 100000),
-('Ghế Couple', 80000),
-('Recliner', 120000);
+('Thường', 0),
+('VIP', 50000),
+('Sweetbox', 80000),
+('Couple', 120000),
+('Deluxe', 150000);
 
--- =============================================
--- 4. PhongChieu - 5 dòng dữ liệu mẫu
--- =============================================
+-- 4. Bảng PhongChieu
 INSERT INTO PhongChieu (TenPhong, LoaiPhong, SoHang, SoGheMoiHang) VALUES
-('Phòng 1', '2D', 5, 10),
-('Phòng 2', '3D', 6, 8),
-('Phòng 3', 'IMAX', 4, 12),
-('Phòng 4', '4DX', 5, 9),
-('Phòng 5', '2D', 7, 10);
+('Phòng 1', '2D', 10, 15),
+('Phòng 2', '3D', 8, 12),
+('Phòng 3', 'IMAX', 9, 14),
+('Phòng 4', '4DX', 7, 10),
+('Phòng 5', '2D', 11, 16);
 
--- =============================================
--- 5. Ghe - 5 dòng dữ liệu mẫu (dùng phòng 1 + loại ghế 1-5)
--- =============================================
-INSERT INTO Ghe (MaPhong, MaLoaiGhe, HangGhe, SoGhe, TrangThai) VALUES
-(1, 1, 'A', 1, 'Trong'),
-(1, 2, 'A', 2, 'Trong'),
-(1, 3, 'B', 1, 'Da dat'),
-(1, 4, 'B', 2, 'Trong'),
-(1, 5, 'C', 1, 'Trong');
+-- 5. Bảng Ghe (dùng MaPhong 1-5 và MaLoaiGhe 1-5)
+INSERT INTO Ghe (MaPhong, MaLoaiGhe, HangGhe, SoGhe) VALUES
+(1, 1, 'A', 1),
+(1, 1, 'A', 2),
+(2, 2, 'B', 5),
+(3, 3, 'C', 8),
+(4, 4, 'D', 10);
 
--- =============================================
--- 6. TheLoaiPhim - 5 dòng dữ liệu mẫu
--- =============================================
+-- 6. Bảng TheLoaiPhim
 INSERT INTO TheLoaiPhim (TenLoaiPhim) VALUES
 ('Hành động'),
-('Kinh dị'),
 ('Tình cảm'),
-('Hoạt hình'),
+('Kinh dị'),
+('Hài hước'),
 ('Khoa học viễn tưởng');
 
--- =============================================
--- 7. Phim - 5 dòng dữ liệu mẫu
--- =============================================
-INSERT INTO Phim (MaLoaiPhim, TenPhim, ThoiLuong, DaoDien, NamSanXuat, AnhMauPhim) VALUES
-(1, 'Avengers: Endgame', 181, 'Anthony Russo', 2019, 'https://example.com/avengers.jpg'),
-(2, 'The Conjuring', 112, 'James Wan', 2013, 'https://example.com/conjuring.jpg'),
-(3, 'Titanic', 194, 'James Cameron', 1997, 'https://example.com/titanic.jpg'),
-(4, 'Frozen 2', 103, 'Chris Buck', 2019, 'https://example.com/frozen2.jpg'),
-(5, 'Dune: Part Two', 166, 'Denis Villeneuve', 2024, 'https://example.com/dune2.jpg');
+-- 7. Bảng Phim (dùng MaLoaiPhim 1-5)
+INSERT INTO Phim (MaLoaiPhim, TenPhim, ThoiLuong, DaoDien, NamSanXuat, AnhMauPhim, NgayKhoiChieu, TrangThai) VALUES
+(1, 'Avengers: Endgame', 181, 'Anh em nhà Russo', 2019, 'https://example.com/avengers.jpg', '2025-12-01', 'DangChieu'),
+(2, 'Titanic', 195, 'James Cameron', 1997, 'https://example.com/titanic.jpg', '2026-01-15', 'DangChieu'),
+(3, 'The Conjuring', 112, 'James Wan', 2013, 'https://example.com/conjuring.jpg', '2026-02-20', 'DangChieu'),
+(4, 'Deadpool & Wolverine', 128, 'Shawn Levy', 2024, 'https://example.com/deadpool.jpg', '2025-07-10', 'DangChieu'),
+(5, 'Dune: Part Two', 166, 'Denis Villeneuve', 2024, 'https://example.com/dune.jpg', '2026-03-01', 'DangChieu');
 
--- =============================================
--- 8. SuatChieu - 5 dòng dữ liệu mẫu
--- =============================================
-INSERT INTO SuatChieu (MaPhim, MaPhong, GioBatDau, GioKetThuc, GiaVeGoc) VALUES
-(1, 1, '2026-03-14 10:00:00', '2026-03-14 13:01:00', 120000),
-(2, 2, '2026-03-14 14:30:00', '2026-03-14 16:22:00', 90000),
-(3, 3, '2026-03-14 19:00:00', '2026-03-14 22:14:00', 150000),
-(4, 4, '2026-03-15 09:15:00', '2026-03-15 11:00:00', 80000),
-(5, 5, '2026-03-15 13:45:00', '2026-03-15 16:31:00', 140000);
+-- 8. Bảng SuatChieu (dùng MaPhim 1-5 và MaPhong 1-5)
+INSERT INTO SuatChieu (MaPhim, MaPhong, NgayChieu, GioBatDau, GioKetThuc, GiaVeGoc, TrangThai) VALUES
+(1, 1, '2026-03-20', '18:00:00', '21:00:00', 120000, 'SapChieu'),
+(2, 2, '2026-03-20', '19:30:00', '22:45:00', 150000, 'SapChieu'),
+(3, 3, '2026-03-21', '20:00:00', '22:00:00', 130000, 'SapChieu'),
+(4, 4, '2026-03-21', '17:00:00', '19:30:00', 140000, 'SapChieu'),
+(5, 5, '2026-03-22', '18:30:00', '21:30:00', 160000, 'SapChieu');
 
--- =============================================
--- 9. Ve - 5 dòng dữ liệu mẫu
--- =============================================
+-- 9. Bảng Ve (dùng MaGhe 1-5 và MaSuatChieu 1-5)
 INSERT INTO Ve (MaGhe, MaSuatChieu, GiaVe, TrangThai) VALUES
-(1, 1, 120000, 'Da ban'),
-(2, 1, 170000, 'Da ban'),
-(3, 2, 90000, 'Trong'),
-(4, 3, 150000, 'Da ban'),
-(5, 4, 80000, 'Trong');
+(1, 1, 120000, 'Trong'),
+(2, 2, 200000, 'Trong'),
+(3, 3, 210000, 'Trong'),
+(4, 4, 260000, 'Trong'),
+(5, 5, 310000, 'Trong');
 
--- =============================================
--- 10. SanPham - 5 dòng dữ liệu mẫu
--- =============================================
+-- 10. Bảng SanPham
 INSERT INTO SanPham (TenSanPham, HinhAnh, GiaBan, KichThuoc, SoLuong, TrangThai) VALUES
-('Bắp Ngọt Lớn', 'https://example.com/popcorn.jpg', 45000, 'L', 100, 'Con hang'),
-('Coca Cola', 'https://example.com/coca.jpg', 30000, 'M', 150, 'Con hang'),
-('Combo Bắp + Nước', 'https://example.com/combo1.jpg', 75000, 'Combo', 80, 'Con hang'),
-('Nachos', 'https://example.com/nachos.jpg', 55000, 'L', 60, 'Con hang'),
-('Khoai Tây Chiên', 'https://example.com/fries.jpg', 35000, 'M', 90, 'Con hang');
+('Bắp rang bơ', 'https://example.com/popcorn.jpg', 45000, 'Lớn', 100, 'ConHang'),
+('Coca Cola', 'https://example.com/coca.jpg', 25000, 'Nhỏ', 200, 'ConHang'),
+('Combo Bắp + 2 Nước', 'https://example.com/combo1.jpg', 85000, 'Lớn', 50, 'ConHang'),
+('Khoai tây chiên', 'https://example.com/fries.jpg', 35000, 'Vừa', 80, 'ConHang'),
+('Nước suối', 'https://example.com/water.jpg', 15000, 'Nhỏ', 150, 'ConHang');
 
--- =============================================
--- 11. HoaDon - 5 dòng dữ liệu mẫu
--- =============================================
+-- 11. Bảng HoaDon (dùng MaKH 1-5 và MaNV 1-5)
 INSERT INTO HoaDon (MaKH, MaNV, NgayLapHoaDon, TongTienVe, TongTienSanPham, TongThanhToan) VALUES
-(1, 1, '2026-03-14 10:30:00', 290000, 75000, 365000),
-(2, 2, '2026-03-14 15:00:00', 90000, 0, 90000),
-(3, 3, '2026-03-14 20:00:00', 150000, 45000, 195000),
-(4, 4, '2026-03-15 10:00:00', 80000, 30000, 110000),
-(5, 5, '2026-03-15 14:00:00', 140000, 75000, 215000);
+(1, 1, '2026-03-17 10:15:00', 120000, 0, 120000),
+(2, 2, '2026-03-17 11:30:00', 200000, 85000, 285000),
+(3, 3, '2026-03-17 14:45:00', 210000, 45000, 255000),
+(4, 4, '2026-03-17 16:20:00', 260000, 35000, 295000),
+(5, 5, '2026-03-17 18:00:00', 310000, 25000, 335000);
 
--- =============================================
--- 12. ChiTietHoaDonVe - 5 dòng dữ liệu mẫu
--- =============================================
+-- 12. Bảng ChiTietHoaDonVe (1 vé tương ứng 1 hóa đơn)
 INSERT INTO ChiTietHoaDonVe (MaHoaDon, MaVe, DonGia) VALUES
 (1, 1, 120000),
-(1, 2, 170000),
-(2, 3, 90000),
-(3, 4, 150000),
-(4, 5, 80000);
+(2, 2, 200000),
+(3, 3, 210000),
+(4, 4, 260000),
+(5, 5, 310000);
 
--- =============================================
--- 13. ChiTietHoaDonSanPham - 5 dòng dữ liệu mẫu
--- =============================================
+-- 13. Bảng ChiTietHoaDonSanPham (một số hóa đơn có sản phẩm)
 INSERT INTO ChiTietHoaDonSanPham (MaHoaDon, MaSanPham, SoLuong, DonGia, ThanhTien) VALUES
-(1, 1, 1, 45000, 45000),
-(1, 2, 2, 30000, 60000),
-(3, 3, 1, 75000, 75000),
-(4, 4, 1, 55000, 55000),
-(5, 5, 1, 35000, 35000);
+(2, 3, 1, 85000, 85000),
+(3, 1, 1, 45000, 45000),
+(4, 4, 1, 35000, 35000),
+(5, 2, 1, 25000, 25000),
+(1, 5, 2, 15000, 30000);  
+INSERT INTO Phim (MaLoaiPhim, TenPhim, ThoiLuong, DaoDien, NamSanXuat, AnhMauPhim, NgayKhoiChieu, TrangThai)
+VALUES
+(1, 'Avengers: Endgame', 181, 'Anh em nhà Russo', 2019, 'https://picsum.photos/id/1015/800/1200', '2025-12-01', 'DangChieu'),
+
+(2, 'Titanic', 195, 'James Cameron', 1997, 'https://picsum.photos/id/201/800/1200', '2026-01-15', 'DangChieu'),
+
+(3, 'The Conjuring', 112, 'James Wan', 2013, 'https://picsum.photos/id/301/800/1200', '2026-02-20', 'DangChieu'),
+
+(4, 'Deadpool & Wolverine', 128, 'Shawn Levy', 2024, 'https://picsum.photos/id/401/800/1200', '2025-07-10', 'DangChieu'),
+
+(5, 'Dune: Part Two', 166, 'Denis Villeneuve', 2024, 'https://picsum.photos/id/501/800/1200', '2026-03-01', 'DangChieu');
