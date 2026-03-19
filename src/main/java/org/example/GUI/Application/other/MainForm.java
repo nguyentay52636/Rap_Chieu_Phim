@@ -23,6 +23,7 @@ import org.example.GUI.Components.FormPhongChieu.FormPhongChieu;
 import org.example.GUI.Components.FormProduct.FormProduct;
 import org.example.GUI.Components.FormTypeProduct.FormTypeProduct;
 import org.example.GUI.Components.FormThongKe.FormThongKe;
+import org.example.GUI.Components.FormPhim.FormPhim;
 import org.example.GUI.menu.Menu;
 import org.example.GUI.menu.MenuAction;
 import org.example.GUI.Components.FormShowTime.FormShowTime;
@@ -80,7 +81,7 @@ public class MainForm extends JLayeredPane {
     private void initMenuEvent() {
         menu.addMenuEvent((int index, int subIndex, MenuAction action) -> {
             switch (index) {
-            case 0 -> showForm(new FormBooking(0, 0));
+            case 0 -> showForm(new FormPhim());
             case 1 -> showForm(new FormPhongChieu()); 
             case 2 -> showForm(new FormProduct());
             case 3 -> showForm(new FormTypeProduct());

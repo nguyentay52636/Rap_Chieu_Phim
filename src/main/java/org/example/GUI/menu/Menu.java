@@ -34,12 +34,12 @@ public class Menu extends JPanel {
 
     private final String menuItems[][] = {
 
-            { "Đặt vé" },
+            { "Quản lý Phim" },
             { "Phòng chiếu" },
             { "Sản Phẩm" },
             { "Thể Loại Phim" },
-            { "Suất chiếu" },
-            { "Vé" },
+            { "Quản lý suất chiếu" },
+            { "Quản lý vé" },
             { "Hóa đơn" },
             { "Khách hàng" },
             { "Nhân viên" },
