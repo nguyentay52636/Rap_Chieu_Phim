@@ -1,36 +1,92 @@
 package org.example.BUS;
 
-import java.sql.Date;
+import org.example.DAO.SuatChieuPhimDAO;
+import org.example.DTO.SuatChieuPhimDTO;
+
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Stub implementation for showtimes. Uses fixed sample data.
- */
 public class SuatChieuPhimBUS {
+    private final SuatChieuPhimDAO suatChieuDAO = new SuatChieuPhimDAO();
+    private List<SuatChieuPhimDTO> listSc = new ArrayList<>();
 
-    public ArrayList<Integer> getListPhongByPhim(int maPhim) {
-        ArrayList<Integer> result = new ArrayList<>();
-        result.add(1);
-        result.add(2);
-        return result;
+    public SuatChieuPhimBUS() {
+        refreshList();
     }
 
-    public ArrayList<Integer> getListSuatByPhim(int maPhim) {
-        ArrayList<Integer> result = new ArrayList<>();
-        result.add(1);
-        result.add(2);
-        result.add(3);
-        return result;
+    public void refreshList() {
+        listSc = suatChieuDAO.selectAll();
     }
 
-    public int getMaSuatChieuPhim(int maPhim, int maPhong, int maSuatChieu, Date ngayChieu) {
-        // Trả về id giả lập từ các tham số
-        return Math.abs((maPhim * 100 + maPhong * 10 + maSuatChieu));
+    public List<SuatChieuPhimDTO> getListSuatChieu() {
+        return listSc;
     }
 
-    public int getGiaVeGoc(int maSuatChieuPhim) {
-        // Giá vé cố định
-        return 80000;
+    // Hàm kiểm tra xem lịch mới có bị trùng với lịch đã có trong hệ thống không
+    private boolean isTrungLichChieu(SuatChieuPhimDTO scMoi) {
+        // TỐI ƯU: Dùng luôn listSc (cache) thay vì gọi DAO chọc xuống DB
+        for (SuatChieuPhimDTO scCu : listSc) {
+            // Chỉ kiểm tra trùng lịch nếu CÙNG PHÒNG CHIẾU
+            // (Khi đang Cập nhật, bỏ qua việc tự so sánh với chính bản ghi cũ của nó)
+            if (scCu.getMaPhong() == scMoi.getMaPhong() && scCu.getMaSuatChieu() != scMoi.getMaSuatChieu()) {
+
+                // Công thức kiểm tra 2 khoảng thời gian giao nhau:
+                // (Bắt_đầu_mới < Kết_thúc_cũ) VÀ (Kết_thúc_mới > Bắt_đầu_cũ)
+                boolean biTrung = scMoi.getGioBatDau().isBefore(scCu.getGioKetThuc()) &&
+                        scMoi.getGioKetThuc().isAfter(scCu.getGioBatDau());
+
+                if (biTrung) {
+                    return true; // Bị trùng giờ!
+                }
+            }
+        }
+        return false; // Lịch an toàn, không trùng
+    }
+
+    // Đã gộp logic bảo vệ vào một hàm add duy nhất
+    public boolean add(SuatChieuPhimDTO sc) throws IllegalArgumentException {
+        if (!sc.getGioKetThuc().isAfter(sc.getGioBatDau())) {
+            throw new IllegalArgumentException("Thời gian kết thúc phải diễn ra sau thời gian bắt đầu!");
+        }
+        if (isTrungLichChieu(sc)) {
+            throw new IllegalArgumentException("Phòng " + sc.getMaPhong() + " đã có lịch chiếu trong khung giờ này!");
+        }
+
+        boolean ok = suatChieuDAO.insert(sc);
+        if (ok) {
+            refreshList();
+        }
+        return ok;
+    }
+
+    public boolean update(SuatChieuPhimDTO sc) throws IllegalArgumentException {
+        // 1. Bắt lỗi du hành thời gian (Giờ kết thúc <= Giờ bắt đầu)
+        if (!sc.getGioKetThuc().isAfter(sc.getGioBatDau())) {
+            throw new IllegalArgumentException("Thời gian kết thúc phải diễn ra sau thời gian bắt đầu!");
+        }
+
+        // 2. Bắt lỗi trùng lịch chiếu trong cùng 1 phòng
+        if (isTrungLichChieu(sc)) {
+            throw new IllegalArgumentException("Phòng " + sc.getMaPhong() + " đã có lịch chiếu trong khung giờ này!");
+        }
+
+        // 3. Vượt qua hết vòng gửi xe thì tiến hành gọi DAO
+        boolean ok = suatChieuDAO.update(sc);
+        if (ok) {
+            refreshList(); // Cập nhật lại list cache
+        }
+        return ok;
+    }
+
+    public boolean delete(int maSuatChieu) {
+        boolean ok = suatChieuDAO.delete(maSuatChieu);
+        if (ok) {
+            refreshList();
+        }
+        return ok;
+    }
+
+    public List<SuatChieuPhimDTO> search(String tieuChi, String tuKhoa) {
+        return suatChieuDAO.search(tieuChi, tuKhoa);
     }
 }
-
