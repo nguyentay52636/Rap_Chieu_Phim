@@ -2,6 +2,7 @@ package org.example.GUI.Components.FormCustomer;
 
 import org.example.BUS.KhachHangBUS;
 import org.example.DTO.KhachHangDTO;
+import org.example.UltisTable.TableUtils;
 import org.example.UtilsDate.FormattedDatePicker;
 
 import javax.swing.*;
@@ -39,7 +40,10 @@ public class EditCustomerDialog extends JDialog {
 
         JPanel panelCenter=new JPanel(new GridLayout(6,2,10,20));
         panelCenter.setBorder(new EmptyBorder(30, 20, 20, 20));
-        panelCenter.setBackground(Color.WHITE);
+
+        // Lấy màu nền động cho panel chính
+        panelCenter.setBackground(UIManager.getColor("Panel.background"));
+
         //Mã khách hàng
         panelCenter.add(createLabel("Mã Khách Hàng:"));
         txtMaKH = new JTextField();
@@ -75,16 +79,22 @@ public class EditCustomerDialog extends JDialog {
         panelCenter.add(txtHang);
 
         JPanel panelBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
-        panelBottom.setBackground(Color.WHITE);
+
+        // Lấy màu nền động cho panel dưới
+        panelBottom.setBackground(UIManager.getColor("Panel.background"));
         panelBottom.setBorder(new EmptyBorder(0, 0, 10, 10));
 
         btnHuy = new JButton("Hủy");
         btnHuy.setPreferredSize(new Dimension(100, 35));
         btnHuy.setFocusPainted(false);
+        // Nút Hủy thường để màu mặc định nên không ép màu tĩnh
 
         btnLuu = new JButton("Cập Nhật");
         btnLuu.setPreferredSize(new Dimension(120, 35));
-        btnLuu.setBackground(new Color(255, 193, 7)); // Màu vàng cho hành động Sửa
+        // Giữ lại màu vàng điểm nhấn cho nút Cập Nhật
+        btnLuu.setBackground(new Color(255, 193, 7));
+        // Thay vì dùng Color.BLACK, dùng màu đen của FlatLaf để đảm bảo hiển thị đúng trên nền vàng
+        //btnLuu.setForeground(UIManager.getColor("Button.foreground"));
         btnLuu.setForeground(Color.BLACK);
         btnLuu.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnLuu.setFocusPainted(false);
@@ -93,7 +103,9 @@ public class EditCustomerDialog extends JDialog {
         panelBottom.add(btnHuy);
 
         JPanel wrapperPanel = new JPanel(new BorderLayout());
-        wrapperPanel.setBackground(Color.WHITE);
+
+        // Lấy màu nền động cho wrapper
+        wrapperPanel.setBackground(UIManager.getColor("Panel.background"));
         wrapperPanel.add(panelCenter, BorderLayout.NORTH);
 
         this.add(wrapperPanel, BorderLayout.CENTER);
@@ -103,6 +115,28 @@ public class EditCustomerDialog extends JDialog {
 
         btnHuy.addActionListener(e -> setVisible(false));
         btnLuu.addActionListener(e -> handleUpdateCustomer());
+
+        // ========================================================
+        // TÍCH HỢP ĐIỀU HƯỚNG BÀN PHÍM (Sử dụng FormUtils)
+        // ========================================================
+        // 1. Từ ô Họ Tên -> Ấn mũi tên xuống -> Sang ô SDT
+        org.example.Utils.FormUtils.setupFocus(txtHoTen, null, txtSDT);
+
+        // 2. Từ ô SDT -> Ấn mũi tên xuống -> Nhảy vào Ngày Sinh VÀ Bung lịch ra
+        org.example.Utils.FormUtils.setupFocusToDatePicker(
+                txtSDT,
+                txtHoTen,
+                datePickerNgaySinh.getJFormattedTextField(),
+                datePickerNgaySinh
+        );
+
+        // 3. Đang ở trong Lịch -> Lên (Tắt lịch, về SDT) hoặc Enter (Tắt lịch, bấm Lưu)
+        org.example.Utils.FormUtils.setupDatePickerExit(
+                datePickerNgaySinh.getJFormattedTextField(),
+                txtSDT,
+                btnLuu,
+                datePickerNgaySinh
+        );
     }
 
     private JLabel createLabel(String text) {
@@ -111,10 +145,13 @@ public class EditCustomerDialog extends JDialog {
         return lbl;
     }
 
+    // ĐÃ SỬA LẠI HÀM NÀY ĐỂ TỰ ĐỘNG CHUYỂN MÀU
     private void setReadOnlyStyle(JTextField txt) {
         txt.setEditable(false);
-        txt.setBackground(new Color(240, 240, 240));
-        txt.setForeground(Color.DARK_GRAY);
+        // Lấy màu nền mặc định của TextField bị khóa (disabled) trong FlatLaf
+        txt.setBackground(UIManager.getColor("TextField.disabledBackground"));
+        // Lấy màu chữ mặc định của TextField bị khóa trong FlatLaf
+        txt.setForeground(UIManager.getColor("TextField.disabledForeground"));
         txt.setFocusable(false); // Không cho nháy con trỏ chuột vào luôn
     }
 
@@ -209,28 +246,17 @@ public class EditCustomerDialog extends JDialog {
         JTable previewTable = new JTable(data, columns);
         previewTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         previewTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-        previewTable.getTableHeader().setBackground(new Color(255, 193, 7)); // Tiêu đề màu vàng
-        previewTable.getTableHeader().setForeground(Color.BLACK);
+
+        // Thay vì dùng Color tĩnh, dùng màu của hệ thống cho Preview Table
+        previewTable.getTableHeader().setBackground(UIManager.getColor("Table.selectionBackground"));
+        previewTable.getTableHeader().setForeground(UIManager.getColor("Table.selectionForeground"));
+
         previewTable.setRowHeight(35);
         previewTable.setEnabled(false);
         previewTable.getTableHeader().setReorderingAllowed(false);
         //previewTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        // Tự động đo cột
-        for (int column = 0; column < previewTable.getColumnCount(); column++) {
-            int maxWidth = 50;
-            javax.swing.table.TableCellRenderer headerRenderer = previewTable.getTableHeader().getDefaultRenderer();
-            Object headerValue = previewTable.getColumnModel().getColumn(column).getHeaderValue();
-            Component headerComp = headerRenderer.getTableCellRendererComponent(previewTable, headerValue, false, false, 0, column);
-            maxWidth = Math.max(headerComp.getPreferredSize().width, maxWidth);
-
-            for (int row = 0; row < previewTable.getRowCount(); row++) {
-                javax.swing.table.TableCellRenderer cellRenderer = previewTable.getCellRenderer(row, column);
-                Component cellComp = previewTable.prepareRenderer(cellRenderer, row, column);
-                maxWidth = Math.max(cellComp.getPreferredSize().width, maxWidth);
-            }
-            previewTable.getColumnModel().getColumn(column).setPreferredWidth(maxWidth + 15);
-        }
+        TableUtils.autoResizeColumns(previewTable);
 
         JScrollPane scrollPreview = new JScrollPane(previewTable);
         scrollPreview.setPreferredSize(new Dimension(650, 85));
@@ -238,6 +264,9 @@ public class EditCustomerDialog extends JDialog {
         JPanel panelConfirm = new JPanel(new BorderLayout(0, 10));
         JLabel lblConfirm = new JLabel("Xác nhận thay đổi thông tin Khách hàng này?");
         lblConfirm.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+
+        // Giữ màu đỏ cảnh báo, nhưng có thể điều chỉnh theo hệ thống nếu muốn đồng bộ hơn
+        //lblConfirm.setForeground(UIManager.getColor("Component.error.focusedBorderColor"));
         lblConfirm.setForeground(Color.RED);
 
         panelConfirm.add(lblConfirm, BorderLayout.NORTH);

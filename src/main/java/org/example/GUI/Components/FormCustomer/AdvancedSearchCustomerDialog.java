@@ -14,6 +14,10 @@ public class AdvancedSearchCustomerDialog extends JDialog {
     private JTextField txtHoTen, txtSDT;
     private FormattedDatePicker dateTuNgay, dateDenNgay;
 
+    // THÊM MỚI: Toán tử ngày sinh
+    private JComboBox<String> cbPhepTinhNgay;
+    private FormattedDatePicker dateNgayToanTu;
+
     // Giữ lại Khoảng điểm
     private JTextField txtDiemTu, txtDiemDen;
 
@@ -45,9 +49,10 @@ public class AdvancedSearchCustomerDialog extends JDialog {
         canh = Math.max(canh, 600);
         this.setSize(canh, canh);
 
-        JPanel panelCenter = new JPanel(new GridLayout(6, 2, 10, 15));
+        // THAY ĐỔI: Tăng từ 6 lên 7 dòng để chứa thêm Toán tử ngày sinh
+        JPanel panelCenter = new JPanel(new GridLayout(7, 2, 10, 15));
         panelCenter.setBorder(new EmptyBorder(20, 20, 10, 20));
-        panelCenter.setBackground(Color.WHITE);
+        panelCenter.setBackground(UIManager.getColor("Panel.background"));
 
         // 1. Họ Tên & SĐT
         panelCenter.add(createLabel("Họ và Tên:"));
@@ -59,37 +64,50 @@ public class AdvancedSearchCustomerDialog extends JDialog {
         // 2. Ngày sinh
         panelCenter.add(createLabel("Ngày sinh (Từ - Đến):"));
         JPanel panelDate = new JPanel(new GridLayout(1, 2, 5, 0));
-        panelDate.setBackground(Color.WHITE);
+        panelDate.setBackground(UIManager.getColor("Panel.background"));
         dateTuNgay = new FormattedDatePicker(null); dateTuNgay.getJFormattedTextField().setFont(font);
         dateDenNgay = new FormattedDatePicker(null); dateDenNgay.getJFormattedTextField().setFont(font);
         panelDate.add(dateTuNgay); panelDate.add(dateDenNgay);
         panelCenter.add(panelDate);
 
-        // 3. Khoảng điểm (Từ - Đến) - GIỮ LẠI NHƯ CŨ
+        // 3. Toán tử ngày sinh - TÍNH NĂNG MỚI THÊM
+        panelCenter.add(createLabel("Hoặc so sánh ngày sinh:"));
+        JPanel panelToanTuNgay = new JPanel(new BorderLayout(5, 0));
+        panelToanTuNgay.setBackground(UIManager.getColor("Panel.background"));
+        String[] dateOperators = {"(Bỏ qua)", ">=", ">", "=", "<=", "<"};
+        cbPhepTinhNgay = new JComboBox<>(dateOperators);
+        cbPhepTinhNgay.setFont(font);
+        dateNgayToanTu = new FormattedDatePicker(null);
+        dateNgayToanTu.getJFormattedTextField().setFont(font);
+        panelToanTuNgay.add(cbPhepTinhNgay, BorderLayout.WEST);
+        panelToanTuNgay.add(dateNgayToanTu, BorderLayout.CENTER);
+        panelCenter.add(panelToanTuNgay);
+
+        // 4. Khoảng điểm (Từ - Đến)
         panelCenter.add(createLabel("Khoảng điểm tích lũy:"));
         JPanel jPanelKhoangDiem = new JPanel(new GridLayout(1, 2, 5, 0));
-        jPanelKhoangDiem.setBackground(Color.WHITE);
+        jPanelKhoangDiem.setBackground(UIManager.getColor("Panel.background"));
         txtDiemTu = new JTextField(); txtDiemTu.setFont(font); txtDiemTu.putClientProperty("JTextField.placeholderText", "Từ điểm...");
         txtDiemDen = new JTextField(); txtDiemDen.setFont(font); txtDiemDen.putClientProperty("JTextField.placeholderText", "Đến điểm...");
         jPanelKhoangDiem.add(txtDiemTu); jPanelKhoangDiem.add(txtDiemDen);
         panelCenter.add(jPanelKhoangDiem);
 
-        // 4. Toán tử điểm (>, <, =) - TÍNH NĂNG MỚI
+        // 5. Toán tử điểm (>, <, =)
         panelCenter.add(createLabel("Hoặc so sánh điểm:"));
         JPanel panelToanTu = new JPanel(new BorderLayout(5, 0));
-        panelToanTu.setBackground(Color.WHITE);
+        panelToanTu.setBackground(UIManager.getColor("Panel.background"));
         String[] operators = {"(Bỏ qua)", ">=", ">", "=", "<=", "<"};
-        cbPhepTinhDiem = new JComboBox<>(operators); cbPhepTinhDiem.setFont(font); cbPhepTinhDiem.setBackground(Color.WHITE);
+        cbPhepTinhDiem = new JComboBox<>(operators); cbPhepTinhDiem.setFont(font);
         txtDiemToanTu = new JTextField(); txtDiemToanTu.setFont(font);
         panelToanTu.add(cbPhepTinhDiem, BorderLayout.WEST);
         panelToanTu.add(txtDiemToanTu, BorderLayout.CENTER);
         panelCenter.add(panelToanTu);
 
-        // 5. Hạng thành viên (Mô phỏng JComboBox Multi-Select)
+        // 6. Hạng thành viên (Mô phỏng JComboBox Multi-Select)
         panelCenter.add(createLabel("Hạng Thành Viên:"));
         btnComboHang = new JButton("Tất cả ▼");
         btnComboHang.setFont(font);
-        btnComboHang.setBackground(Color.WHITE);
+        btnComboHang.setBackground(UIManager.getColor("Panel.background"));
         btnComboHang.setHorizontalAlignment(SwingConstants.LEFT);
 
         popupHang = new JPopupMenu();
@@ -102,7 +120,6 @@ public class AdvancedSearchCustomerDialog extends JDialog {
             chkHangList.add(item);
             popupHang.add(item);
 
-            // Cập nhật text trên nút khi người dùng tick chọn
             item.addActionListener(e -> {
                 List<String> selected = new ArrayList<>();
                 for (JCheckBoxMenuItem c : chkHangList) {
@@ -113,23 +130,25 @@ public class AdvancedSearchCustomerDialog extends JDialog {
             });
         }
 
-        // Khi click vào nút thì xổ menu ra
         btnComboHang.addActionListener(e -> popupHang.show(btnComboHang, 0, btnComboHang.getHeight()));
         panelCenter.add(btnComboHang);
 
         // --- BUTTONS ---
         JPanel panelBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
-        panelBottom.setBackground(Color.WHITE);
+        panelBottom.setBackground(UIManager.getColor("Panel.background"));
 
         btnLamMoi = new JButton("Làm mới"); btnLamMoi.setPreferredSize(new Dimension(100, 35)); btnLamMoi.setFocusPainted(false);
         btnHuy = new JButton("Hủy"); btnHuy.setPreferredSize(new Dimension(100, 35)); btnHuy.setFocusPainted(false);
-        btnTimKiem = new JButton("Lọc Kết Quả"); btnTimKiem.setPreferredSize(new Dimension(130, 35));
-        btnTimKiem.setBackground(new Color(0, 123, 255)); btnTimKiem.setForeground(Color.WHITE); btnTimKiem.setFocusPainted(false);
+        btnTimKiem = new JButton("Lọc Kết Quả");
+        btnTimKiem.setPreferredSize(new Dimension(130, 35));
+        btnTimKiem.setBackground(new Color(0, 123, 255));
+        btnTimKiem.setForeground(UIManager.getColor("Button.foreground"));
+        btnTimKiem.setFocusPainted(false);
 
         panelBottom.add(btnLamMoi); panelBottom.add(btnTimKiem); panelBottom.add(btnHuy);
 
         JPanel wrapperPanel = new JPanel(new BorderLayout());
-        wrapperPanel.setBackground(Color.WHITE);
+        wrapperPanel.setBackground(UIManager.getColor("Panel.background"));
         wrapperPanel.add(panelCenter, BorderLayout.NORTH);
 
         this.setLayout(new BorderLayout());
@@ -142,6 +161,13 @@ public class AdvancedSearchCustomerDialog extends JDialog {
         btnHuy.addActionListener(e -> setVisible(false));
         btnLamMoi.addActionListener(e -> clearData());
         btnTimKiem.addActionListener(e -> handleSearch());
+
+        btnTimKiem.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_UP) btnComboHang.requestFocusInWindow();
+            }
+        });
     }
 
     private JLabel createLabel(String text) {
@@ -153,6 +179,8 @@ public class AdvancedSearchCustomerDialog extends JDialog {
         txtSDT.setText("");
         dateTuNgay.setDate(null);
         dateDenNgay.setDate(null);
+        cbPhepTinhNgay.setSelectedIndex(0); // Clear toán tử ngày
+        dateNgayToanTu.setDate(null);       // Clear ngày toán tử
         txtDiemTu.setText("");
         txtDiemDen.setText("");
         cbPhepTinhDiem.setSelectedIndex(0);
@@ -166,6 +194,10 @@ public class AdvancedSearchCustomerDialog extends JDialog {
         String sdt = txtSDT.getText().trim();
         java.util.Date tuNgay = dateTuNgay.getDate();
         java.util.Date denNgay = dateDenNgay.getDate();
+
+        // Lấy dữ liệu Toán tử ngày sinh mới
+        String phepTinhNgay = cbPhepTinhNgay.getSelectedItem().toString();
+        java.util.Date ngayToanTu = dateNgayToanTu.getDate();
 
         String diemTu = txtDiemTu.getText().trim();
         String diemDen = txtDiemDen.getText().trim();
@@ -187,9 +219,11 @@ public class AdvancedSearchCustomerDialog extends JDialog {
             return;
         }
 
-        // Gọi hàm BUS
-        List<KhachHangDTO> ketQua = khBUS.advancedSearch(hoTen, sdt, tuNgay, denNgay, diemTu, diemDen, phepTinh, diemToanTu, selectedHangs);
+        // Gọi hàm BUS (Đã bổ sung 2 tham số phepTinhNgay và ngayToanTu)
+        List<KhachHangDTO> ketQua = khBUS.advancedSearch(hoTen, sdt, tuNgay, denNgay, phepTinhNgay, ngayToanTu, diemTu, diemDen, phepTinh, diemToanTu, selectedHangs);
         parentForm.loadDataToTable(ketQua);
         dispose();
     }
+
+
 }

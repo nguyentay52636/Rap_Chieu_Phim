@@ -1,4 +1,6 @@
 package org.example.GUI.Components.PhongChieu;
+import org.example.GUI.Components.PhongChieu.Form.FormChiTietPhongChieu;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
@@ -402,7 +404,7 @@ public class FormPhongChieu extends JPanel {
         JDialog dialog = new JDialog(owner);
         dialog.setTitle("Chi tiết phòng " + maPhong);
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        dialog.setContentPane(new FormChiTietPhongChieu(maPhong)); 
+        dialog.setContentPane(new FormChiTietPhongChieu(maPhong));
         dialog.setSize(900, 650);
         dialog.setLocationRelativeTo(owner);
         dialog.setModal(false);
