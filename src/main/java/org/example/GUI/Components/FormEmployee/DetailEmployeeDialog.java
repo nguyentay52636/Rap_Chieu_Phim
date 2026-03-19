@@ -19,7 +19,6 @@ public class DetailEmployeeDialog extends JDialog {
         setSize(750, 550);
         setLocationRelativeTo(parent);
         getContentPane().setBackground(Color.WHITE);
-
         initComponents();
     }
 

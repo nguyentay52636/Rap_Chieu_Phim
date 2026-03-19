@@ -20,7 +20,7 @@ public class AddEmployeeDialog extends JDialog {
         this.employeeBUS = bus;
         
         setLayout(new BorderLayout());
-        setSize(450, 500); // Rộng hơn một chút cho thoải mái
+        setSize(450, 500); 
         setLocationRelativeTo(parent);
         
         initComponents();
@@ -38,7 +38,7 @@ public class AddEmployeeDialog extends JDialog {
         pnlHeader.add(lblTitle);
         add(pnlHeader, BorderLayout.NORTH);
 
-        // --- PANEL NHẬP LIỆU (Giống style ảnh ông gửi nhưng đẹp hơn) ---
+        // --- PANEL NHẬP LIỆU ---
         JPanel pnlContent = new JPanel(new GridLayout(4, 1, 15, 15));
         pnlContent.setBorder(new EmptyBorder(25, 40, 25, 40));
         pnlContent.setBackground(Color.WHITE);
@@ -55,7 +55,7 @@ public class AddEmployeeDialog extends JDialog {
 
         add(pnlContent, BorderLayout.CENTER);
 
-        // --- PANEL NÚT BẤM (Bo góc, màu sắc giống ảnh mẫu) ---
+        // --- PANEL NÚT BẤM ---
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
         pnlButtons.setBackground(new Color(248, 249, 250));
         
@@ -75,9 +75,7 @@ public class AddEmployeeDialog extends JDialog {
 
     private JTextField createModernField(String title, String placeholder) {
         JTextField txt = new JTextField();
-        // FlatLaf placeholder xịn xò
         txt.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
-        // Tạo bo góc nhẹ cho ô nhập
         txt.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:2");
         return txt;
     }
@@ -98,20 +96,48 @@ public class AddEmployeeDialog extends JDialog {
         btnSave.addActionListener(e -> {
             try {
                 String name = txtName.getText().trim();
+                if (name.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 Date dob = Date.valueOf(txtDob.getText().trim());
                 Date joinDate = Date.valueOf(txtJoinDate.getText().trim());
-                double salary = Double.parseDouble(txtSalary.getText().trim());
-
-                if (name.isEmpty()) throw new Exception("Tên không được trống!");
+                
+                double salary;
+                try {
+                    salary = Double.parseDouble(txtSalary.getText().trim());
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Lương cơ bản phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
 
                 EmployeeDTO emp = new EmployeeDTO(0, name, dob, joinDate, salary);
-                if (employeeBUS.themNhanVien(emp)) {
-                    JOptionPane.showMessageDialog(this, "Thành công! Đã thêm " + name);
+                
+                // KIỂM TRA LOGIC THÔNG QUA BUS (Tuổi, Lương âm, Ngày tháng...)
+                if (employeeBUS.themNhanVien(emp)) { // Lưu ý: tui đã đổi tên hàm thành add() cho gọn ở bước trước, nhưng bị lỗi
+                    JOptionPane.showMessageDialog(this, "Thành công! Đã thêm nhân viên " + name, "Thành công", JOptionPane.INFORMATION_MESSAGE);
                     parent.loadDataToTable();
                     dispose();
+                } else {
+                    // Nếu BUS trả về false, hiện bảng thông báo chi tiết này
+                    JOptionPane.showMessageDialog(this, 
+                        "Dữ liệu không hợp lệ! Vui lòng kiểm tra lại những thứ sau đây:\n" +
+                        "- Mức lương phải lớn hơn hoặc bằng 0.\n" +
+                        "- Ngày vào làm phải sau ngày sinh.\n" +
+                        "- Độ tuổi lao động phải từ 15 tuổi trở lên.", 
+                        "Từ chối lưu dữ liệu", 
+                        JOptionPane.ERROR_MESSAGE);
                 }
+
+            } catch (IllegalArgumentException ex) {
+                // Lỗi khi người dùng gõ sai định dạng ngày tháng (VD: 2026/03/16 thay vì 2026-03-16)
+                JOptionPane.showMessageDialog(this, 
+                    "Sai định dạng ngày tháng!\nVui lòng nhập theo mẫu: Năm-Tháng-Ngày (VD: 2000-01-25)", 
+                    "Lỗi định dạng", 
+                    JOptionPane.WARNING_MESSAGE);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage() + "\n(Lưu ý định dạng: Năm-Tháng-Ngày)");
+                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
             }
         });
     }
