@@ -3,6 +3,7 @@ package org.example.BUS;
 import org.example.DAO.SuatChieuPhimDAO;
 import org.example.DTO.SuatChieuPhimDTO;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +85,41 @@ public class SuatChieuPhimBUS {
             refreshList();
         }
         return ok;
+    }
+    public List<SuatChieuPhimDTO> searchAdvanced(String maPhim, String maPhong, LocalDateTime tuNgay, LocalDateTime denNgay) {
+        List<SuatChieuPhimDTO> result = new ArrayList<>();
+
+        for (SuatChieuPhimDTO sc : listSc) {
+            boolean match = true;
+
+            // 1. Lọc theo Mã phim (nếu người dùng có nhập)
+            if (maPhim != null && !maPhim.trim().isEmpty()) {
+                if (!String.valueOf(sc.getMaPhim()).equals(maPhim.trim())) {
+                    match = false;
+                }
+            }
+
+            // 2. Lọc theo Mã phòng (nếu người dùng có nhập)
+            if (maPhong != null && !maPhong.trim().isEmpty()) {
+                if (!String.valueOf(sc.getMaPhong()).equals(maPhong.trim())) {
+                    match = false;
+                }
+            }
+
+            // 3. Lọc theo khoảng thời gian (So sánh với Giờ bắt đầu của suất chiếu)
+            if (tuNgay != null && sc.getGioBatDau().isBefore(tuNgay)) {
+                match = false; // Bị loại nếu suất chiếu bắt đầu TRƯỚC "từ ngày"
+            }
+            if (denNgay != null && sc.getGioBatDau().isAfter(denNgay)) {
+                match = false; // Bị loại nếu suất chiếu bắt đầu SAU "đến ngày"
+            }
+
+            // Nếu vượt qua mọi điều kiện thì thêm vào danh sách kết quả
+            if (match) {
+                result.add(sc);
+            }
+        }
+        return result;
     }
 
     public List<SuatChieuPhimDTO> search(String tieuChi, String tuKhoa) {

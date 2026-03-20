@@ -21,7 +21,7 @@ public class FormShowTime extends JPanel {
 
     // Các Component nhập liệu
     private JTextField txtMaSC, txtMaPhim, txtMaPhong, txtGiaVe, txtSearch;
-    private JButton btnXem, btnSua, btnXoa, btnThem, btnTimKiem, btnLamMoi;
+    private JButton btnXem, btnSua, btnXoa, btnThem, btnTimKiem, btnLamMoi, btnTimNangCao; // Thêm btnTimNangCao vào đây
     private JComboBox<String> cbTieuChi;
 
     // Sử dụng JSpinner thuần của Java thay vì Textfield hay Thư viện ngoài
@@ -76,8 +76,8 @@ public class FormShowTime extends JPanel {
         txtSearch = new JTextField(15);
         txtSearch.setPreferredSize(new Dimension(150, 35));
         btnTimKiem = createButton("Tìm kiếm", new Color(230, 230, 230), Color.BLACK);
-
-        pnlFilter.add(cbTieuChi); pnlFilter.add(txtSearch); pnlFilter.add(btnTimKiem);
+        btnTimNangCao = createButton("Tìm nâng cao", new Color(108, 117, 125), Color.WHITE);
+        pnlFilter.add(cbTieuChi); pnlFilter.add(txtSearch); pnlFilter.add(btnTimKiem);pnlFilter.add(btnTimNangCao);
         pnlNorth.add(pnlButtons, BorderLayout.WEST); pnlNorth.add(pnlFilter, BorderLayout.EAST);
 
         // ================== KHU VỰC GIỮA (BẢNG DỮ LIỆU) ==================
@@ -231,7 +231,31 @@ public class FormShowTime extends JPanel {
                 }
             }
         });
+        btnTimNangCao.addActionListener(e -> {
+            // 1. Mở Dialog
+            ScAdvancedSearchDialog dialog = new ScAdvancedSearchDialog((Frame) SwingUtilities.getWindowAncestor(this));
+            dialog.setVisible(true);
 
+            // 2. Nếu người dùng bấm "Lọc Kết Quả"
+            if (dialog.isConfirmed()) {
+                List<SuatChieuPhimDTO> kq = suatChieuBUS.searchAdvanced(
+                        dialog.getMaPhim(),
+                        dialog.getMaPhong(),
+                        dialog.getTuNgay(),
+                        dialog.getDenNgay()
+                );
+
+                // 3. Hiển thị lên bảng
+                model.setRowCount(0);
+                for (SuatChieuPhimDTO sc : kq) {
+                    model.addRow(new Object[]{
+                            sc.getMaSuatChieu(), sc.getMaPhim(), sc.getMaPhong(),
+                            sc.getGioBatDau().format(formatter), sc.getGioKetThuc().format(formatter),
+                            String.format("%,.0f", sc.getGiaVeGoc())
+                    });
+                }
+            }
+        });
         btnTimKiem.addActionListener(e -> {
             String tieuChi = cbTieuChi.getSelectedItem().toString();
             String tuKhoa = txtSearch.getText();
@@ -244,6 +268,36 @@ public class FormShowTime extends JPanel {
                         String.format("%,.0f", sc.getGiaVeGoc())
                 });
             }
+        });
+
+        spnBatDau.addChangeListener(e -> {
+            // Lấy thời gian bắt đầu hiện tại trong Spinner
+            Date dateBatDau = (Date) spnBatDau.getValue();
+            LocalDateTime batDau = dateBatDau.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+            // Tự động làm tròn phút (để gợi ý người dùng chọn giờ đẹp 00 hoặc 30)
+            int phut = batDau.getMinute();
+            if (phut != 0 && phut != 30) {
+                // Nếu phút < 15 thì làm tròn về 00, > 15 và < 45 thì về 30, còn lại đẩy lên giờ tiếp theo
+                if (phut < 15) phut = 0;
+                else if (phut < 45) phut = 30;
+                else {
+                    phut = 0;
+                    batDau = batDau.plusHours(1);
+                }
+                // Tạm thời vô hiệu hóa để tránh lặp vô tận (infinite loop) khi tự đổi value của chính nó
+                spnBatDau.removeChangeListener((javax.swing.event.ChangeListener) spnBatDau.getChangeListeners()[0]);
+
+                batDau = batDau.withMinute(phut).withSecond(0).withNano(0);
+                spnBatDau.setValue(Date.from(batDau.atZone(ZoneId.systemDefault()).toInstant()));
+
+                // Cài đặt lại Listener
+                spnBatDau.addChangeListener((javax.swing.event.ChangeListener) e.getSource());
+            }
+
+            // Tự động set Giờ kết thúc = Giờ bắt đầu + 3 tiếng (Tối đa)
+            LocalDateTime ketThuc = batDau.plusHours(3);
+            spnKetThuc.setValue(Date.from(ketThuc.atZone(ZoneId.systemDefault()).toInstant()));
         });
     }
 
