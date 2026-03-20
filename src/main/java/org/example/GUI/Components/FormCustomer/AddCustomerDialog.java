@@ -2,6 +2,8 @@ package org.example.GUI.Components.FormCustomer;
 
 import org.example.BUS.KhachHangBUS;
 import org.example.DTO.KhachHangDTO;
+import org.example.UltisTable.TableUtils;
+import org.example.Utils.FormUtils;
 import org.example.UtilsDate.FormattedDatePicker;
 
 import javax.swing.*;
@@ -67,6 +69,7 @@ public class AddCustomerDialog extends JDialog {
         btnThem = new JButton("Lưu");
         btnThem.setPreferredSize(new Dimension(120, 35));
         btnThem.setBackground(new Color(0, 123, 255));
+        //btnThem.setForeground(UIManager.getColor("Panel.background"));
         btnThem.setForeground(Color.WHITE);
         btnThem.setFocusPainted(false);
 
@@ -84,12 +87,30 @@ public class AddCustomerDialog extends JDialog {
         this.setLocationRelativeTo(owner);
         this.setResizable(false);
 
-        panelCenter.setBackground(Color.WHITE);
-        wrapperPanel.setBackground(Color.WHITE);
-        panelBottom.setBackground(Color.WHITE);
+        panelCenter.setBackground(UIManager.getColor("Panel.background"));
+        wrapperPanel.setBackground(UIManager.getColor("Panel.background"));
+        panelBottom.setBackground(UIManager.getColor("Panel.background"));
 
         btnHuy.addActionListener(e -> setVisible(false));
         btnThem.addActionListener(e -> handleAddCustomer());
+
+        // 1. Từ Họ Tên -> SDT
+        org.example.Utils.FormUtils.setupFocus(txtHoTen, null, txtSDT);
+
+        // 2. Từ SDT -> Đi VÀO Lịch (Bật công tắc)
+        org.example.Utils.FormUtils.setupFocusToDatePicker(
+                txtSDT, txtHoTen,
+                datePickerNgaySinh.getJFormattedTextField(),
+                datePickerNgaySinh
+        );
+
+        // 3. Từ Lịch -> Đi RA (Tắt công tắc)
+        org.example.Utils.FormUtils.setupDatePickerExit(
+                datePickerNgaySinh.getJFormattedTextField(),
+                txtSDT,
+                btnThem,
+                datePickerNgaySinh // Truyền thêm Container vào đây để nó biết đường tìm nút mà tắt
+        );
     }
 
     public void clearData() {
@@ -185,6 +206,7 @@ public class AddCustomerDialog extends JDialog {
         previewTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         previewTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         previewTable.getTableHeader().setBackground(new Color(66, 103, 178));
+        //previewTable.getTableHeader().setForeground(UIManager.getColor("Panel.background"));
         previewTable.getTableHeader().setForeground(Color.WHITE);
         previewTable.setRowHeight(35);
         previewTable.setEnabled(false);
@@ -192,27 +214,7 @@ public class AddCustomerDialog extends JDialog {
 
         //previewTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        for (int column = 0; column < previewTable.getColumnCount(); column++) {
-            int maxWidth = 50; // Độ rộng tối thiểu
-
-            // 1. Đo chiều rộng của Tiêu đề cột (Header)
-            javax.swing.table.TableCellRenderer headerRenderer = previewTable.getTableHeader().getDefaultRenderer();
-            Object headerValue = previewTable.getColumnModel().getColumn(column).getHeaderValue();
-            Component headerComp = headerRenderer.getTableCellRendererComponent(previewTable, headerValue, false, false, 0, column);
-            maxWidth = Math.max(headerComp.getPreferredSize().width, maxWidth);
-
-            // 2. Đo chiều rộng của dữ liệu bên trong (Data)
-            for (int row = 0; row < previewTable.getRowCount(); row++) {
-                javax.swing.table.TableCellRenderer cellRenderer = previewTable.getCellRenderer(row, column);
-                Component cellComp = previewTable.prepareRenderer(cellRenderer, row, column);
-                maxWidth = Math.max(cellComp.getPreferredSize().width, maxWidth);
-            }
-
-            // 3. Set độ rộng lớn nhất tìm được (Cộng thêm 15px lề trái/phải cho thoáng chữ)
-            previewTable.getColumnModel().getColumn(column).setPreferredWidth(maxWidth + 15);
-
-        }
-        // ---> KẾT THÚC ĐOẠN TỰ ĐỘNG <---
+        TableUtils.autoResizeColumns(previewTable);
 
         // 1. Tăng chiều rộng ScrollPane lên 600, chiều cao 65 (hoặc 70) là đẹp
         JScrollPane scrollPreview = new JScrollPane(previewTable);

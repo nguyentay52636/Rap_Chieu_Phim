@@ -2,7 +2,8 @@ package org.example.DTO;
 
 import java.sql.Date;
 
-public class EmployeeDTO {
+public class EmployeeDTO 
+{
     private int maNV;
     private String hoTen;
     private Date ngaySinh;
@@ -12,7 +13,8 @@ public class EmployeeDTO {
     public EmployeeDTO() {
     }
 
-    public EmployeeDTO(int maNV, String hoTen, Date ngaySinh, Date ngayVaoLam, double luongCoBan) {
+    public EmployeeDTO(int maNV, String hoTen, Date ngaySinh, Date ngayVaoLam, double luongCoBan) 
+    {
         this.maNV = maNV;
         this.hoTen = hoTen;
         this.ngaySinh = ngaySinh;

@@ -14,7 +14,8 @@ public class AddEmployeeDialog extends JDialog {
     private EmployeeBUS employeeBUS;
     private FormEmployee parent;
 
-    public AddEmployeeDialog(FormEmployee parent, EmployeeBUS bus) {
+    public AddEmployeeDialog(FormEmployee parent, EmployeeBUS bus) 
+    {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "QUẢN LÝ NHÂN VIÊN", true);
         this.parent = parent;
         this.employeeBUS = bus;
@@ -72,15 +73,17 @@ public class AddEmployeeDialog extends JDialog {
         pnlButtons.add(btnSave);
         add(pnlButtons, BorderLayout.SOUTH);
     }
-
-    private JTextField createModernField(String title, String placeholder) {
+// Hàm tiện ích để tạo JTextField với placeholder và kiểu dáng hiện đại
+    private JTextField createModernField(String title, String placeholder) 
+    {
         JTextField txt = new JTextField();
         txt.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
         txt.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:2");
         return txt;
     }
 
-    private JPanel createFieldWrapper(String labelText, JTextField field) {
+    private JPanel createFieldWrapper(String labelText, JTextField field) 
+    {
         JPanel pnl = new JPanel(new BorderLayout(5, 5));
         pnl.setBackground(Color.WHITE);
         JLabel lbl = new JLabel(labelText);
@@ -90,11 +93,13 @@ public class AddEmployeeDialog extends JDialog {
         return pnl;
     }
 
-    private void initEvents() {
+    private void initEvents() 
+    {
         btnCancel.addActionListener(e -> dispose());
 
         btnSave.addActionListener(e -> {
-            try {
+            try 
+            {
                 String name = txtName.getText().trim();
                 if (name.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
@@ -103,11 +108,19 @@ public class AddEmployeeDialog extends JDialog {
 
                 Date dob = Date.valueOf(txtDob.getText().trim());
                 Date joinDate = Date.valueOf(txtJoinDate.getText().trim());
+
+                if(joinDate.before(dob) && dob.after(java.sql.Date.valueOf("1920-01-01"))) {
+                    JOptionPane.showMessageDialog(this, "Ngày vào làm phải sau ngày sinh! và ngày sinh phải sau năm 1920.", "Lỗi logic ngày tháng", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
                 
                 double salary;
-                try {
+                try 
+                {
                     salary = Double.parseDouble(txtSalary.getText().trim());
-                } catch (NumberFormatException ex) {
+                } 
+                catch (NumberFormatException ex) 
+                {
                     JOptionPane.showMessageDialog(this, "Lương cơ bản phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
@@ -115,28 +128,36 @@ public class AddEmployeeDialog extends JDialog {
                 EmployeeDTO emp = new EmployeeDTO(0, name, dob, joinDate, salary);
                 
                 // KIỂM TRA LOGIC THÔNG QUA BUS (Tuổi, Lương âm, Ngày tháng...)
-                if (employeeBUS.themNhanVien(emp)) { // Lưu ý: tui đã đổi tên hàm thành add() cho gọn ở bước trước, nhưng bị lỗi
+                if (employeeBUS.themNhanVien(emp)) 
+                { 
                     JOptionPane.showMessageDialog(this, "Thành công! Đã thêm nhân viên " + name, "Thành công", JOptionPane.INFORMATION_MESSAGE);
                     parent.loadDataToTable();
                     dispose();
-                } else {
+                } 
+                else 
+                    {
                     // Nếu BUS trả về false, hiện bảng thông báo chi tiết này
                     JOptionPane.showMessageDialog(this, 
                         "Dữ liệu không hợp lệ! Vui lòng kiểm tra lại những thứ sau đây:\n" +
                         "- Mức lương phải lớn hơn hoặc bằng 0.\n" +
-                        "- Ngày vào làm phải sau ngày sinh.\n" +
+                        "- Ngày vào làm phải sau ngày sinh và ngày sinh phải sau năm 1961.\n" +
                         "- Độ tuổi lao động phải từ 15 tuổi trở lên.", 
-                        "Từ chối lưu dữ liệu", 
+                        "Từ chối thêm dữ liệu", 
                         JOptionPane.ERROR_MESSAGE);
                 }
 
-            } catch (IllegalArgumentException ex) {
+            } 
+            // Bắt lỗi khi người dùng nhập sai định dạng số (VD: nhập chữ vào trường lương)
+            catch (IllegalArgumentException ex) 
+            {
                 // Lỗi khi người dùng gõ sai định dạng ngày tháng (VD: 2026/03/16 thay vì 2026-03-16)
                 JOptionPane.showMessageDialog(this, 
-                    "Sai định dạng ngày tháng!\nVui lòng nhập theo mẫu: Năm-Tháng-Ngày (VD: 2000-01-25)", 
+                    "Sai định dạng ngày tháng!\nVui lòng nhập theo mẫu: Năm-Tháng-Ngày (VD: 2006-05-29)", 
                     "Lỗi định dạng", 
                     JOptionPane.WARNING_MESSAGE);
-            } catch (Exception ex) {
+            } 
+            catch (Exception ex) 
+            {
                 JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
             }
         });

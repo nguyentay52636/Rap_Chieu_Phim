@@ -8,7 +8,8 @@ import java.sql.Date;
 import org.example.BUS.EmployeeBUS;
 import org.example.DTO.EmployeeDTO;
 
-public class EditEmployeeDialog extends JDialog {
+public class EditEmployeeDialog extends JDialog 
+{
     private JTextField txtName, txtDob, txtJoinDate, txtSalary;
     private JButton btnSave, btnCancel;
     private EmployeeBUS employeeBUS;
@@ -30,7 +31,8 @@ public class EditEmployeeDialog extends JDialog {
         initEvents();
     }
 
-    private void initComponents() {
+    private void initComponents() 
+    {
         // --- PANEL TIÊU ĐỀ ---
         JPanel pnlHeader = new JPanel();
         pnlHeader.setBackground(new Color(240, 173, 78)); // Màu cam cho hành động Sửa
@@ -76,14 +78,16 @@ public class EditEmployeeDialog extends JDialog {
         add(pnlButtons, BorderLayout.SOUTH);
     }
 
-    private JTextField createModernField(String title, String placeholder) {
+    private JTextField createModernField(String title, String placeholder) 
+    {
         JTextField txt = new JTextField();
         txt.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
         txt.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:2");
         return txt;
     }
 
-    private JPanel createFieldWrapper(String labelText, JTextField field) {
+    private JPanel createFieldWrapper(String labelText, JTextField field) 
+    {
         JPanel pnl = new JPanel(new BorderLayout(5, 5));
         pnl.setBackground(Color.WHITE);
         JLabel lbl = new JLabel(labelText);
@@ -94,7 +98,8 @@ public class EditEmployeeDialog extends JDialog {
     }
 
     // --- HÀM LOAD DỮ LIỆU CŨ LÊN FORM ---
-    private void loadDataToForm() {
+    private void loadDataToForm() 
+    {
         if (currentEmp != null) {
             txtName.setText(currentEmp.getHoTen());
             txtDob.setText(currentEmp.getNgaySinh() != null ? currentEmp.getNgaySinh().toString() : "");
@@ -104,24 +109,35 @@ public class EditEmployeeDialog extends JDialog {
         }
     }
 
-    private void initEvents() {
+    private void initEvents() 
+    {
         btnCancel.addActionListener(e -> dispose());
 
         btnSave.addActionListener(e -> {
             try {
                 String name = txtName.getText().trim();
-                if (name.isEmpty()) {
+                if (name.isEmpty()) 
+                {
                     JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
                 Date dob = Date.valueOf(txtDob.getText().trim());
                 Date joinDate = Date.valueOf(txtJoinDate.getText().trim());
+                if(joinDate.before(dob) && dob.after(java.sql.Date.valueOf("1920-01-01"))) 
+                {
+                    JOptionPane.showMessageDialog(this, "Ngày vào làm phải sau ngày sinh! và ngày sinh phải sau năm 1920.","Lỗi logic ngày tháng", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
                 
+
                 double salary;
-                try {
+                try 
+                {
                     salary = Double.parseDouble(txtSalary.getText().trim());
-                } catch (NumberFormatException ex) {
+                } 
+                catch (NumberFormatException ex) 
+                {
                     JOptionPane.showMessageDialog(this, "Lương cơ bản phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
@@ -133,26 +149,33 @@ public class EditEmployeeDialog extends JDialog {
                 currentEmp.setLuongCoBan(salary);
                 
                 // GỌI BUS ĐỂ KIỂM TRA LOGIC VÀ LƯU
-                if (employeeBUS.suaNhanVien(currentEmp)) { 
+                if (employeeBUS.suaNhanVien(currentEmp)) 
+                { 
                     JOptionPane.showMessageDialog(this, "Cập nhật thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
                     parent.loadDataToTable();
                     dispose();
-                } else {
+                } 
+                else 
+                {
                     JOptionPane.showMessageDialog(this, 
                         "Dữ liệu không hợp lệ! Vui lòng kiểm tra lại:\n" +
                         "- Mức lương phải lớn hơn hoặc bằng 0.\n" +
-                        "- Ngày vào làm phải sau ngày sinh.\n" +
+                        "- Ngày vào làm phải sau ngày sinh và ngày sinh phải sau năm 1961.\n" +
                         "- Độ tuổi lao động phải từ 15 tuổi trở lên.", 
-                        "Từ chối lưu dữ liệu", 
+                        "Từ chối sửa dữ liệu", 
                         JOptionPane.ERROR_MESSAGE);
                 }
 
-            } catch (IllegalArgumentException ex) {
+            } 
+            catch (IllegalArgumentException ex) 
+            {
                 JOptionPane.showMessageDialog(this, 
                     "Sai định dạng ngày tháng!\nVui lòng nhập theo mẫu: Năm-Tháng-Ngày (VD: 2000-01-25)", 
                     "Lỗi định dạng", 
                     JOptionPane.WARNING_MESSAGE);
-            } catch (Exception ex) {
+            } 
+            catch (Exception ex) 
+            {
                 JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
             }
         });
