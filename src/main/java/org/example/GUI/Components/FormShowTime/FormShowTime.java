@@ -4,6 +4,7 @@ import org.example.BUS.SuatChieuPhimBUS;
 import org.example.DTO.SuatChieuPhimDTO;
 
 import java.awt.*;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -21,7 +22,7 @@ public class FormShowTime extends JPanel {
 
     // Các Component nhập liệu
     private JTextField txtMaSC, txtMaPhim, txtMaPhong, txtGiaVe, txtSearch;
-    private JButton btnXem, btnSua, btnXoa, btnThem, btnTimKiem, btnLamMoi, btnTimNangCao; // Thêm btnTimNangCao vào đây
+    private JButton btnXem, btnSua, btnXoa, btnThem, btnTimKiem, btnLamMoi, btnTimNangCao, btnXuatExcel, btnNhapExcel;
     private JComboBox<String> cbTieuChi;
 
     // Sử dụng JSpinner thuần của Java thay vì Textfield hay Thư viện ngoài
@@ -41,23 +42,52 @@ public class FormShowTime extends JPanel {
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(10, 10, 10, 10));
-        setBackground(new Color(245, 245, 250));
 
         // ================== KHU VỰC TRÊN (NÚT BẤM & TÌM KIẾM) ==================
-        JPanel pnlNorth = new JPanel(new BorderLayout());
-        pnlNorth.setOpaque(false);
-        pnlNorth.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                "Quản Lý Lịch Chiếu Phim", TitledBorder.LEFT, TitledBorder.TOP,
-                new Font("Segoe UI", Font.BOLD, 14)));
+        JPanel pnlNorth = new JPanel(new BorderLayout(0, 10)); // Khoảng cách dọc 10px giữa 2 dòng
 
-        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        pnlButtons.setOpaque(false);
-        btnXem = createButton("Xem", new Color(0, 123, 255), Color.WHITE);
-        btnSua = createButton("Sửa", new Color(255, 193, 7), Color.BLACK);
-        btnXoa = createButton("Xóa", new Color(220, 53, 69), Color.WHITE);
-        btnThem = createButton("Thêm", new Color(40, 167, 69), Color.WHITE);
-        btnLamMoi = createButton("Làm mới", new Color(100, 181, 246), Color.WHITE, "/org/example/GUI/resources/images/icons8_data_backup_30px.png");
+        // 1. DÒNG TRÊN: Các nút chức năng (Không viền)
+        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+
+        // Cập nhật màu sắc giống màn hình Nhân viên
+        btnXem = createButton("Xem", new Color(92, 184, 92), Color.WHITE);
+        btnSua = createButton("Sửa", new Color(240, 173, 78), Color.WHITE);
+        btnXoa = createButton("Xóa", new Color(217, 83, 79), Color.WHITE);
+        btnThem = createButton("Thêm", new Color(2, 117, 216), Color.WHITE);
+
+        // Thêm 2 nút Excel
+        btnNhapExcel = createButton("Nhập Excel", new Color(138, 43, 226), Color.WHITE);
+        btnXuatExcel = createButton("Xuất Excel", new Color(40, 167, 69), Color.WHITE);
+        pnlButtons.add(btnXem);
+        pnlButtons.add(btnSua);
+        pnlButtons.add(btnXoa);
+        pnlButtons.add(btnThem);
+        pnlButtons.add(btnNhapExcel);
+        pnlButtons.add(btnXuatExcel);
+
+        // 2. DÒNG DƯỚI: Khu vực Tìm kiếm (Có viền TitledBorder)
+        JPanel pnlFilter = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
+        pnlFilter.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                "Tìm kiếm", TitledBorder.LEFT, TitledBorder.TOP,
+                new Font("Segoe UI", Font.PLAIN, 13)));
+
+        cbTieuChi = new JComboBox<>(new String[]{"Mã SC", "Tên Phim", "Phòng"});
+        cbTieuChi.setPrototypeDisplayValue("Tên Phim      "); // Chống teo nhỏ combobox
+        cbTieuChi.setPreferredSize(new Dimension(110, 35));
+
+        txtSearch = new JTextField(20);
+        txtSearch.setPreferredSize(new Dimension(200, 35));
+
+        // Nút Làm mới đổi màu xanh ngọc giống ảnh
+        btnLamMoi = createButton("Làm mới", new Color(91, 192, 222), Color.WHITE);
+
+        // Vẫn giữ lại 2 nút Tìm kiếm này (bạn có thể ẩn đi nếu form Nhân viên tìm kiếm tự động realtime)
+        btnTimKiem = createButton("Tìm kiếm", null, null);
+        btnTimNangCao = createButton("Tìm nâng cao", null, null);
+        btnTimNangCao.setPreferredSize(new Dimension(120, 35));
+
+        // Sự kiện cho nút làm mới
         btnLamMoi.addActionListener(e ->{
             if (table.getRowSorter() != null) {
                 table.getRowSorter().setSortKeys(null);
@@ -67,18 +97,16 @@ public class FormShowTime extends JPanel {
             loadDataToTable();
         });
 
-        pnlButtons.add(btnXem); pnlButtons.add(btnSua); pnlButtons.add(btnXoa); pnlButtons.add(btnThem); pnlButtons.add(btnLamMoi);
+        pnlFilter.add(cbTieuChi);
+        pnlFilter.add(txtSearch);
+        pnlFilter.add(btnTimKiem);
+        pnlFilter.add(btnLamMoi);
+        pnlFilter.add(btnTimNangCao);
 
-        JPanel pnlFilter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        pnlFilter.setOpaque(false);
-        cbTieuChi = new JComboBox<>(new String[]{"Mã SC", "Tên Phim", "MaPhong"});
-        cbTieuChi.setPreferredSize(new Dimension(100, 35));
-        txtSearch = new JTextField(15);
-        txtSearch.setPreferredSize(new Dimension(150, 35));
-        btnTimKiem = createButton("Tìm kiếm", new Color(230, 230, 230), Color.BLACK);
-        btnTimNangCao = createButton("Tìm nâng cao", new Color(108, 117, 125), Color.WHITE);
-        pnlFilter.add(cbTieuChi); pnlFilter.add(txtSearch); pnlFilter.add(btnTimKiem);pnlFilter.add(btnTimNangCao);
-        pnlNorth.add(pnlButtons, BorderLayout.WEST); pnlNorth.add(pnlFilter, BorderLayout.EAST);
+        // Ghép 2 dòng vào pnlNorth
+        pnlNorth.add(pnlButtons, BorderLayout.NORTH);
+        pnlNorth.add(pnlFilter, BorderLayout.CENTER);
+
 
         // ================== KHU VỰC GIỮA (BẢNG DỮ LIỆU) ==================
         String[] columns = {"Mã SC", "Mã Phim", "Phòng", "Bắt đầu", "Kết thúc", "Giá Vé"};
@@ -90,36 +118,30 @@ public class FormShowTime extends JPanel {
         table.setRowHeight(35);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-        table.getTableHeader().setBackground(new Color(66, 103, 178));
-        table.getTableHeader().setForeground(Color.WHITE);
         table.getTableHeader().setReorderingAllowed(false);
         table.setAutoCreateRowSorter(true);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.getViewport().setBackground(Color.WHITE);
+
 
         // ================== KHU VỰC DƯỚI (CHI TIẾT) ==================
         JPanel pnlSouth = new JPanel(new BorderLayout());
-        pnlSouth.setBackground(Color.WHITE);
         pnlSouth.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
                 "Chi tiết Suất Chiếu", TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Segoe UI", Font.BOLD, 13)));
 
         JPanel pnlForm = new JPanel(new GridLayout(3, 4, 15, 10));
-        pnlForm.setBackground(Color.WHITE);
         pnlForm.setBorder(new EmptyBorder(10, 50, 10, 50));
 
         txtMaSC = new JTextField();
         txtMaSC.setEditable(false);
-        txtMaSC.setBackground(new Color(230, 230, 230));
         txtMaSC.setFocusable(false);
 
         txtMaPhim = new JTextField();
         txtMaPhong = new JTextField();
         txtGiaVe = new JTextField();
 
-        // Khởi tạo JSpinner cho thời gian
         spnBatDau = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor editorBatDau = new JSpinner.DateEditor(spnBatDau, "dd/MM/yyyy HH:mm");
         spnBatDau.setEditor(editorBatDau);
@@ -137,9 +159,10 @@ public class FormShowTime extends JPanel {
 
         pnlSouth.add(pnlForm, BorderLayout.CENTER);
 
+        // GHÉP TẤT CẢ VÀO FORM CHÍNH
         add(pnlNorth, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
-        add(pnlSouth, BorderLayout.SOUTH);
+        add(pnlSouth, BorderLayout.SOUTH); // Mình vẫn giữ lại phần Chi tiết ở dưới cho bạn nhập liệu nhé
     }
 
     private void loadDataToTable() {
@@ -256,6 +279,42 @@ public class FormShowTime extends JPanel {
                 }
             }
         });
+        btnXuatExcel.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            int userSelection = fileChooser.showSaveDialog(this);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToSave = fileChooser.getSelectedFile();
+                // Tự động thêm đuôi .xlsx nếu người dùng quên gõ
+                if (!fileToSave.getName().endsWith(".xlsx")) {
+                    fileToSave = new File(fileToSave.getAbsolutePath() + ".xlsx");
+                }
+
+                try {
+                    suatChieuBUS.exportExcel(fileToSave);
+                    JOptionPane.showMessageDialog(this, "Xuất Excel thành công!");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Lỗi khi xuất file: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        btnNhapExcel.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Chọn file Excel để nhập");
+            int userSelection = fileChooser.showOpenDialog(this);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                File fileToOpen = fileChooser.getSelectedFile();
+                try {
+                    String result = suatChieuBUS.importExcel(fileToOpen);
+                    JOptionPane.showMessageDialog(this, result, "Kết quả nhập Excel", JOptionPane.INFORMATION_MESSAGE);
+                    loadDataToTable(); // Cập nhật lại bảng
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "File không đúng định dạng hoặc bị lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
         btnTimKiem.addActionListener(e -> {
             String tieuChi = cbTieuChi.getSelectedItem().toString();
             String tuKhoa = txtSearch.getText();
@@ -332,8 +391,9 @@ public class FormShowTime extends JPanel {
     private JButton createButton(String text, Color bg, Color fg) {
         JButton btn = new JButton(text);
         btn.setPreferredSize(new Dimension(100, 35));
-        btn.setBackground(bg);
-        btn.setForeground(fg);
+        // Chỉ set màu nền nếu bg != null, để FlatLaf tự chỉnh các nút chức năng khác
+        if(bg != null) btn.setBackground(bg);
+        if(fg != null) btn.setForeground(fg);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setFocusPainted(false);
         return btn;
