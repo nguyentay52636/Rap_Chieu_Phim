@@ -24,6 +24,7 @@ public class FormShowTime extends JPanel {
     private JTextField txtMaSC, txtMaPhim, txtMaPhong, txtGiaVe, txtSearch;
     private JButton btnXem, btnSua, btnXoa, btnThem, btnTimKiem, btnLamMoi, btnTimNangCao, btnXuatExcel, btnNhapExcel;
     private JComboBox<String> cbTieuChi;
+    private boolean isUpdatingSpinner = false;
 
     // Sử dụng JSpinner thuần của Java thay vì Textfield hay Thư viện ngoài
     private JSpinner spnBatDau;
@@ -139,16 +140,32 @@ public class FormShowTime extends JPanel {
         txtMaSC.setFocusable(false);
 
         txtMaPhim = new JTextField();
+        txtMaPhim.setEditable(false);
+        txtMaPhim.setFocusable(false);
+
         txtMaPhong = new JTextField();
+        txtMaPhong.setEditable(false);
+        txtMaPhong.setFocusable(false);
+
         txtGiaVe = new JTextField();
+        txtGiaVe.setEditable(false);
+        txtGiaVe.setFocusable(false);
 
         spnBatDau = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor editorBatDau = new JSpinner.DateEditor(spnBatDau, "dd/MM/yyyy HH:mm");
+        // Tắt con trỏ và tính năng sửa text của Spinner
+        editorBatDau.getTextField().setEditable(false);
+        editorBatDau.getTextField().setFocusable(false);
         spnBatDau.setEditor(editorBatDau);
+        spnBatDau.setEnabled(false); // Vô hiệu hóa luôn nút tăng/giảm giờ
 
         spnKetThuc = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor editorKetThuc = new JSpinner.DateEditor(spnKetThuc, "dd/MM/yyyy HH:mm");
+        // Tắt con trỏ và tính năng sửa text của Spinner
+        editorKetThuc.getTextField().setEditable(false);
+        editorKetThuc.getTextField().setFocusable(false);
         spnKetThuc.setEditor(editorKetThuc);
+        spnKetThuc.setEnabled(false);
 
         pnlForm.add(createLabel("Mã SC (Tự động):")); pnlForm.add(txtMaSC);
         pnlForm.add(createLabel("Bắt đầu:"));         pnlForm.add(spnBatDau);
@@ -212,33 +229,85 @@ public class FormShowTime extends JPanel {
         });
 
         btnXem.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một suất chiếu trên bảng để xem chi tiết!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int modelRow = table.convertRowIndexToModel(row);
+            int maSC = Integer.parseInt(model.getValueAt(modelRow, 0).toString());
+            int maPhong = Integer.parseInt(model.getValueAt(modelRow, 2).toString());
+
+            // Gọi BUS lấy danh sách ghế và trạng thái
+            List<org.example.DTO.TrangThaiGheDTO> listGhe = suatChieuBUS.layTrangThaiGhe(maSC, maPhong);
+
+            // Bật Dialog Bản đồ ghế lên
+            ChiTietGheDialog dialog = new ChiTietGheDialog((Frame) SwingUtilities.getWindowAncestor(this), maSC, maPhong, listGhe);
+            dialog.setVisible(true);
+
+            // Sau khi xem xong tắt đi thì load lại bảng cho mới
             suatChieuBUS.refreshList();
             loadDataToTable();
             clearForm();
         });
 
         btnThem.addActionListener(e -> {
-            try {
-                SuatChieuPhimDTO sc = getFormInput(false);
-                if (suatChieuBUS.add(sc)) {
-                    JOptionPane.showMessageDialog(this, "Thêm thành công!");
-                    loadDataToTable();
-                    clearForm();
+            // Mở Dialog với tham số thứ 3 là null để đánh dấu chế độ "Thêm"
+            scDialog dialog = new scDialog((Frame) SwingUtilities.getWindowAncestor(this), "Thêm Suất Chiếu Mới", null);
+            dialog.setVisible(true);
+
+            // Nếu người dùng bấm Lưu (isConfirmed = true)
+            if (dialog.isConfirmed()) {
+                try {
+                    SuatChieuPhimDTO sc = dialog.getSuatChieu();
+                    if (suatChieuBUS.add(sc)) {
+                        JOptionPane.showMessageDialog(this, "Thêm thành công!");
+                        loadDataToTable();
+                        clearForm();
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage());
             }
         });
 
         btnSua.addActionListener(e -> {
-            try {
-                SuatChieuPhimDTO sc = getFormInput(true);
-                if (suatChieuBUS.update(sc)) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-                    loadDataToTable();
+            int row = table.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn một suất chiếu trên bảng để sửa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Lấy dữ liệu từ dòng đang chọn để tạo thành 1 đối tượng DTO cũ
+            int modelRow = table.convertRowIndexToModel(row);
+            int maSC = Integer.parseInt(model.getValueAt(modelRow, 0).toString());
+            int maPhim = Integer.parseInt(model.getValueAt(modelRow, 1).toString());
+            int maPhong = Integer.parseInt(model.getValueAt(modelRow, 2).toString());
+            String strBatDau = model.getValueAt(modelRow, 3).toString();
+            String strKetThuc = model.getValueAt(modelRow, 4).toString();
+            double giaVe = Double.parseDouble(model.getValueAt(modelRow, 5).toString().replace(",", ""));
+
+            LocalDateTime batDau = LocalDateTime.parse(strBatDau, formatter);
+            LocalDateTime ketThuc = LocalDateTime.parse(strKetThuc, formatter);
+
+            SuatChieuPhimDTO oldSc = new SuatChieuPhimDTO(maSC, maPhim, maPhong, batDau, ketThuc, giaVe);
+
+            // Mở Dialog và nạp sẵn dữ liệu của oldSc lên form
+            scDialog dialog = new scDialog((Frame) SwingUtilities.getWindowAncestor(this), "Cập Nhật Suất Chiếu", oldSc);
+            dialog.setVisible(true);
+
+            if (dialog.isConfirmed()) {
+                try {
+                    SuatChieuPhimDTO updatedSc = dialog.getSuatChieu();
+                    if (suatChieuBUS.update(updatedSc)) {
+                        JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                        loadDataToTable();
+                        clearForm();
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage());
             }
         });
 
@@ -330,31 +399,29 @@ public class FormShowTime extends JPanel {
         });
 
         spnBatDau.addChangeListener(e -> {
-            // Lấy thời gian bắt đầu hiện tại trong Spinner
+            // Nếu đang trong quá trình tự động set giá trị bằng code thì bỏ qua, không chạy event nữa
+            if (isUpdatingSpinner) return;
+
             Date dateBatDau = (Date) spnBatDau.getValue();
             LocalDateTime batDau = dateBatDau.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-            // Tự động làm tròn phút (để gợi ý người dùng chọn giờ đẹp 00 hoặc 30)
             int phut = batDau.getMinute();
             if (phut != 0 && phut != 30) {
-                // Nếu phút < 15 thì làm tròn về 00, > 15 và < 45 thì về 30, còn lại đẩy lên giờ tiếp theo
                 if (phut < 15) phut = 0;
                 else if (phut < 45) phut = 30;
                 else {
                     phut = 0;
                     batDau = batDau.plusHours(1);
                 }
-                // Tạm thời vô hiệu hóa để tránh lặp vô tận (infinite loop) khi tự đổi value của chính nó
-                spnBatDau.removeChangeListener((javax.swing.event.ChangeListener) spnBatDau.getChangeListeners()[0]);
 
+                // Bật cờ khóa Event -> Cập nhật giờ làm tròn -> Tắt cờ khóa Event
+                isUpdatingSpinner = true;
                 batDau = batDau.withMinute(phut).withSecond(0).withNano(0);
                 spnBatDau.setValue(Date.from(batDau.atZone(ZoneId.systemDefault()).toInstant()));
-
-                // Cài đặt lại Listener
-                spnBatDau.addChangeListener((javax.swing.event.ChangeListener) e.getSource());
+                isUpdatingSpinner = false;
             }
 
-            // Tự động set Giờ kết thúc = Giờ bắt đầu + 3 tiếng (Tối đa)
+            // Tự động set Giờ kết thúc = Giờ bắt đầu + 3 tiếng
             LocalDateTime ketThuc = batDau.plusHours(3);
             spnKetThuc.setValue(Date.from(ketThuc.atZone(ZoneId.systemDefault()).toInstant()));
         });
