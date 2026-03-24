@@ -1,11 +1,16 @@
 package org.example.DTO;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PhongChieuDTO {
     private int maPhong;
     private String tenPhong;
     private String loaiPhong;
     private int soHang;
     private int soGheMoiHang;
+
+    private List<GheDTO> gheList = new ArrayList<GheDTO>();
 
     public PhongChieuDTO() {}
 
@@ -15,6 +20,7 @@ public class PhongChieuDTO {
         this.loaiPhong = loaiPhong;
         this.soHang = soHang;
         this.soGheMoiHang = soGheMoiHang;
+        this.gheList = new ArrayList<>();
     }
 
 
@@ -32,4 +38,7 @@ public class PhongChieuDTO {
 
     public int getSoGheMoiHang() { return soGheMoiHang; }
     public void setSoGheMoiHang(int soGheMoiHang) { this.soGheMoiHang = soGheMoiHang; }
+
+    public List<GheDTO> getGheList() { return gheList; }
+    public void setGheList(List<GheDTO> gheList) { this.gheList = gheList; }
 }
