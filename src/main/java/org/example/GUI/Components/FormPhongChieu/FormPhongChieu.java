@@ -1,6 +1,8 @@
 package org.example.GUI.Components.FormPhongChieu;
 
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,9 +11,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import org.example.BUS.KhachHangBUS;
 import org.example.BUS.PhongChieuBUS;
 import org.example.DTO.GheDTO;
+import org.example.DTO.KhachHangDTO;
 import org.example.DTO.PhongChieuDTO;
+import org.example.GUI.Components.FormCustomer.AddCustomerDialog;
+import org.example.GUI.Components.FormCustomer.FormCustomer;
+import org.example.UltisTable.TableUtils;
+import org.example.UtilsDate.FormattedDatePicker;
 
 public class FormPhongChieu extends JPanel {
 
@@ -39,34 +47,6 @@ public class FormPhongChieu extends JPanel {
         JButton btnEdit = createStyledButton("Sửa", new Color(255, 193, 7), Color.BLACK);
         JButton btnDelete = createStyledButton("Xóa", new Color(220, 53, 69), Color.WHITE);
         JButton btnView = createStyledButton("Xem", new Color(0, 123, 255), Color.WHITE);
-
-        JButton btnColorPicker = createStyledButton("Màu", new Color(195, 18, 216), Color.WHITE);
-
-        btnColorPicker.addActionListener(e -> {
-            // 1. Show the color chooser dialog
-            // Parameters: (parent component, dialog title, initial color)
-            Color selectedColor = JColorChooser.showDialog(
-                    this, // or root/panel
-                    "Bảng chọn màu RGB",
-                    btnColorPicker.getBackground()
-            );
-
-            // 2. Check if a color was selected (returns null if the user clicks Cancel)
-            if (selectedColor != null) {
-                // Apply the color to your button (or any other component)
-                btnColorPicker.setBackground(selectedColor);
-
-                // If you need the exact RGB integer values for your database:
-                int r = selectedColor.getRed();
-                int g = selectedColor.getGreen();
-                int b = selectedColor.getBlue();
-
-                System.out.println("Selected RGB: " + r + ", " + g + ", " + b);
-            }
-        });
-
-// Add btnColorPicker to your panel
-        buttonPanel.add(btnColorPicker);
 
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnEdit);
@@ -110,7 +90,7 @@ public class FormPhongChieu extends JPanel {
         add(topPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
 
-//        btnAdd.addActionListener(e -> addRoom());
+        btnAdd.addActionListener(e -> addRoom());
         btnEdit.addActionListener(e -> moSuaPhongDaChon());
         btnView.addActionListener(e -> moXemPhongDaChon());
         btnDelete.addActionListener(e ->deleteRoom());
@@ -126,6 +106,19 @@ public class FormPhongChieu extends JPanel {
         return button;
     }
 
+
+    private JComboBox<String> createStyledComboBox(String[] items) {
+        JComboBox<String> cb = new JComboBox<>(items);
+        cb.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cb.setBackground(Color.WHITE);
+        cb.setForeground(new Color(33, 37, 41));
+        cb.setBorder(BorderFactory.createLineBorder(new Color(204, 204, 204), 1, true));
+        if (cb.getRenderer() instanceof JLabel lbl) {
+            lbl.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        }
+        return cb;
+    }
+
     private void loadDataToTable() {
         model.setRowCount(0);
         for (PhongChieuDTO pc : pcBUS.getList()) {
@@ -137,6 +130,87 @@ public class FormPhongChieu extends JPanel {
                     pc.getSoGheMoiHang()
             });
         }
+    }
+
+    private void addRoom() {
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = new JDialog(owner, "Thêm Phòng Chiếu Mới", Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setSize(450, 350);
+        dialog.setLocationRelativeTo(owner);
+
+        JPanel panelCenter = new JPanel(new GridLayout(4, 2, 10, 20));
+        panelCenter.setBorder(new EmptyBorder(20, 20, 20, 20));
+        Font font = new Font("Segoe UI", Font.PLAIN, 14);
+
+        panelCenter.add(createLabel("Tên Phòng: "));
+        JTextField txtTenPhong = new JTextField();
+        txtTenPhong.setFont(font);
+        panelCenter.add(txtTenPhong);
+
+        panelCenter.add(createLabel("Loại Phòng: "));
+        JComboBox<String> optLoaiPhong = createStyledComboBox(new String[]{"2D", "3D", "4DX", "IMAX"});
+        panelCenter.add(optLoaiPhong);
+
+        panelCenter.add(createLabel("Số Hàng: "));
+        JTextField txtSoHang = new JTextField();
+        txtSoHang.setFont(font);
+        panelCenter.add(txtSoHang);
+
+        panelCenter.add(createLabel("Số Ghế/Hàng: "));
+        JTextField txtGheHang = new JTextField();
+        txtGheHang.setFont(font);
+        panelCenter.add(txtGheHang);
+
+        JPanel panelBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+        JButton btnHuy = createStyledButton("Hủy", new Color(108, 117, 125), Color.WHITE);
+        JButton btnThem = createStyledButton("Lưu", new Color(40, 167, 69), Color.WHITE);
+
+        panelBottom.add(btnThem);
+        panelBottom.add(btnHuy);
+
+        dialog.setLayout(new BorderLayout());
+        dialog.add(panelCenter, BorderLayout.CENTER);
+        dialog.add(panelBottom, BorderLayout.SOUTH);
+
+        btnHuy.addActionListener(e -> dialog.dispose());
+
+        btnThem.addActionListener(e -> {
+            String tenPhong = txtTenPhong.getText().trim();
+            String loaiPhong = (String) optLoaiPhong.getSelectedItem();
+            String soHangStr = txtSoHang.getText().trim();
+            String soGheStr = txtGheHang.getText().trim();
+
+            if (tenPhong.isEmpty() || soHangStr.isEmpty() || soGheStr.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Vui lòng nhập đầy đủ thông tin!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                int soHang = Integer.parseInt(soHangStr);
+                int soGhe = Integer.parseInt(soGheStr);
+
+                if (soHang <= 0 || soGhe <= 0) {
+                    JOptionPane.showMessageDialog(dialog, "Số hàng và số ghế phải lớn hơn 0!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Gắn MaPhong = 0, CSDL sẽ tự động tăng (Auto Increment)
+                PhongChieuDTO pc = new PhongChieuDTO(0, tenPhong, loaiPhong, soHang, soGhe);
+
+                if (pcBUS.add(pc)) {
+                    JOptionPane.showMessageDialog(dialog, "Thêm phòng chiếu thành công!");
+                    loadDataToTable(); // Refresh lại bảng
+                    dialog.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "Thêm thất bại. Vui lòng kiểm tra lại CSDL!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(dialog, "Số hàng và số ghế phải là số nguyên!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        dialog.setVisible(true);
     }
 
     private void moXemPhongDaChon() {
@@ -222,14 +296,10 @@ public class FormPhongChieu extends JPanel {
                 TitledBorder.TOP));
         chairPanel.setOpaque(false);
 
-        JButton btnAdd = createStyledButton("Thêm", new Color(40, 167, 69), Color.WHITE);
         JButton btnEdit = createStyledButton("Sửa", new Color(255, 193, 7), Color.BLACK);
-//        JButton btnDelete = createStyledButton("Xóa", new Color(220, 53, 69), Color.WHITE);
         JButton btnView = createStyledButton("Xem", new Color(0, 123, 255), Color.WHITE);
 
-        chairPanel.add(btnAdd);
         chairPanel.add(btnEdit);
-//        chairPanel.add(btnDelete);
         chairPanel.add(btnView);
 
         topPanel.add(chairPanel, BorderLayout.WEST);
@@ -248,6 +318,8 @@ public class FormPhongChieu extends JPanel {
         x.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         dimPanel.add(createLabel("Độ rộng(Ghế):"));
+
+        topPanel.add(dimPanel);
 
         root.add(topPanel, BorderLayout.NORTH);
 

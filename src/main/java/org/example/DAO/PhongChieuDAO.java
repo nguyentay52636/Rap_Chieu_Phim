@@ -154,4 +154,20 @@ public class PhongChieuDAO {
         }
     }
 
+    public boolean insert(PhongChieuDTO pc) {
+        String sql = "INSERT INTO PhongChieu (TenPhong, LoaiPhong, SoHang, SoGheMoiHang) VALUES (?, ?, ?, ?)";
+        try (Connection con = UtilsJDBC.getConnectDB();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, pc.getTenPhong());
+            ps.setString(2, pc.getLoaiPhong());
+            ps.setInt(3, pc.getSoHang());
+            ps.setInt(4, pc.getSoGheMoiHang());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

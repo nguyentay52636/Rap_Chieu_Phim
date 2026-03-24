@@ -106,52 +106,11 @@ public class PhongChieuBUS {
         return room;
     }
 
-    // 1. CẬP NHẬT LOẠI GHẾ (Sửa)
-    public boolean updateChairType(int maPhong, List<String> listTenGhe, int maLoaiGheMoi) {
-        if (listTenGhe == null || listTenGhe.isEmpty()) return true;
-        String sql = "UPDATE Ghe SET MaLoaiGhe = ? WHERE MaPhong = ? AND HangGhe = ? AND SoGhe = ?";
-        try (Connection con = UtilsJDBC.getConnectDB();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            con.setAutoCommit(false);
-            for (String tenGhe : listTenGhe) {
-                char charHang = tenGhe.charAt(0);
-                int soGhe = Integer.parseInt(tenGhe.substring(1));
-                ps.setInt(1, maLoaiGheMoi);
-                ps.setInt(2, maPhong);
-                ps.setInt(3, (int) charHang); // Lấy mã ASCII
-                ps.setInt(4, soGhe);
-                ps.addBatch();
-            }
-            ps.executeBatch();
-            con.commit();
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+    public boolean add(PhongChieuDTO pc) {
+        boolean ok = phongChieuDAO.insert(pc);
+        if (ok) {
+            refreshList(); // Cập nhật lại list ở BUS
         }
-    }
-
-    // 2. XÓA GHẾ THEO DANH SÁCH (Xóa)
-    public boolean deleteChairs(int maPhong, List<String> listTenGhe) {
-        if (listTenGhe == null || listTenGhe.isEmpty()) return true;
-        String sql = "DELETE FROM Ghe WHERE MaPhong = ? AND HangGhe = ? AND SoGhe = ?";
-        try (Connection con = UtilsJDBC.getConnectDB();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            con.setAutoCommit(false);
-            for (String tenGhe : listTenGhe) {
-                char charHang = tenGhe.charAt(0);
-                int soGhe = Integer.parseInt(tenGhe.substring(1));
-                ps.setInt(1, maPhong);
-                ps.setInt(2, (int) charHang);
-                ps.setInt(3, soGhe);
-                ps.addBatch();
-            }
-            ps.executeBatch();
-            con.commit();
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return ok;
     }
 }
