@@ -159,12 +159,32 @@ INSERT INTO PhongChieu (TenPhong, LoaiPhong, SoHang, SoGheMoiHang) VALUES
 ('Phòng 5', '2D', 11, 16);
 
 -- 5. Bảng Ghe (dùng MaPhong 1-5 và MaLoaiGhe 1-5)
-INSERT INTO Ghe (MaPhong, MaLoaiGhe, HangGhe, SoGhe) VALUES
-(1, 1, 'A', 1),
-(1, 1, 'A', 2),
-(2, 2, 'B', 5),
-(3, 3, 'C', 8),
-(4, 4, 'D', 10);
+INSERT INTO Ghe (MaPhong, MaLoaiGhe, HangGhe, SoGhe)
+WITH RECURSIVE Hang AS (
+    -- Khởi tạo danh sách hàng chữ cái từ A
+    SELECT 1 AS RowIndex, CAST('A' AS CHAR(1)) AS HangGhe 
+    UNION ALL
+    SELECT RowIndex + 1, CAST(CHAR(65 + RowIndex) AS CHAR(1))
+    FROM Hang 
+    WHERE RowIndex < 26 
+),
+Cot AS (
+    -- Khởi tạo danh sách số ghế từ 1
+    SELECT 1 AS ColIndex
+    UNION ALL
+    SELECT ColIndex + 1 
+    FROM Cot 
+    WHERE ColIndex < 50 
+)
+SELECT 
+    p.MaPhong,
+    p.MaPhong AS MaLoaiGhe, 
+    h.HangGhe,
+    c.ColIndex AS SoGhe
+FROM PhongChieu p
+JOIN Hang h ON h.RowIndex <= p.SoHang
+JOIN Cot c ON c.ColIndex <= p.SoGheMoiHang
+ORDER BY p.MaPhong ASC, h.RowIndex ASC, c.ColIndex ASC;
 
 -- 6. Bảng TheLoaiPhim
 INSERT INTO TheLoaiPhim (TenLoaiPhim) VALUES
