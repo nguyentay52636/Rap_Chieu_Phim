@@ -14,13 +14,14 @@ public class AddEmployeeDialog extends JDialog {
     private EmployeeBUS employeeBUS;
     private FormEmployee parent;
 
-    public AddEmployeeDialog(FormEmployee parent, EmployeeBUS bus) {
+    public AddEmployeeDialog(FormEmployee parent, EmployeeBUS bus) 
+    {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "QUẢN LÝ NHÂN VIÊN", true);
         this.parent = parent;
         this.employeeBUS = bus;
         
         setLayout(new BorderLayout());
-        setSize(450, 500); // Rộng hơn một chút cho thoải mái
+        setSize(450, 500); 
         setLocationRelativeTo(parent);
         
         initComponents();
@@ -38,7 +39,7 @@ public class AddEmployeeDialog extends JDialog {
         pnlHeader.add(lblTitle);
         add(pnlHeader, BorderLayout.NORTH);
 
-        // --- PANEL NHẬP LIỆU (Giống style ảnh ông gửi nhưng đẹp hơn) ---
+        // --- PANEL NHẬP LIỆU ---
         JPanel pnlContent = new JPanel(new GridLayout(4, 1, 15, 15));
         pnlContent.setBorder(new EmptyBorder(25, 40, 25, 40));
         pnlContent.setBackground(Color.WHITE);
@@ -55,7 +56,7 @@ public class AddEmployeeDialog extends JDialog {
 
         add(pnlContent, BorderLayout.CENTER);
 
-        // --- PANEL NÚT BẤM (Bo góc, màu sắc giống ảnh mẫu) ---
+        // --- PANEL NÚT BẤM ---
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 15));
         pnlButtons.setBackground(new Color(248, 249, 250));
         
@@ -72,17 +73,17 @@ public class AddEmployeeDialog extends JDialog {
         pnlButtons.add(btnSave);
         add(pnlButtons, BorderLayout.SOUTH);
     }
-
-    private JTextField createModernField(String title, String placeholder) {
+// Hàm tiện ích để tạo JTextField với placeholder và kiểu dáng hiện đại
+    private JTextField createModernField(String title, String placeholder) 
+    {
         JTextField txt = new JTextField();
-        // FlatLaf placeholder xịn xò
         txt.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
-        // Tạo bo góc nhẹ cho ô nhập
         txt.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:2");
         return txt;
     }
 
-    private JPanel createFieldWrapper(String labelText, JTextField field) {
+    private JPanel createFieldWrapper(String labelText, JTextField field) 
+    {
         JPanel pnl = new JPanel(new BorderLayout(5, 5));
         pnl.setBackground(Color.WHITE);
         JLabel lbl = new JLabel(labelText);
@@ -92,26 +93,72 @@ public class AddEmployeeDialog extends JDialog {
         return pnl;
     }
 
-    private void initEvents() {
+    private void initEvents() 
+    {
         btnCancel.addActionListener(e -> dispose());
 
         btnSave.addActionListener(e -> {
-            try {
+            try 
+            {
                 String name = txtName.getText().trim();
+                if (name.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 Date dob = Date.valueOf(txtDob.getText().trim());
                 Date joinDate = Date.valueOf(txtJoinDate.getText().trim());
-                double salary = Double.parseDouble(txtSalary.getText().trim());
 
-                if (name.isEmpty()) throw new Exception("Tên không được trống!");
+                if(joinDate.before(dob) && dob.after(java.sql.Date.valueOf("1920-01-01"))) {
+                    JOptionPane.showMessageDialog(this, "Ngày vào làm phải sau ngày sinh! và ngày sinh phải sau năm 1920.", "Lỗi logic ngày tháng", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                
+                double salary;
+                try 
+                {
+                    salary = Double.parseDouble(txtSalary.getText().trim());
+                } 
+                catch (NumberFormatException ex) 
+                {
+                    JOptionPane.showMessageDialog(this, "Lương cơ bản phải là số hợp lệ!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
 
                 EmployeeDTO emp = new EmployeeDTO(0, name, dob, joinDate, salary);
-                if (employeeBUS.themNhanVien(emp)) {
-                    JOptionPane.showMessageDialog(this, "Thành công! Đã thêm " + name);
+                
+                // KIỂM TRA LOGIC THÔNG QUA BUS (Tuổi, Lương âm, Ngày tháng...)
+                if (employeeBUS.themNhanVien(emp)) 
+                { 
+                    JOptionPane.showMessageDialog(this, "Thành công! Đã thêm nhân viên " + name, "Thành công", JOptionPane.INFORMATION_MESSAGE);
                     parent.loadDataToTable();
                     dispose();
+                } 
+                else 
+                    {
+                    // Nếu BUS trả về false, hiện bảng thông báo chi tiết này
+                    JOptionPane.showMessageDialog(this, 
+                        "Dữ liệu không hợp lệ! Vui lòng kiểm tra lại những thứ sau đây:\n" +
+                        "- Mức lương phải lớn hơn hoặc bằng 0.\n" +
+                        "- Ngày vào làm phải sau ngày sinh và ngày sinh phải sau năm 1961.\n" +
+                        "- Độ tuổi lao động phải từ 15 tuổi trở lên.", 
+                        "Từ chối thêm dữ liệu", 
+                        JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage() + "\n(Lưu ý định dạng: Năm-Tháng-Ngày)");
+
+            } 
+            // Bắt lỗi khi người dùng nhập sai định dạng số (VD: nhập chữ vào trường lương)
+            catch (IllegalArgumentException ex) 
+            {
+                // Lỗi khi người dùng gõ sai định dạng ngày tháng (VD: 2026/03/16 thay vì 2026-03-16)
+                JOptionPane.showMessageDialog(this, 
+                    "Sai định dạng ngày tháng!\nVui lòng nhập theo mẫu: Năm-Tháng-Ngày (VD: 2006-05-29)", 
+                    "Lỗi định dạng", 
+                    JOptionPane.WARNING_MESSAGE);
+            } 
+            catch (Exception ex) 
+            {
+                JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
             }
         });
     }

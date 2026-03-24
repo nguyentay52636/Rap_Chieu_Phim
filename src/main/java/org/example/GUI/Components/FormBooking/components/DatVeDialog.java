@@ -94,15 +94,34 @@ public class DatVeDialog extends JDialog {
         loadPhongVaSuat(maPhim, cbPhong, cbSuatChieu);
 
         btnTimGhe.addActionListener(e -> {
+            if (cbPhong.getSelectedItem() == null || cbSuatChieu.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(this, "Không có dữ liệu suất chiếu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             int maPhong = (int) cbPhong.getSelectedItem();
             int maSuatChieu = (int) cbSuatChieu.getSelectedItem();
+
+            // Chuyển ngày từ JSpinner sang LocalDate để so sánh
             java.util.Date utilDate = (java.util.Date) dateSpinner.getValue();
-            Date ngayChieu = new Date(utilDate.getTime());
-            currentMaSuatChieuPhim = suatChieuPhimBUS.getMaSuatChieuPhim(
-                    maPhim, maPhong, maSuatChieu, ngayChieu);
-            if (currentMaSuatChieuPhim != -1) {
-                int giaVeGoc = suatChieuPhimBUS.getGiaVeGoc(currentMaSuatChieuPhim);
-                txtGiaVe.setText(String.valueOf(giaVeGoc));
+            java.time.LocalDate selectedDate = utilDate.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+
+            // Tìm suất chiếu phù hợp trong list cache của BUS
+            org.example.DTO.SuatChieuPhimDTO foundSC = null;
+            for (org.example.DTO.SuatChieuPhimDTO sc : suatChieuPhimBUS.getListSuatChieu()) {
+                if (sc.getMaPhim() == maPhim &&
+                        sc.getMaPhong() == maPhong &&
+                        sc.getMaSuatChieu() == maSuatChieu &&
+                        sc.getGioBatDau().toLocalDate().equals(selectedDate)) {
+                    foundSC = sc;
+                    break;
+                }
+            }
+
+            if (foundSC != null) {
+                currentMaSuatChieuPhim = foundSC.getMaSuatChieu();
+                // Set giá vé lên Textfield (bỏ số thập phân)
+                txtGiaVe.setText(String.format("%.0f", foundSC.getGiaVeGoc()));
 
                 SeatSelectionDialog seatDialog = new SeatSelectionDialog(currentMaSuatChieuPhim, veBUS);
                 seatDialog.setVisible(true);
@@ -115,7 +134,7 @@ public class DatVeDialog extends JDialog {
             } else {
                 JOptionPane.showMessageDialog(
                         this,
-                        "Không tìm thấy suất chiếu",
+                        "Không tìm thấy suất chiếu phù hợp với ngày và phòng đã chọn",
                         "Lỗi",
                         JOptionPane.ERROR_MESSAGE
                 );
@@ -206,13 +225,26 @@ public class DatVeDialog extends JDialog {
     private void loadPhongVaSuat(int maPhim,
                                  JComboBox<Integer> cbPhong,
                                  JComboBox<Integer> cbSuatChieu) {
-        ArrayList<Integer> listPhong = suatChieuPhimBUS.getListPhongByPhim(maPhim);
-        for (int phong : listPhong) {
-            cbPhong.addItem(phong);
-        }
-        ArrayList<Integer> listSuat = suatChieuPhimBUS.getListSuatByPhim(maPhim);
-        for (int suat : listSuat) {
-            cbSuatChieu.addItem(suat);
+        cbPhong.removeAllItems();
+        cbSuatChieu.removeAllItems();
+
+        java.util.List<Integer> listPhong = new java.util.ArrayList<>();
+        java.util.List<Integer> listSuat = new java.util.ArrayList<>();
+
+        // Duyệt danh sách suất chiếu từ BUS
+        for (org.example.DTO.SuatChieuPhimDTO sc : suatChieuPhimBUS.getListSuatChieu()) {
+            if (sc.getMaPhim() == maPhim) {
+                // Thêm phòng nếu chưa có
+                if (!listPhong.contains(sc.getMaPhong())) {
+                    listPhong.add(sc.getMaPhong());
+                    cbPhong.addItem(sc.getMaPhong());
+                }
+                // Thêm mã suất chiếu nếu chưa có
+                if (!listSuat.contains(sc.getMaSuatChieu())) {
+                    listSuat.add(sc.getMaSuatChieu());
+                    cbSuatChieu.addItem(sc.getMaSuatChieu());
+                }
+            }
         }
     }
 

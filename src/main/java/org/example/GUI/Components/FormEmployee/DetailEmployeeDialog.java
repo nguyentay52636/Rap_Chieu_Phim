@@ -7,11 +7,13 @@ import java.awt.*;
 import java.text.SimpleDateFormat;
 import org.example.DTO.EmployeeDTO;
 
-public class DetailEmployeeDialog extends JDialog {
+public class DetailEmployeeDialog extends JDialog 
+{
     private EmployeeDTO emp;
     private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-    public DetailEmployeeDialog(JFrame parent, EmployeeDTO emp) {
+    public DetailEmployeeDialog(JFrame parent, EmployeeDTO emp) 
+    {
         super(parent, "Hồ Sơ Chi Tiết Nhân Viên", true);
         this.emp = emp;
         
@@ -19,7 +21,6 @@ public class DetailEmployeeDialog extends JDialog {
         setSize(750, 550);
         setLocationRelativeTo(parent);
         getContentPane().setBackground(Color.WHITE);
-
         initComponents();
     }
 
@@ -79,7 +80,8 @@ public class DetailEmployeeDialog extends JDialog {
         add(pnlMain);
     }
 
-    private JPanel createLabelGroup(String title, String value) {
+    private JPanel createLabelGroup(String title, String value) 
+    {
         JPanel pnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         pnl.setBackground(Color.WHITE);
         JLabel lblTitle = new JLabel(title);

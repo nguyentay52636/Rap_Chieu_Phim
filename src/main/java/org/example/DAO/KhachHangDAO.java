@@ -146,7 +146,7 @@ public class KhachHangDAO {
         return list;
     }
 
-    public List<KhachHangDTO> advancedSearch(String hoTen, String sdt, java.util.Date tuNgay, java.util.Date denNgay, String diemTu, String diemDen, String phepTinh, String diemToanTu, List<String> selectedHangs) {
+    public List<KhachHangDTO> advancedSearch(String hoTen, String sdt, java.util.Date tuNgay, java.util.Date denNgay, String phepTinhNgay, java.util.Date ngayToanTu, String diemTu, String diemDen, String phepTinh, String diemToanTu, List<String> selectedHangs) {
         List<KhachHangDTO> list = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM KhachHang WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
@@ -157,6 +157,8 @@ public class KhachHangDAO {
         if (sdt != null && !sdt.trim().isEmpty()) {
             sql.append(" AND SDT LIKE ? "); params.add("%" + sdt.trim() + "%");
         }
+
+        // 1. So sánh Khoảng ngày sinh
         if (tuNgay != null) {
             sql.append(" AND NgaySinh >= ? "); params.add(new java.sql.Date(tuNgay.getTime()));
         }
@@ -164,7 +166,13 @@ public class KhachHangDAO {
             sql.append(" AND NgaySinh <= ? "); params.add(new java.sql.Date(denNgay.getTime()));
         }
 
-        // 1. So sánh Khoảng điểm
+        // 2. So sánh Toán tử ngày sinh (MỚI)
+        if (!phepTinhNgay.equals("(Bỏ qua)") && ngayToanTu != null) {
+            sql.append(" AND NgaySinh ").append(phepTinhNgay).append(" ? ");
+            params.add(new java.sql.Date(ngayToanTu.getTime()));
+        }
+
+        // 3. So sánh Khoảng điểm
         if (diemTu != null && !diemTu.trim().isEmpty()) {
             sql.append(" AND DiemTichLuy >= ? "); params.add(Integer.parseInt(diemTu.trim()));
         }
@@ -172,13 +180,13 @@ public class KhachHangDAO {
             sql.append(" AND DiemTichLuy <= ? "); params.add(Integer.parseInt(diemDen.trim()));
         }
 
-        // 2. So sánh Toán tử
+        // 4. So sánh Toán tử điểm
         if (!phepTinh.equals("(Bỏ qua)") && diemToanTu != null && !diemToanTu.trim().isEmpty()) {
             sql.append(" AND DiemTichLuy ").append(phepTinh).append(" ? ");
             params.add(Integer.parseInt(diemToanTu.trim()));
         }
 
-        // 3. Lọc nhiều hạng
+        // 5. Lọc nhiều hạng
         if (selectedHangs != null && !selectedHangs.isEmpty()) {
             sql.append(" AND HangThanhVien IN (");
             for (int i = 0; i < selectedHangs.size(); i++) {

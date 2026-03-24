@@ -1,6 +1,7 @@
 package org.example.GUI.Components.FormCustomer;
 
 import org.example.DTO.KhachHangDTO;
+import org.example.UltisTable.TableUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -24,19 +25,22 @@ public class ViewCustomerDialog extends JDialog {
     private void init(JFrame owner) {
         this.setSize(750, 550); // Mở rộng form để chứa đủ bảng lịch sử
         this.setLayout(new BorderLayout(10, 10));
-        this.getContentPane().setBackground(Color.WHITE);
+        // Lấy màu nền theo theme hiện tại
+        this.getContentPane().setBackground(UIManager.getColor("Panel.background"));
 
         // ==========================================
         // PHẦN 1: NỬA TRÊN - THÔNG TIN KHÁCH HÀNG
         // ==========================================
         JPanel panelInfo = new JPanel(new GridLayout(3, 2, 20, 15));
-        panelInfo.setBackground(Color.WHITE);
+        panelInfo.setBackground(UIManager.getColor("Panel.background"));
 
-        // Tạo viền (Border) có tiêu đề bao quanh phần thông tin
+        // TẠO VIỀN: Thay màu tĩnh (200,200,200) bằng màu viền của hệ thống (Component.borderColor)
         TitledBorder titledBorder = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)), "Thông Tin Chung");
+                BorderFactory.createLineBorder(UIManager.getColor("Component.borderColor")), "Thông Tin Chung");
         titledBorder.setTitleFont(new Font("Segoe UI", Font.BOLD, 14));
-        titledBorder.setTitleColor(new Color(66, 103, 178));
+
+        // ĐỔI MÀU CHỮ TIÊU ĐỀ: Lấy màu xanh chủ đạo của hệ thống thay vì màu fix cứng
+        titledBorder.setTitleColor(UIManager.getColor("Component.accentColor"));
         panelInfo.setBorder(BorderFactory.createCompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), titledBorder));
 
@@ -51,7 +55,7 @@ public class ViewCustomerDialog extends JDialog {
         panelInfo.add(createDetailPanel("Ngày Sinh:", ngaySinhStr));
         panelInfo.add(createDetailPanel("Điểm Tích Lũy:", String.valueOf(kh.getDiemTichLuy())));
 
-        // Nổi bật Hạng thành viên
+        // Nổi bật Hạng thành viên (Vẫn giữ màu cam vì nó là điểm nhấn)
         JPanel hangPanel = createDetailPanel("Hạng Thành Viên:", kh.getHangThanhVien());
         ((JLabel) hangPanel.getComponent(1)).setForeground(new Color(255, 140, 0)); // Màu cam đậm
         ((JLabel) hangPanel.getComponent(1)).setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -62,11 +66,13 @@ public class ViewCustomerDialog extends JDialog {
         // PHẦN 2: NỬA DƯỚI - BẢNG LỊCH SỬ GIAO DỊCH (Mock data)
         // ==========================================
         JPanel panelHistory = new JPanel(new BorderLayout());
-        panelHistory.setBackground(Color.WHITE);
+        panelHistory.setBackground(UIManager.getColor("Panel.background"));
+
+        // TẠO VIỀN BẢNG LỊCH SỬ: Dùng màu động giống ở trên
         TitledBorder historyBorder = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)), "Lịch Sử Giao Dịch (Sắp ra mắt)");
+                BorderFactory.createLineBorder(UIManager.getColor("Component.borderColor")), "Lịch Sử Giao Dịch (Sắp ra mắt)");
         historyBorder.setTitleFont(new Font("Segoe UI", Font.BOLD, 14));
-        historyBorder.setTitleColor(new Color(66, 103, 178));
+        historyBorder.setTitleColor(UIManager.getColor("Component.accentColor"));
         panelHistory.setBorder(BorderFactory.createCompoundBorder(
                 new EmptyBorder(0, 10, 10, 10), historyBorder));
 
@@ -85,8 +91,15 @@ public class ViewCustomerDialog extends JDialog {
         JTable historyTable = new JTable(historyModel);
         historyTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         historyTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-        historyTable.getTableHeader().setBackground(new Color(240, 240, 240));
+        historyTable.getTableHeader().setReorderingAllowed(false);
+        // ĐÃ XÓA: Dòng setBackground(new Color(240, 240, 240)) của Header để nó tự đổi màu
+
         historyTable.setRowHeight(30);
+
+        // Bật sọc xen kẽ và màu lưới tự động cho bảng phụ này
+        historyTable.putClientProperty("JTable.showAlternateRowColors", true);
+        historyTable.setShowGrid(true);
+        historyTable.setGridColor(UIManager.getColor("Table.gridColor"));
 
         // Căn giữa các cột
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -94,6 +107,8 @@ public class ViewCustomerDialog extends JDialog {
         for (int i = 0; i < historyTable.getColumnCount(); i++) {
             historyTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
+
+        TableUtils.autoResizeColumns(historyTable);
 
         JScrollPane scrollHistory = new JScrollPane(historyTable);
         panelHistory.add(scrollHistory, BorderLayout.CENTER);
@@ -103,13 +118,15 @@ public class ViewCustomerDialog extends JDialog {
         // PHẦN 3: NÚT ĐÓNG
         // ==========================================
         JPanel panelBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
-        panelBottom.setBackground(Color.WHITE);
+        panelBottom.setBackground(UIManager.getColor("Panel.background"));
         JButton btnDong = new JButton("Đóng Hồ Sơ");
         btnDong.setPreferredSize(new Dimension(130, 40));
-        btnDong.setBackground(new Color(108, 117, 125)); // Màu xám chuẩn UI
-        btnDong.setForeground(Color.WHITE);
+
+        // Cập nhật giao diện nút Đóng chuẩn FlatLaf
         btnDong.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnDong.setFocusPainted(false);
+        // Có thể dùng kiểu của FlatLaf nếu muốn nút đẹp hơn, nhưng tạm giữ nguyên chức năng
+
         btnDong.addActionListener(e -> setVisible(false));
         panelBottom.add(btnDong);
 
@@ -124,16 +141,17 @@ public class ViewCustomerDialog extends JDialog {
     // Hàm tiện ích để ghép Tiêu đề và Nội dung lại với nhau
     private JPanel createDetailPanel(String title, String data) {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        p.setBackground(Color.WHITE);
+        p.setBackground(UIManager.getColor("Panel.background"));
 
         JLabel lblTitle = new JLabel(title);
         lblTitle.setFont(fontTitle);
-        lblTitle.setForeground(Color.GRAY);
+        // ĐỔI MÀU: Dùng màu nhạt của hệ thống (Label.disabledForeground) để tạo chữ mờ thay vì Color.GRAY tĩnh
+        lblTitle.setForeground(UIManager.getColor("Label.disabledForeground"));
         lblTitle.setPreferredSize(new Dimension(130, 25)); // Đẩy cho các cột thẳng hàng nhau
 
         JLabel lblData = new JLabel(data);
         lblData.setFont(fontData);
-        lblData.setForeground(Color.BLACK);
+        // ĐÃ XÓA: Dòng lblData.setForeground(Color.BLACK); - Không ép màu đen tĩnh nữa để nó tự chuyển Trắng khi bật Dark Mode
 
         p.add(lblTitle);
         p.add(lblData);

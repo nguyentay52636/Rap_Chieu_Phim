@@ -1,28 +1,34 @@
 package org.example.DTO;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 public class SuatChieuPhimDTO {
 
-    private int maSuatChieuPhim;
+    private int maSuatChieu;
     private int maPhim;
     private int maPhong;
-    private int maSuatChieu;
-    private Date ngayChieu;
-    private int giaVeGoc;
+    private LocalDateTime gioBatDau;
+    private LocalDateTime gioKetThuc;
+    private double giaVeGoc;
 
-    public SuatChieuPhimDTO(int maSuatChieuPhim, int maPhim, int maPhong,
-                            int maSuatChieu, Date ngayChieu, int giaVeGoc) {
-        this.maSuatChieuPhim = maSuatChieuPhim;
+    // Constructor mặc định (Không tham số)
+    public SuatChieuPhimDTO() {
+    }
+
+    // Constructor đầy đủ tham số
+    public SuatChieuPhimDTO(int maSuatChieu, int maPhim, int maPhong,
+                            LocalDateTime gioBatDau, LocalDateTime gioKetThuc, double giaVeGoc) {
+        this.maSuatChieu = maSuatChieu;
         this.maPhim = maPhim;
         this.maPhong = maPhong;
-        this.maSuatChieu = maSuatChieu;
-        this.ngayChieu = ngayChieu;
+        this.gioBatDau = gioBatDau;
+        this.gioKetThuc = gioKetThuc;
         this.giaVeGoc = giaVeGoc;
     }
 
-    public int getMaSuatChieuPhim() {
-        return maSuatChieuPhim;
+    // --- GETTERS ---
+    public int getMaSuatChieu() {
+        return maSuatChieu;
     }
 
     public int getMaPhim() {
@@ -33,16 +39,40 @@ public class SuatChieuPhimDTO {
         return maPhong;
     }
 
-    public int getMaSuatChieu() {
-        return maSuatChieu;
+    public LocalDateTime getGioBatDau() {
+        return gioBatDau;
     }
 
-    public Date getNgayChieu() {
-        return ngayChieu;
+    public LocalDateTime getGioKetThuc() {
+        return gioKetThuc;
     }
 
-    public int getGiaVeGoc() {
+    public double getGiaVeGoc() {
         return giaVeGoc;
     }
-}
 
+    // --- SETTERS ---
+    public void setMaSuatChieu(int maSuatChieu) {
+        this.maSuatChieu = maSuatChieu;
+    }
+
+    public void setMaPhim(int maPhim) {
+        this.maPhim = maPhim;
+    }
+
+    public void setMaPhong(int maPhong) {
+        this.maPhong = maPhong;
+    }
+
+    public void setGioBatDau(LocalDateTime gioBatDau) {
+        this.gioBatDau = gioBatDau;
+    }
+
+    public void setGioKetThuc(LocalDateTime gioKetThuc) {
+        this.gioKetThuc = gioKetThuc;
+    }
+
+    public void setGiaVeGoc(double giaVeGoc) {
+        this.giaVeGoc = giaVeGoc;
+    }
+}

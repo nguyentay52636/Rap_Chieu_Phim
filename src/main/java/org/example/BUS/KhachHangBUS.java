@@ -54,7 +54,7 @@ public class KhachHangBUS {
         return khachHangDAO.search(tieuChi, tuKhoa);
     }
 
-    public List<KhachHangDTO> advancedSearch(String hoTen, String sdt, java.util.Date tuNgay, java.util.Date denNgay, String diemTu, String diemDen, String phepTinh, String diemToanTu, List<String> selectedHangs){
-        return khachHangDAO.advancedSearch(hoTen, sdt, tuNgay, denNgay, diemTu, diemDen, phepTinh, diemToanTu, selectedHangs);
+    public List<KhachHangDTO> advancedSearch(String hoTen, String sdt, java.util.Date tuNgay, java.util.Date denNgay, String phepTinhNgay, java.util.Date ngayToanTu, String diemTu, String diemDen, String phepTinh, String diemToanTu, List<String> selectedHangs) {
+        return khachHangDAO.advancedSearch(hoTen, sdt, tuNgay, denNgay, phepTinhNgay, ngayToanTu, diemTu, diemDen, phepTinh, diemToanTu, selectedHangs);
     }
 }
