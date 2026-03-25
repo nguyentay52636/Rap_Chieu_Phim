@@ -8,11 +8,12 @@ import java.sql.Date;
 import org.example.BUS.EmployeeBUS;
 import org.example.DTO.EmployeeDTO;
 
-public class AddEmployeeDialog extends JDialog {
+public class AddEmployeeDialog extends JDialog 
+{
     private JTextField txtName, txtDob, txtJoinDate, txtSalary;
     private JButton btnSave, btnCancel;
-    private EmployeeBUS employeeBUS;
-    private FormEmployee parent;
+    private EmployeeBUS employeeBUS;//biến này để gọi hàm themNhanVien() trong EmployeeBUS để thêm nhân viên mới vào database và kiểm tra logic dữ liệu trước khi thêm vào database
+    private FormEmployee parent;//biến này để gọi hàm loadDataToTable() trong FormEmployee sau khi thêm thành công để cập nhật lại bảng hiển thị dữ liệu mới nhất từ database
 
     public AddEmployeeDialog(FormEmployee parent, EmployeeBUS bus) 
     {
@@ -28,7 +29,9 @@ public class AddEmployeeDialog extends JDialog {
         initEvents();
     }
 
-    private void initComponents() {
+    // Hàm này để khởi tạo giao diện người dùng, tạo các thành phần như JTextField, JButton và sắp xếp chúng trên dialog
+    private void initComponents() 
+    {
         // --- PANEL TIÊU ĐỀ ---
         JPanel pnlHeader = new JPanel();
         pnlHeader.setBackground(new Color(66, 103, 178));
@@ -44,11 +47,13 @@ public class AddEmployeeDialog extends JDialog {
         pnlContent.setBorder(new EmptyBorder(25, 40, 25, 40));
         pnlContent.setBackground(Color.WHITE);
 
+        //Hàm tiện ích createModernField() để tạo JTextField với placeholder và kiểu dáng hiện đại, giúp code gọn gàng hơn và dễ bảo trì hơn, tránh việc lặp lại nhiều lần cùng một đoạn code tạo JTextField với placeholder và kiểu dáng giống nhau.
         txtName = createModernField("Họ và Tên", "Nhập tên nhân viên...");
         txtDob = createModernField("Ngày Sinh", "yyyy-MM-dd (VD: 2000-01-01)");
         txtJoinDate = createModernField("Ngày Vào Làm", "yyyy-MM-dd (VD: 2026-03-16)");
         txtSalary = createModernField("Lương Cơ Bản", "Nhập số tiền lương...");
 
+        // Hàm tiện ích createFieldWrapper() để tạo JPanel chứa JLabel và JTextField, giúp code gọn gàng hơn và dễ bảo trì hơn, tránh việc lặp lại nhiều lần cùng một đoạn code tạo JPanel chứa JLabel và JTextField với kiểu dáng giống nhau.
         pnlContent.add(createFieldWrapper("Họ và Tên nhân viên:", txtName));
         pnlContent.add(createFieldWrapper("Ngày sinh:", txtDob));
         pnlContent.add(createFieldWrapper("Ngày vào làm:", txtJoinDate));
@@ -73,7 +78,8 @@ public class AddEmployeeDialog extends JDialog {
         pnlButtons.add(btnSave);
         add(pnlButtons, BorderLayout.SOUTH);
     }
-// Hàm tiện ích để tạo JTextField với placeholder và kiểu dáng hiện đại
+
+    // Hàm tiện ích để tạo JTextField với placeholder và kiểu dáng hiện đại
     private JTextField createModernField(String title, String placeholder) 
     {
         JTextField txt = new JTextField();
@@ -93,26 +99,28 @@ public class AddEmployeeDialog extends JDialog {
         return pnl;
     }
 
+    // Hàm initEvents() để thiết lập các sự kiện cho nút "Hủy bỏ" và "Xác nhận lưu". Khi người dùng nhấn "Hủy bỏ", dialog sẽ đóng lại. Khi nhấn "Xác nhận lưu", hàm sẽ thực hiện các bước sau:
     private void initEvents() 
     {
+        // Sự kiện cho nút "Hủy bỏ" để đóng dialog
         btnCancel.addActionListener(e -> dispose());
 
+        //Sự kiện cho nút lưu   
         btnSave.addActionListener(e -> {
             try 
             {
                 String name = txtName.getText().trim();
-                if (name.isEmpty()) {
+                if (name.isEmpty()) 
+                {
                     JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
+                
                 Date dob = Date.valueOf(txtDob.getText().trim());
                 Date joinDate = Date.valueOf(txtJoinDate.getText().trim());
 
-                if(joinDate.before(dob) && dob.after(java.sql.Date.valueOf("1920-01-01"))) {
-                    JOptionPane.showMessageDialog(this, "Ngày vào làm phải sau ngày sinh! và ngày sinh phải sau năm 1920.", "Lỗi logic ngày tháng", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+                
                 
                 double salary;
                 try 
@@ -127,15 +135,16 @@ public class AddEmployeeDialog extends JDialog {
 
                 EmployeeDTO emp = new EmployeeDTO(0, name, dob, joinDate, salary);
                 
-                // KIỂM TRA LOGIC THÔNG QUA BUS (Tuổi, Lương âm, Ngày tháng...)
+                // KIỂM TRA LOGIC THÔNG QUA BUS (Tuổi, Lương âm, Ngày tháng...) kiểm tra sau khi dữ liệu đầu vào hợp lệ về định dạng
                 if (employeeBUS.themNhanVien(emp)) 
                 { 
                     JOptionPane.showMessageDialog(this, "Thành công! Đã thêm nhân viên " + name, "Thành công", JOptionPane.INFORMATION_MESSAGE);
                     parent.loadDataToTable();
                     dispose();
                 } 
+                
                 else 
-                    {
+                {
                     // Nếu BUS trả về false, hiện bảng thông báo chi tiết này
                     JOptionPane.showMessageDialog(this, 
                         "Dữ liệu không hợp lệ! Vui lòng kiểm tra lại những thứ sau đây:\n" +

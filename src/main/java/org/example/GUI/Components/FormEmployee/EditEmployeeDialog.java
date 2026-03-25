@@ -111,10 +111,13 @@ public class EditEmployeeDialog extends JDialog
 
     private void initEvents() 
     {
+        // Sự kiện cho nút "Hủy bỏ" để đóng dialog
         btnCancel.addActionListener(e -> dispose());
-
+        // Sự kiện cho nút "Lưu thay đổi" để cập nhật thông tin nhân viên
         btnSave.addActionListener(e -> {
-            try {
+            try 
+            {
+
                 String name = txtName.getText().trim();
                 if (name.isEmpty()) 
                 {
@@ -122,13 +125,9 @@ public class EditEmployeeDialog extends JDialog
                     return;
                 }
 
+
                 Date dob = Date.valueOf(txtDob.getText().trim());
                 Date joinDate = Date.valueOf(txtJoinDate.getText().trim());
-                if(joinDate.before(dob) && dob.after(java.sql.Date.valueOf("1920-01-01"))) 
-                {
-                    JOptionPane.showMessageDialog(this, "Ngày vào làm phải sau ngày sinh! và ngày sinh phải sau năm 1920.","Lỗi logic ngày tháng", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
                 
 
                 double salary;

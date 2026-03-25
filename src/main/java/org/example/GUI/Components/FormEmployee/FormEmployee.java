@@ -21,12 +21,13 @@ public class FormEmployee extends JPanel
     private JComboBox<String> cbSearch;
     private JButton btnAdd, btnEdit, btnDelete, btnRefresh, btnView, btnExcel, btnExportExcel;
     
-    private EmployeeBUS employeeBUS = new EmployeeBUS();
-    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private EmployeeBUS employeeBUS = new EmployeeBUS();//tạo đối tượng EmployeeBUS để quản lý dữ liệu nhân viên và thực hiện các thao tác liên quan đến nhân viên như thêm/sửa/xóa/tìm kiếm/nhập xuất Excel
+    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");//định dạng ngày tháng khi hiển thị lên bảng, giúp dễ đọc hơn
 
+    // Biến toàn cục để giữ thông tin nhân viên đang được chọn trong bảng, giúp các dialog con có thể truy cập và sử dụng thông tin này
     public FormEmployee(String title) 
     {
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(10, 10)); 
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(Color.WHITE);
 
@@ -54,12 +55,13 @@ public class FormEmployee extends JPanel
         pnlButtons.add(btnView); pnlButtons.add(btnEdit); pnlButtons.add(btnDelete);
         pnlButtons.add(btnAdd); pnlButtons.add(btnExcel); pnlButtons.add(btnExportExcel);
 
-        JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));//tạo khung tìm kiếm
         pnlSearch.setBackground(Color.WHITE);
         pnlSearch.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)), "Tìm kiếm", TitledBorder.LEFT, TitledBorder.TOP));
 
-        cbSearch = new JComboBox<>(new String[]{"Mã NV", "Họ Tên"});
+       // Cập nhật JComboBox thêm Tất cả, Ngày Sinh, Ngày Vào Làm, Lương Cơ Bản
+        cbSearch = new JComboBox<>(new String[]{"Tất cả", "Mã NV", "Họ Tên", "Ngày Sinh", "Ngày Vào Làm", "Lương Cơ Bản"});
         cbSearch.setPreferredSize(new Dimension(100, 35));
         txtSearch = new JTextField(20);
         txtSearch.setPreferredSize(new Dimension(200, 35));
@@ -73,12 +75,12 @@ public class FormEmployee extends JPanel
         model = new DefaultTableModel(columns, 0) // Override để làm cho bảng không cho phép chỉnh sửa trực tiếp
         {
             @Override
-            public boolean isCellEditable(int row, int column) 
+            public boolean isCellEditable(int row, int column) //tất cả các ô trong bảng sẽ không cho phép chỉnh sửa trực tiếp, giúp tránh lỗi khi người dùng cố tình hoặc vô tình sửa dữ liệu trực tiếp trên bảng mà không thông qua dialog sửa
             { return false; }
         };
         
         table = new JTable(model);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);//chỉ cho phép chọn 1 dòng trong bảng để tránh lỗi khi sửa hoặc xóa
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         table.getTableHeader().setBackground(new Color(66, 103, 178));
@@ -89,16 +91,18 @@ public class FormEmployee extends JPanel
         add(new JScrollPane(table), BorderLayout.CENTER);
     }
 
+    // Hàm này sẽ được gọi trong sự kiện tìm kiếm để cập nhật lại bảng với danh sách kết quả tìm kiếm
     private void initEvents() 
     {
         // Nút Làm mới sẽ xóa ô tìm kiếm và load lại toàn bộ dữ liệu từ database
         btnRefresh.addActionListener(e -> 
             {
                 txtSearch.setText("");
-                employeeBUS.docDanhSach();
+                employeeBUS.docDanhSach();//đọc lại danh sách từ database để đảm bảo dữ liệu mới nhất được hiển thị, đặc biệt là sau khi thêm/sửa/xóa
                 loadDataToTable();
             });
-        // Sự kiện tìm kiếm theo thời gian thực khi gõ vào ô tìm kiếm
+        
+            // Sự kiện tìm kiếm theo thời gian thực khi gõ vào ô tìm kiếm
         txtSearch.addKeyListener(new KeyAdapter() // Sử dụng KeyAdapter để chỉ override phương thức cần thiết
         {
             @Override
@@ -116,7 +120,7 @@ public class FormEmployee extends JPanel
             if (emp == null) 
                 return;
 
-            if (JOptionPane.showConfirmDialog(this, "Xóa nhân viên " + emp.getMaNV() + "?", "Xác nhận", 0) == 0) //hiện hộp thoại xác nhận trước khi xóa, nếu chọn "Có" thì tiếp tục thực hiện xóa
+            if (JOptionPane.showConfirmDialog(this, "Xóa nhân viên " + emp.getMaNV() + "?", "Xác nhận", 0) == 0) //hiện hộp thoại xác nhận trước khi xóa, nếu người dùng chọn "Có" thì tiếp tục thực hiện xóa, nếu chọn "Không" thì hủy bỏ thao tác xóa
                 {
                 try {
                         if (employeeBUS.xoaNhanVien(emp.getMaNV())) 
@@ -136,16 +140,17 @@ public class FormEmployee extends JPanel
 //--- Sự kiện Sửa sẽ mở dialog sửa nhân viên với thông tin của nhân viên được chọn
         btnEdit.addActionListener(e -> 
             {
-                EmployeeDTO emp = getSelectedEmployee("Sửa");
+                EmployeeDTO emp = getSelectedEmployee("Sửa");//lấy thông tin nhân viên được chọn để sửa
                 if (emp != null) 
                     new EditEmployeeDialog(this, employeeBUS, emp).setVisible(true);//mở dialog sửa nhân viên với thông tin của nhân viên được chọn
             });
 
+//--- Sự kiện Xem sẽ mở dialog xem chi tiết nhân viên với thông tin của nhân viên được chọn
         btnView.addActionListener(e -> 
         {
             EmployeeDTO emp = getSelectedEmployee("Xem");
             if (emp != null) 
-            new DetailEmployeeDialog((JFrame) SwingUtilities.getWindowAncestor(this), emp).setVisible(true);//mở dialog xem chi tiết nhân viên với thông tin của nhân viên được chọn
+            new DetailEmployeeDialog((JFrame) SwingUtilities.getWindowAncestor(this), emp).setVisible(true);//mở dialog xem chi tiết nhân viên với thông tin của nhân viên được chọn và truyền vào parent là JFrame chứa form này để dialog có thể căn giữa trên form cha
         });
 
 //--- Sự kiện nhập Excel 
@@ -180,44 +185,97 @@ public class FormEmployee extends JPanel
     // CÁC HÀM XỬ LÝ PHỤ TRỢ - GIÚP RÚT GỌN CODE
     // =========================================================
 
-    private void performSearch() // Hàm này sẽ được gọi mỗi khi người dùng gõ vào ô tìm kiếm để thực hiện tìm kiếm theo thời gian thực
 
+    // Hàm này sẽ được gọi trong sự kiện tìm kiếm để cập nhật lại bảng với danh sách kết quả tìm kiếm
+    // Hàm tìm kiếm đã được nâng cấp "Full giáp"
+    private void performSearch() 
     {
         String keyword = txtSearch.getText().toLowerCase().trim();
-        boolean isMaNV = cbSearch.getSelectedItem().equals("Mã NV");
-        ArrayList<EmployeeDTO> result = new ArrayList<>();//danh sách kết quả tìm kiếm sẽ được lưu vào đây
+        String type = cbSearch.getSelectedItem().toString(); // Lấy tiêu chí đang chọn
+        ArrayList<EmployeeDTO> result = new ArrayList<>();
 
         for (EmployeeDTO emp : employeeBUS.getDanhSach()) 
         {
-            String target = isMaNV ? String.valueOf(emp.getMaNV()) : emp.getHoTen().toLowerCase();
-            if (target.contains(keyword)) 
+            // 1. Chuyển tất cả dữ liệu của nhân viên thành chuỗi (String) để dễ so sánh
+            String maNV = String.valueOf(emp.getMaNV());
+            String hoTen = emp.getHoTen().toLowerCase();
+            
+            // Format ngày tháng giống y hệt trên bảng
+            String ngaySinh = emp.getNgaySinh() != null ? sdf.format(emp.getNgaySinh()) : "";
+            String ngayVaoLam = emp.getNgayVaoLam() != null ? sdf.format(emp.getNgayVaoLam()) : "";
+            
+            // Format lương (Có cả bản có dấu phẩy và bản số trơn để gõ kiểu gì cũng ra)
+            String luongFormat = String.format("%,.0f VNĐ", emp.getLuongCoBan()).toLowerCase();
+            String luongTron = String.format("%.0f", emp.getLuongCoBan());
+
+            boolean match = false;
+
+            // 2. So sánh từ khóa dựa trên tiêu chí (type)
+            switch (type) 
+            {
+                case "Mã NV":
+                    match = maNV.contains(keyword);
+                    break;
+                case "Họ Tên":
+                    match = hoTen.contains(keyword);
+                    break;
+                case "Ngày Sinh":
+                    match = ngaySinh.contains(keyword);
+                    break;
+                case "Ngày Vào Làm":
+                    match = ngayVaoLam.contains(keyword);
+                    break;
+                case "Lương Cơ Bản":
+                    match = luongFormat.contains(keyword) || luongTron.contains(keyword);
+                    break;
+                case "Tất cả":
+                default:
+                    // Quét toàn bộ: Chỉ cần từ khóa xuất hiện ở 1 trong 5 cột là ra kết quả
+                    match = maNV.contains(keyword) || 
+                            hoTen.contains(keyword) || 
+                            ngaySinh.contains(keyword) || 
+                            ngayVaoLam.contains(keyword) || 
+                            luongFormat.contains(keyword) || luongTron.contains(keyword);
+                    break;
+            }
+
+            // Nếu khớp thì nhét vào danh sách kết quả
+            if (match) 
+            {
                 result.add(emp);
+            }
         }
-        fillTable(result); //cập nhật lại bảng với danh sách kết quả tìm kiếm
+        
+        // 3. Đổ danh sách kết quả lên bảng
+        fillTable(result); 
     }
 
-    public void loadDataToTable() 
-    {
-        fillTable(employeeBUS.getDanhSach()); // Tái sử dụng hàm vẽ bảng
-    }
-
-    // 1. Hàm gom chung logic Đổ dữ liệu lên bảng
+    //Hàm này sẽ được gọi sau khi thêm/sửa/xóa để load lại dữ liệu mới nhất từ database và hiển thị lên bảng
     private void fillTable(ArrayList<EmployeeDTO> list) 
     {
         model.setRowCount(0);
         for (EmployeeDTO emp : list) 
         {
-            model.addRow(new Object[]//định dạng lại dữ liệu khi hiển thị lên bảng, đặc biệt là ngày tháng và lương
+            model.addRow(new Object[]//thêm một dòng mới vào bảng với các cột tương ứng là mã nhân viên, họ tên, ngày sinh, ngày vào làm và lương cơ bản, trong đó ngày sinh và ngày vào làm được định dạng lại cho dễ đọc hơn, còn lương cơ bản được định dạng với dấu phẩy phân cách hàng nghìn và thêm đơn vị VNĐ
             {
                 emp.getMaNV(), emp.getHoTen(), 
                 emp.getNgaySinh() != null ? sdf.format(emp.getNgaySinh()) : "", 
                 emp.getNgayVaoLam() != null ? sdf.format(emp.getNgayVaoLam()) : "", 
-                String.format("%,.0f VNĐ", emp.getLuongCoBan())
+                String.format("%,.0f VNĐ", emp.getLuongCoBan())//định dạng lương v ới dấu phẩy phân cách hàng nghìn và thêm đơn vị VNĐ, nếu lương là null thì hiển thị chuỗi rỗng
             });
         }
     }
+    
+    
+    // Hàm này sẽ được gọi sau khi thêm/sửa/xóa để load lại dữ liệu mới nhất từ database và hiển thị lên bảng
+    public void loadDataToTable() 
+    {
+        fillTable(employeeBUS.getDanhSach()); // Tái sử dụng hàm vẽ bảng
+    }
 
-    // 2. Hàm gom chung logic "Kiểm tra chọn dòng và Lấy thông tin nhân viên"
+    
+
+    // Hàm gom chung logic "Kiểm tra chọn dòng và Lấy thông tin nhân viên"
     private EmployeeDTO getSelectedEmployee(String actionName) 
     {
         if (table.getSelectedRowCount() != 1) 
@@ -233,8 +291,8 @@ public class FormEmployee extends JPanel
         }
         return null;
     }
-// 3. Hàm tạo nút với kiểu dáng đồng nhất trên toàn bộ form
-    private JButton createButton(String text, Color bg) // Hàm giúp tạo nút với màu sắc và kiểu dáng đồng nhất trên toàn bộ form
+    //Hàm tạo nút với kiểu dáng đồng nhất trên toàn bộ form
+    private JButton createButton(String text, Color bg) 
     {
         JButton btn = new JButton(text);
         btn.setPreferredSize(new Dimension(120, 40));
