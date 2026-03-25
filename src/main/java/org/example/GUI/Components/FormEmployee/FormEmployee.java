@@ -109,6 +109,9 @@ public class FormEmployee extends JPanel
             public void keyReleased(KeyEvent e) { performSearch(); }
         });
 
+        // Sự kiện tìm kiếm theo thời gian thực khi chọn ô tìm kiếm
+        cbSearch.addActionListener(e -> performSearch());
+
         // Nút Thêm sẽ mở dialog thêm nhân viên mới
         btnAdd.addActionListener(e -> new AddEmployeeDialog(this, employeeBUS).setVisible(true));
 
@@ -185,68 +188,18 @@ public class FormEmployee extends JPanel
     // CÁC HÀM XỬ LÝ PHỤ TRỢ - GIÚP RÚT GỌN CODE
     // =========================================================
 
-
     // Hàm này sẽ được gọi trong sự kiện tìm kiếm để cập nhật lại bảng với danh sách kết quả tìm kiếm
-    // Hàm tìm kiếm đã được nâng cấp "Full giáp"
+  
     private void performSearch() 
     {
-        String keyword = txtSearch.getText().toLowerCase().trim();
-        String type = cbSearch.getSelectedItem().toString(); // Lấy tiêu chí đang chọn
-        ArrayList<EmployeeDTO> result = new ArrayList<>();
-
-        for (EmployeeDTO emp : employeeBUS.getDanhSach()) 
-        {
-            // 1. Chuyển tất cả dữ liệu của nhân viên thành chuỗi (String) để dễ so sánh
-            String maNV = String.valueOf(emp.getMaNV());
-            String hoTen = emp.getHoTen().toLowerCase();
-            
-            // Format ngày tháng giống y hệt trên bảng
-            String ngaySinh = emp.getNgaySinh() != null ? sdf.format(emp.getNgaySinh()) : "";
-            String ngayVaoLam = emp.getNgayVaoLam() != null ? sdf.format(emp.getNgayVaoLam()) : "";
-            
-            // Format lương (Có cả bản có dấu phẩy và bản số trơn để gõ kiểu gì cũng ra)
-            String luongFormat = String.format("%,.0f VNĐ", emp.getLuongCoBan()).toLowerCase();
-            String luongTron = String.format("%.0f", emp.getLuongCoBan());
-
-            boolean match = false;
-
-            // 2. So sánh từ khóa dựa trên tiêu chí (type)
-            switch (type) 
-            {
-                case "Mã NV":
-                    match = maNV.contains(keyword);
-                    break;
-                case "Họ Tên":
-                    match = hoTen.contains(keyword);
-                    break;
-                case "Ngày Sinh":
-                    match = ngaySinh.contains(keyword);
-                    break;
-                case "Ngày Vào Làm":
-                    match = ngayVaoLam.contains(keyword);
-                    break;
-                case "Lương Cơ Bản":
-                    match = luongFormat.contains(keyword) || luongTron.contains(keyword);
-                    break;
-                case "Tất cả":
-                default:
-                    // Quét toàn bộ: Chỉ cần từ khóa xuất hiện ở 1 trong 5 cột là ra kết quả
-                    match = maNV.contains(keyword) || 
-                            hoTen.contains(keyword) || 
-                            ngaySinh.contains(keyword) || 
-                            ngayVaoLam.contains(keyword) || 
-                            luongFormat.contains(keyword) || luongTron.contains(keyword);
-                    break;
-            }
-
-            // Nếu khớp thì nhét vào danh sách kết quả
-            if (match) 
-            {
-                result.add(emp);
-            }
-        }
+        // 1. Lấy thông tin khách nhập
+        String keyword = txtSearch.getText().trim();
+        String type = cbSearch.getSelectedItem().toString(); 
         
-        // 3. Đổ danh sách kết quả lên bảng
+       // 2. Tìm kiếm với keyword và type
+        ArrayList<EmployeeDTO> result = employeeBUS.timKiem(keyword, type);
+        
+        // 3. Đem kết quả bưng lên mâm (Bảng)
         fillTable(result); 
     }
 

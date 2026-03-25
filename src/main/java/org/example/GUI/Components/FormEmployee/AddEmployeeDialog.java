@@ -109,7 +109,7 @@ public class AddEmployeeDialog extends JDialog
         btnSave.addActionListener(e -> {
             try 
             {
-                String name = txtName.getText().trim();
+                String name = txtName.getText().trim();// 
                 if (name.isEmpty()) 
                 {
                     JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!", "Lỗi nhập liệu", JOptionPane.WARNING_MESSAGE);
@@ -141,6 +141,7 @@ public class AddEmployeeDialog extends JDialog
                     JOptionPane.showMessageDialog(this, "Thành công! Đã thêm nhân viên " + name, "Thành công", JOptionPane.INFORMATION_MESSAGE);
                     parent.loadDataToTable();
                     dispose();
+                 
                 } 
                 
                 else 

@@ -63,6 +63,47 @@ public boolean validate (EmployeeDTO emp)
 
 }
 
+// --- TÌM KIẾM NHÂN VIÊN CHUẨN 
+    public ArrayList<EmployeeDTO> timKiem(String keyword, String type) 
+    {
+        ArrayList<EmployeeDTO> result = new ArrayList<>();
+        keyword = keyword.toLowerCase().trim();
+
+        // Định dạng ngày và tiền giống giao diện để dễ tìm kiếm
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+
+        for (EmployeeDTO emp : listEmployee) 
+        {
+            String maNV = String.valueOf(emp.getMaNV());
+            String hoTen = emp.getHoTen().toLowerCase();
+            String ngaySinh = emp.getNgaySinh() != null ? sdf.format(emp.getNgaySinh()) : "";// 
+            String ngayVaoLam = emp.getNgayVaoLam() != null ? sdf.format(emp.getNgayVaoLam()) : "";
+            String luongFormat = String.format("%,.0f VNĐ", emp.getLuongCoBan()).toLowerCase();
+            String luongTron = String.format("%.0f", emp.getLuongCoBan());
+
+            boolean match = false;
+
+            switch (type) 
+            {
+                case "Mã NV": match = maNV.contains(keyword); break;
+                case "Họ Tên": match = hoTen.contains(keyword); break;
+                case "Ngày Sinh": match = ngaySinh.contains(keyword); break;
+                case "Ngày Vào Làm": match = ngayVaoLam.contains(keyword); break;
+                case "Lương Cơ Bản": match = luongFormat.contains(keyword) || luongTron.contains(keyword); break;
+                default: // "Tất cả"
+                    match = maNV.contains(keyword) || hoTen.contains(keyword) || 
+                            ngaySinh.contains(keyword) || ngayVaoLam.contains(keyword) || 
+                            luongFormat.contains(keyword) || luongTron.contains(keyword);
+                    break;
+            }
+
+            if (match) 
+                result.add(emp);
+        
+        }
+        return result;
+    }
+
 //thêm nhân viên với validate
     public boolean themNhanVien(EmployeeDTO emp) 
     {
@@ -108,39 +149,6 @@ public boolean validate (EmployeeDTO emp)
         return false;
     }
 
-
-
-//--- TÌM KIẾM NHÂN VIÊN THEO MÃ NV HOẶC HỌ TÊN (Hỗ trợ tìm kiếm linh hoạt hơn)
-    public ArrayList<EmployeeDTO> timKiem(String text, String type) 
-    {
-        ArrayList<EmployeeDTO> result = new ArrayList<>();
-        String query = text.toLowerCase().trim();//chuyển về chữ thường và loại bỏ khoảng trắng thừa để tìm kiếm linh hoạt hơn.
-        for (EmployeeDTO emp : listEmployee) 
-        {
-            boolean match = false;
-            switch (type) 
-            {
-                case "Mã NV": 
-                if (String.valueOf(emp.getMaNV()).contains(query)) 
-                    match = true; 
-                break;
-                
-                case "Họ Tên": if (emp.getHoTen().toLowerCase().contains(query)) 
-                    match = true; 
-                break;
-
-               
-                
-                default: 
-                if (String.valueOf(emp.getMaNV()).contains(query) || emp.getHoTen().toLowerCase().contains(query)) 
-                    match = true; 
-                break;
-            }
-            if (match) //nếu tìm thấy kết quả phù hợp thì thêm vào danh sách kết quả trả về
-                result.add(emp);
-        }
-        return result;
-    }
 
 //--- XUẤT EXCEL (Dùng thư viện Apache POI)
     public boolean exportExcel(String filePath) 
