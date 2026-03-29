@@ -3,9 +3,9 @@ package org.example.GUI.Components.FormVe;
 import com.formdev.flatlaf.FlatClientProperties;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import javax.swing.table.DefaultTableCellRenderer;
 import org.example.BUS.VeBUS;
 
 public class FormVe extends JPanel 
@@ -13,161 +13,187 @@ public class FormVe extends JPanel
     private VeBUS veBUS = new VeBUS();
     private JTable table;
     private DefaultTableModel model;
+    
+    // Khai báo công cụ Tìm kiếm (Của tui)
     private JTextField txtTimKiem;
     private JComboBox<String> cbCriteria, cbTrangThai;
-    private JButton btnThemVe, btnHuyVe, btnLamMoi, btnXuatExcel;
+    
+    // Khai báo dàn Nút bấm
+    private JButton btnXem, btnThemVe, btnHuyVe, btnLamMoi, btnXuatExcel, btnTimKiem;
 
     public FormVe() 
     {
-        // Đồng bộ hóa Layout và nền trắng như bên Nhân viên
         setLayout(new BorderLayout(10, 10)); 
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(Color.WHITE);
 
-        initComponents(); // Bách thầu giao diện
-        loadDataToTable(); // Ân móc logic DB
-        initEvents();      // Ân móc logic sự kiện
+        initComponents(); 
+        loadDataToTable(); 
+        initEvents();      
     }
 
-    // ==========================================
-    // LÃNH THỔ CỦA BÁCH (UI ĐỒNG BỘ MODULE NHÂN VIÊN)
-    // ==========================================
     private void initComponents() 
     {
-        // 1. THANH CÔNG CỤ (NÚT BẤM & TÌM KIẾM) - Phía trên
-        JPanel pnlNorth = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        // ==========================================
+        // KHU VỰC PHÍA TRÊN: XẾP CHỒNG 2 TẦNG (Không bao giờ bị khuất)
+        // ==========================================
+        JPanel pnlNorth = new JPanel();
+        pnlNorth.setLayout(new BoxLayout(pnlNorth, BoxLayout.Y_AXIS));
         pnlNorth.setBackground(Color.WHITE);
 
-        // --- Dàn Nút bấm (Đồng bộ kiểu dáng và màu sắc từ Nhân viên) ---
-        btnThemVe = new JButton("+ Thêm Vé Mới");
-        btnThemVe.setBackground(new Color(40, 167, 69)); // Màu Green đậm
-        btnThemVe.setForeground(Color.WHITE);
-        btnThemVe.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnThemVe.setPreferredSize(new Dimension(140, 40));
-        btnThemVe.putClientProperty(FlatClientProperties.STYLE, "arc:10"); // Bo góc
-
-        btnHuyVe = new JButton("- Hủy Vé");
-        btnHuyVe.setBackground(new Color(220, 53, 69)); // Màu Red
-        btnHuyVe.setForeground(Color.WHITE);
-        btnHuyVe.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnHuyVe.setPreferredSize(new Dimension(110, 40));
-        btnHuyVe.putClientProperty(FlatClientProperties.STYLE, "arc:10"); // Bo góc
-
-        btnLamMoi = new JButton("Làm Mới");
-        btnLamMoi.setBackground(new Color(91, 192, 222)); // Màu Light Blue
-        btnLamMoi.setForeground(Color.WHITE);
-        btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnLamMoi.setPreferredSize(new Dimension(110, 40));
-        btnLamMoi.putClientProperty(FlatClientProperties.STYLE, "arc:10"); // Bo góc
-
-        btnXuatExcel = new JButton("Xuất Excel");
-        btnXuatExcel.setBackground(new Color(92, 184, 92)); // Màu Green
-        btnXuatExcel.setForeground(Color.WHITE);
-        btnXuatExcel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnXuatExcel.setPreferredSize(new Dimension(120, 40));
-        btnXuatExcel.putClientProperty(FlatClientProperties.STYLE, "arc:10"); // Bo góc
-
-        pnlNorth.add(btnThemVe);
-        pnlNorth.add(btnHuyVe);
-        pnlNorth.add(btnLamMoi);
-        pnlNorth.add(btnXuatExcel);
-
-        // --- Khung Tìm kiếm (Đồng bộ TitledBorder từ Nhân viên) ---
-        JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        pnlSearch.setBackground(Color.WHITE);
-        pnlSearch.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200)), "Tìm kiếm", TitledBorder.LEFT, TitledBorder.TOP,
+        // --- TẦNG 1: Dàn Nút bấm (FlowLayout.LEFT) ---
+        JPanel pnlAction = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        pnlAction.setBackground(Color.WHITE);
+        pnlAction.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(new Color(200, 200, 200)), "Quản Lý Vé", TitledBorder.LEFT, TitledBorder.TOP,
             new Font("Segoe UI", Font.BOLD, 14)
         ));
 
+        // Nút bấm theo style màu mè rõ ràng
+        btnXem = createButton("Xem Chi Tiết", new Color(91, 192, 222)); // Light Blue
+        btnThemVe = createButton("+ Thêm Vé Mới", new Color(40, 167, 69)); // Green
+        btnHuyVe = createButton("- Hủy Vé", new Color(220, 53, 69)); // Red
+        btnLamMoi = createButton("Làm Mới", new Color(108, 117, 125)); // Grey
+        btnXuatExcel = createButton("Xuất Excel", new Color(138, 43, 226)); // Purple
+
+        pnlAction.add(btnXem);
+        pnlAction.add(btnThemVe);
+        pnlAction.add(btnHuyVe);
+        pnlAction.add(btnLamMoi);
+        pnlAction.add(btnXuatExcel);
+
+        // --- TẦNG 2: Khung Tìm kiếm (GIỮ NGUYÊN KIỂU CỦA TUI) ---
+        JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        pnlSearch.setBackground(Color.WHITE);
+        pnlSearch.setBorder(BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(new Color(200, 200, 200)), "Tìm Kiếm Nhanh", TitledBorder.LEFT, TitledBorder.TOP,
+            new Font("Segoe UI", Font.BOLD, 14)
+        ));
+
+        // 1. Tiêu chí tìm kiếm
         cbCriteria = new JComboBox<>(new String[]{"Mã Vé", "Tên Phim", "SĐT Khách"});
-        cbCriteria.setPreferredSize(new Dimension(100, 35));
+        cbCriteria.setPreferredSize(new Dimension(120, 35));
+        cbCriteria.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cbCriteria.putClientProperty(FlatClientProperties.STYLE, "arc:8");
         
+        // 2. Ô nhập từ khóa
         txtTimKiem = new JTextField(15);
-        txtTimKiem.setPreferredSize(new Dimension(200, 35));
-        txtTimKiem.putClientProperty(FlatClientProperties.STYLE, "focusWidth:2");
+        txtTimKiem.setPreferredSize(new Dimension(250, 35));
+        txtTimKiem.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtTimKiem.putClientProperty("JTextField.placeholderText", "Nhập từ khóa cần tìm...");
+        txtTimKiem.putClientProperty(FlatClientProperties.STYLE, "focusWidth:2; arc:8");
 
+        // 3. Lọc theo trạng thái
         cbTrangThai = new JComboBox<>(new String[]{"Tất cả trạng thái", "Đã thanh toán", "Đã check-in", "Đã hủy"});
-        cbTrangThai.setPreferredSize(new Dimension(150, 35));
-        
-        // TitledBorder đã có tên, không cần gắn nút Tìm kiếm, JComboBox đã đủ rồi
+        cbTrangThai.setPreferredSize(new Dimension(160, 35));
+        cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cbTrangThai.putClientProperty(FlatClientProperties.STYLE, "arc:8");
 
+        // 4. Nút bấm Tìm kiếm
+        btnTimKiem = createButton("Tìm Kiếm", new Color(2, 117, 216)); // Màu Xanh dương
+        btnTimKiem.setPreferredSize(new Dimension(120, 35));
+
+        // Ráp vô khay Tìm kiếm
+        pnlSearch.add(new JLabel("Tìm theo:"));
         pnlSearch.add(cbCriteria);
         pnlSearch.add(txtTimKiem);
         pnlSearch.add(new JLabel("  Trạng thái:"));
         pnlSearch.add(cbTrangThai);
-        
+        pnlSearch.add(btnTimKiem);
+
+        // Gắn 2 tầng vào khối North
+        pnlNorth.add(pnlAction);
+        pnlNorth.add(Box.createVerticalStrut(5)); // Khoảng hở nhẹ giữa 2 tầng
         pnlNorth.add(pnlSearch);
+
         add(pnlNorth, BorderLayout.NORTH);
 
-        // 2. BẢNG DỮ LIỆU (Đồng bộ kiểu dáng và render từ Nhân viên) ---
-        // Thêm cột # (Số thứ tự) bên trái
-        String[] columns = {"#", "Mã Vé", "Khách Hàng", "SĐT", "Tên Phim", "Phòng", "Ghế", "Ngày", "Giờ", "Giá Tiền", "Trạng Thái"};
+        // ==========================================
+        // KHU VỰC BẢNG DỮ LIỆU JTABLE
+        // ==========================================
+        String[] columns = {"Mã Vé", "Khách Hàng", "Tên Phim", "Phòng", "Ghế", "Ngày Chiếu", "Giờ", "Giá Tiền", "Trạng Thái"};
         model = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { 
-                return false; // Khóa không cho người dùng nhấp đúp sửa
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
         
         table = new JTable(model);
-        table.setRowHeight(35); // Chiều cao dòng 35px
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Font chữ nội dung 14px
+        table.setRowHeight(35); 
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14)); 
 
-       // BƯỚC 1: Tạo 1 cái "cọ" chuyên dùng để quét chữ ra giữa ô
-    DefaultTableCellRenderer canhGiua = new DefaultTableCellRenderer();
-    canhGiua.setHorizontalAlignment(JLabel.CENTER);
+        // Căn giữa các cột cho đẹp (Trừ Tên Khách và Tên Phim)
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            if (i != 1 && i != 2) { 
+                table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            }
+        }
 
-    // BƯỚC 2: Liệt kê các cột ông muốn căn giữa (Nhớ là cột đầu tiên đếm từ số 0)
-    // Ở đây là: Cột STT, Mã vé, SĐT, Ngày, Giờ, Giá tiền, Trạng thái...
-    int[] cacCot = {0, 1, 3, 5, 6, 7, 8, 9, 10}; 
-
-    // BƯỚC 3: Cho vòng lặp chạy qua từng số ở trên để lấy cái cọ "quét" vào cột đó
-    for (int i = 0; i < cacCot.length; i++) 
-    {
-        int viTriCot = cacCot[i];
-        table.getColumnModel().getColumn(viTriCot).setCellRenderer(canhGiua);
-    }
-
-        // Tùy chỉnh Header (Đồng bộ màu xanh navy từ Nhân viên)
+        // Tùy chỉnh Header
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
-        table.getTableHeader().setBackground(new Color(66, 103, 178)); // Màu Header dương
+        table.getTableHeader().setBackground(new Color(66, 103, 178)); 
         table.getTableHeader().setForeground(Color.WHITE);
         
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBackground(Color.WHITE);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder()); // Xóa Border của ScrollPane
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220))); 
 
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    // ==========================================
-    // LÃNH THỔ CỦA ÂN (LOGIC & DATABASE - Ân viết code ở đây)
-    // ==========================================
+    // --- Hàm tiện ích: Tạo nút bấm siêu tốc ---
+    private JButton createButton(String text, Color bgColor) 
+    {
+        JButton btn = new JButton(text);
+        btn.setBackground(bgColor);
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setPreferredSize(new Dimension(140, 40)); 
+        btn.putClientProperty(FlatClientProperties.STYLE, "arc:10"); 
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR)); 
+        return btn;
+    }
+
     public void loadDataToTable() 
     {
-        // Ân gọi BUS lấy dữ liệu, đổ vào model.addRow()
-        // Chú ý định dạng tiền tệ cho cột Giá Tiền nhé Ân! (##,### VNĐ)
-        System.out.println("Ân: Đang load dữ liệu vé...");
+        // 1. Dọn dẹp bảng sạch sẽ trước khi đổ data mới
+        model.setRowCount(0); 
+        
+        System.out.println("--- ĐANG GỌI BUS ĐỂ KÉO DỮ LIỆU ---");
+        
+        // 2. Lôi đống data từ DB lên thông qua BUS
+        java.util.ArrayList<Object[]> danhSachVe = veBUS.getDanhSachVeTable();
+        
+        // 3. Quăng từng dòng lên JTable
+        for (Object[] row : danhSachVe) {
+            model.addRow(row);
+        }
+        
+        // 4. Ép giao diện update lại
+        model.fireTableDataChanged(); 
+        System.out.println("Kết quả: Đã đổ thành công " + danhSachVe.size() + " vé lên bảng!");
     }
 
     private void initEvents() 
     {
-        // 1. Mở Form Thêm Vé mới (Đã nối sang ThemVeDialog bo góc của Bách)
         btnThemVe.addActionListener(e -> {
             new ThemVeDialog(this, veBUS).setVisible(true);
         });
 
-        // 2. Logic Hủy vé (Ân code update Trạng thái)
-        btnHuyVe.addActionListener(e -> {
-            // ... logic gọi BUS hủy vé của Ân ...
+        btnLamMoi.addActionListener(e -> {
+            txtTimKiem.setText("");
+            cbCriteria.setSelectedIndex(0);
+            cbTrangThai.setSelectedIndex(0);
+            loadDataToTable(); // Kéo lại toàn bộ dữ liệu
         });
 
-        // 3. Logic Tìm kiếm và Lọc trạng thái (Ân code filter)
-        // txtTimKiem Key Released, cbTrangThai Action Listener
-
-        // 4. Logic Làm mới và Xuất Excel (Ân code)
-        btnLamMoi.addActionListener(e -> loadDataToTable());
-        btnXuatExcel.addActionListener(e -> System.out.println("Ân: Xuất Excel vé..."));
+        // Ân sẽ code sự kiện Tìm kiếm, Hủy vé ở đây
+        btnTimKiem.addActionListener(e -> {
+            String criteria = (String) cbCriteria.getSelectedItem();
+            String keyword = txtTimKiem.getText().trim();
+            String trangThai = (String) cbTrangThai.getSelectedItem();
+            System.out.println("Tìm kiếm theo: " + criteria + " | Từ khóa: " + keyword + " | Trạng thái: " + trangThai);
+        });
     }
 }
