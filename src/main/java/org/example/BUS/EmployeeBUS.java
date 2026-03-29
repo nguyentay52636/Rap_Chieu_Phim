@@ -10,71 +10,32 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
-public class EmployeeBUS {
+public class EmployeeBUS 
+{
     private EmployeeDAO employeeDAO = new EmployeeDAO();
     private ArrayList<EmployeeDTO> listEmployee = null;
 
     public void docDanhSach() 
     {
-        this.listEmployee = employeeDAO.selectAll();//listEmployee là biến toàn cục, khi gọi hàm này sẽ cập nhật lại dữ liệu mới nhất từ database vào listEmployee
+        listEmployee = employeeDAO.selectAll();//listEmployee là biến toàn cục, khi gọi hàm này sẽ cập nhật lại dữ liệu mới nhất từ database vào listEmployee
     }
 
-    public EmployeeBUS() 
+    public EmployeeBUS()
     {
-        docDanhSach();
+        docDanhSach(); //khi khởi tạo BUS thì sẽ tự động gọi hàm này để lấy dữ liệu từ database vào listEmployee, giúp tránh lỗi null khi gọi getDanhSach() mà chưa có dữ liệu
     }
 
-    public ArrayList<EmployeeDTO> getDanhSach() 
+    public ArrayList<EmployeeDTO> getDanhSach()//hàm này sẽ được gọi trong FormEmployee để lấy danh sách nhân viên, nếu listEmployee chưa có dữ liệu thì sẽ gọi docDanhSach() để lấy dữ liệu từ database, nếu đã có dữ liệu thì trả về luôn để tránh việc gọi database nhiều lần không cần thiết
     {
         if (listEmployee == null) 
             docDanhSach();
         return listEmployee;
     }
 
-//thêm nhân viên với validate
-    public boolean themNhanVien(EmployeeDTO emp) 
-    {
-        if (!validate(emp)) 
-            return false;
-        if (employeeDAO.insert(emp))  
-        {
-            docDanhSach();
-            return true;
-        }
-        return false;
-    }
-//sửa nhân viên với validate 
-    public boolean suaNhanVien(EmployeeDTO emp) {
-        if (!validate(emp)) 
-            return false;
-        if (employeeDAO.update(emp)) 
-            {
-            for (int i = 0; i < listEmployee.size(); i++) 
-            {
-                if (listEmployee.get(i).getMaNV() == emp.getMaNV()) //nếu mã nhân viên trùng với mã nhân viên cần sửa thì cập nhật lại thông tin mới vào listEmployee để đồng bộ với database
-                {
-                    listEmployee.set(i, emp);
-                    break;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-//xóa nhân viên với xử lý ngoại lệ khi nhân viên đã lập hóa đơn
-    public boolean xoaNhanVien(int maNV) 
-    {
-        if (employeeDAO.delete(maNV)) 
-            {
-            listEmployee.removeIf(emp -> emp.getMaNV() == maNV);//removeIf là xóa phần tử trong listEmployee nếu mã nhân viên trùng với mã nhân viên cần xóa, giúp đồng bộ với database
-            return true;
-        }
-        return false;
-    }
 
-//---VALIDATE DỮ LIỆU NHÂN VIÊN (Dùng chung cho Thêm và Sửa)
+    //---VALIDATE DỮ LIỆU NHÂN VIÊN (Dùng chung cho Thêm và Sửa)
    
-public boolean validate(EmployeeDTO emp) 
+public boolean validate (EmployeeDTO emp) 
 {
     // 1. Kiểm tra rỗng và âm
     if (emp.getHoTen() == null || emp.getHoTen().trim().isEmpty()) 
@@ -96,32 +57,91 @@ public boolean validate(EmployeeDTO emp)
 
     
     if (soTuoi < 15) 
-    {
-        return false; // Chưa đủ 15 tuổi
-    }
-        return true;
+        return false; 
+    return true;
 
 
 }
-//--- TÌM KIẾM NHÂN VIÊN THEO MÃ NV HOẶC HỌ TÊN (Hỗ trợ tìm kiếm linh hoạt hơn)
-    public ArrayList<EmployeeDTO> timKiem(String text, String type) 
+
+// --- TÌM KIẾM NHÂN VIÊN CHUẨN 
+    public ArrayList<EmployeeDTO> timKiem(String keyword, String type) 
     {
         ArrayList<EmployeeDTO> result = new ArrayList<>();
-        String query = text.toLowerCase().trim();//chuyển về chữ thường và loại bỏ khoảng trắng thừa để tìm kiếm linh hoạt hơn
+        keyword = keyword.toLowerCase().trim();
+
+        // Định dạng ngày và tiền giống giao diện để dễ tìm kiếm
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+
         for (EmployeeDTO emp : listEmployee) 
         {
+            String maNV = String.valueOf(emp.getMaNV());
+            String hoTen = emp.getHoTen().toLowerCase();
+            String ngaySinh = emp.getNgaySinh() != null ? sdf.format(emp.getNgaySinh()) : "";// 
+            String ngayVaoLam = emp.getNgayVaoLam() != null ? sdf.format(emp.getNgayVaoLam()) : "";
+            String luongFormat = String.format("%,.0f VNĐ", emp.getLuongCoBan()).toLowerCase();
+            String luongTron = String.format("%.0f", emp.getLuongCoBan());
+
             boolean match = false;
+
             switch (type) 
             {
-                case "Mã NV": if (String.valueOf(emp.getMaNV()).contains(query)) match = true; break;
-                case "Họ Tên": if (emp.getHoTen().toLowerCase().contains(query)) match = true; break;
-                default: if (String.valueOf(emp.getMaNV()).contains(query) || emp.getHoTen().toLowerCase().contains(query)) match = true; break;
+                case "Mã NV": match = maNV.contains(keyword); break;
+                case "Họ Tên": match = hoTen.contains(keyword); break;
+                case "Ngày Sinh": match = ngaySinh.contains(keyword); break;
+                case "Ngày Vào Làm": match = ngayVaoLam.contains(keyword); break;
+                case "Lương Cơ Bản": match = luongFormat.contains(keyword) || luongTron.contains(keyword); break;
+                default: // "Tất cả"
+                    match = maNV.contains(keyword) || hoTen.contains(keyword) || 
+                            ngaySinh.contains(keyword) || ngayVaoLam.contains(keyword) || 
+                            luongFormat.contains(keyword) || luongTron.contains(keyword);
+                    break;
             }
-            if (match) //nếu tìm thấy kết quả phù hợp thì thêm vào danh sách kết quả trả về
+
+            if (match) 
                 result.add(emp);
+        
         }
         return result;
     }
+
+//thêm nhân viên với validate
+    public boolean themNhanVien(EmployeeDTO emp) 
+    {
+        if (!validate(emp)) 
+            return false;
+        
+        if (employeeDAO.insert(emp))  //nếu thêm thành công vào database thì mới thêm vào listEmployee để đồng bộ với database, nếu không thêm vào database thì không thêm vào listEmployee để tránh lỗi dữ liệu không đồng bộ
+        {
+            docDanhSach();//cập nhật lại dữ liệu mới nhất từ database vào listEmployee sau khi thêm thông tin nhân viên
+            return true;
+        }
+        return false;
+    }
+
+//sửa nhân viên với validate 
+    public boolean suaNhanVien(EmployeeDTO emp) 
+    {
+        if (!validate(emp)) 
+            return false;
+        if (employeeDAO.update(emp)) 
+        {
+            docDanhSach(); //cập nhật lại dữ liệu mới nhất từ database vào listEmployee sau khi sửa thành công, giúp đồng bộ với database
+            return true;
+        }
+        return false;
+    }
+//xóa nhân viên với xử lý ngoại lệ khi nhân viên đã lập hóa đơn
+    public boolean xoaNhanVien(int maNV) 
+    {
+        if (employeeDAO.delete(maNV)) 
+        {
+            docDanhSach();
+            return true;
+        }
+        return false;
+    }
+
+
 //--- XUẤT EXCEL (Dùng thư viện Apache POI)
     public boolean exportExcel(String filePath) 
     {
@@ -155,7 +175,9 @@ public boolean validate(EmployeeDTO emp)
             return false; 
         }
     }
-//--- NHẬP EXCEL (Dùng thư viện Apache POI)
+
+   
+    //--- NHẬP EXCEL (Đã sửa lỗi lệch cột)
     public int importExcel(File file) 
     {
         int count = 0;
@@ -164,18 +186,23 @@ public boolean validate(EmployeeDTO emp)
             Sheet sheet = wb.getSheetAt(0);
             for (Row row : sheet) 
             {
-                if (row.getRowNum() == 0) 
+                if (row.getRowNum() == 0) // Bỏ qua dòng tiêu đề
                     continue;
-                String ten = row.getCell(0).getStringCellValue();
-                java.util.Date ns = row.getCell(1).getDateCellValue();
-                java.util.Date nvl = row.getCell(2).getDateCellValue();
-                double luong = row.getCell(3).getNumericCellValue();
+                
+               
+                String ten = row.getCell(1).getStringCellValue();
+                java.util.Date ns = row.getCell(2).getDateCellValue();
+                java.util.Date nvl = row.getCell(3).getDateCellValue();
+                double luong = row.getCell(4).getNumericCellValue();
+                
                 EmployeeDTO emp = new EmployeeDTO(0, ten, new java.sql.Date(ns.getTime()), new java.sql.Date(nvl.getTime()), luong);
                 
+                // Chỉ thêm nếu vượt qua ải Validate và Insert DB thành công
                 if (validate(emp) && employeeDAO.insert(emp)) 
                     count++;
             }
-            docDanhSach();
+            
+            docDanhSach(); // Cập nhật lại list sau khi nhập xong 1 loạt
         } 
         catch (Exception e) 
         { 

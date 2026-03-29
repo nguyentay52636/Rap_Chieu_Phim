@@ -15,19 +15,20 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import org.example.GUI.Application.Application;
-import org.example.GUI.Components.FormBooking.FormBooking;
+//import org.example.GUI.Components.FormBooking.FormBooking;
 import org.example.GUI.Components.FormCustomer.FormCustomer;
 import org.example.GUI.Components.FormEmployee.FormEmployee;
 import org.example.GUI.Components.FormHoaDon.FormHoaDon;
 import org.example.GUI.Components.FormPhongChieu.FormPhongChieu;
 import org.example.GUI.Components.FormProduct.FormProduct;
 import org.example.GUI.Components.FormTypeProduct.FormTypeProduct;
+import org.example.GUI.Components.FormVe.FormVe;
 import org.example.GUI.Components.FormThongKe.FormThongKe;
 import org.example.GUI.Components.FormPhim.FormPhim;
 import org.example.GUI.menu.Menu;
 import org.example.GUI.menu.MenuAction;
 import org.example.GUI.Components.FormShowTime.FormShowTime;
-import org.example.GUI.Components.FormTicket.FormTicket;
+
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
@@ -86,7 +87,7 @@ public class MainForm extends JLayeredPane {
             case 2 -> showForm(new FormProduct());
             case 3 -> showForm(new FormTypeProduct());
             case 4 -> showForm(new FormShowTime());             
-            case 5 -> showForm(new FormTicket());              
+            case 5 -> showForm(new FormVe());              
             case 6 -> showForm(new FormHoaDon(" Hoá đơn"));
             case 7 -> showForm(new FormCustomer());
             case 8 -> showForm(new FormEmployee("Nhân viên"));
