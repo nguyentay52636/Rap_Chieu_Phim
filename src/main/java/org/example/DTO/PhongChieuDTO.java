@@ -3,8 +3,7 @@ package org.example.DTO;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhongChieuDTO 
-{
+public class PhongChieuDTO {
     private int maPhong;
     private String tenPhong;
     private String loaiPhong;
