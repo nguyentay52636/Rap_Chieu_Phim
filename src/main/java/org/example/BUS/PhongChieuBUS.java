@@ -15,7 +15,6 @@ import java.util.List;
 public class PhongChieuBUS {
     private final PhongChieuDAO phongChieuDAO = new PhongChieuDAO();
     private List<PhongChieuDTO> listPc = new ArrayList<>();
-    private final LoaiGheBUS lgBUS = new LoaiGheBUS();
 
     public PhongChieuBUS() {
         refreshList();
@@ -63,7 +62,7 @@ public class PhongChieuBUS {
                             rs.getInt("MaGhe"),
                             rs.getInt("MaPhong"),
                             rs.getInt("MaLoaiGhe"),
-                            rs.getString("HangGhe"),
+                            rs.getInt("HangGhe"),
                             rs.getInt("SoGhe")
                     );
                     listGhe.add(ghe);
@@ -109,28 +108,6 @@ public class PhongChieuBUS {
 
     public boolean add(PhongChieuDTO pc) {
         boolean ok = phongChieuDAO.insert(pc);
-        if (ok) {
-            refreshList(); // Cập nhật lại list ở BUS
-        }
-        return ok;
-    }
-
-    public boolean updateChairType(int maPhong, List<String> selectedSeats, int maLoaiGheMoi) {
-        return phongChieuDAO.updateChairTypeBatch(maPhong, selectedSeats, maLoaiGheMoi);
-    }
-
-    // Gọi lệnh cập nhật phòng và danh sách ghế
-    public boolean updateRoomAndSeats(PhongChieuDTO pc) {
-        boolean ok = phongChieuDAO.updateRoomAndSeatsTransaction(pc);
-        if (ok) {
-            refreshList();
-        }
-        return ok;
-    }
-
-    // Thêm phòng chiếu và tự tạo ghế
-    public boolean addRoomWithSeats(PhongChieuDTO pc, int defaultMaLoaiGhe) {
-        boolean ok = phongChieuDAO.insertRoomAndSeatsTransaction(pc, defaultMaLoaiGhe);
         if (ok) {
             refreshList(); // Cập nhật lại list ở BUS
         }
