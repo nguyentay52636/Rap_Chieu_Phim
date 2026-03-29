@@ -40,6 +40,7 @@ public class AddEmployeeDialog extends JDialog
         lblTitle.setForeground(Color.WHITE);
         lblTitle.setBorder(new EmptyBorder(15, 0, 15, 0));
         pnlHeader.add(lblTitle);
+        
         add(pnlHeader, BorderLayout.NORTH);
 
         // --- PANEL NHẬP LIỆU ---
@@ -50,7 +51,7 @@ public class AddEmployeeDialog extends JDialog
         //Hàm tiện ích createModernField() để tạo JTextField với placeholder và kiểu dáng hiện đại, giúp code gọn gàng hơn và dễ bảo trì hơn, tránh việc lặp lại nhiều lần cùng một đoạn code tạo JTextField với placeholder và kiểu dáng giống nhau.
         txtName = createModernField("Họ và Tên", "Nhập tên nhân viên...");
         txtDob = createModernField("Ngày Sinh", "yyyy-MM-dd (VD: 2000-01-01)");
-        txtJoinDate = createModernField("Ngày Vào Làm", "yyyy-MM-dd (VD: 2026-03-16)");
+        txtJoinDate = createModernField("Ngày Vào Làm", "yyyy-MM-dd (VD: 2025-01-01)");
         txtSalary = createModernField("Lương Cơ Bản", "Nhập số tiền lương...");
 
         // Hàm tiện ích createFieldWrapper() để tạo JPanel chứa JLabel và JTextField, giúp code gọn gàng hơn và dễ bảo trì hơn, tránh việc lặp lại nhiều lần cùng một đoạn code tạo JPanel chứa JLabel và JTextField với kiểu dáng giống nhau.
@@ -87,7 +88,7 @@ public class AddEmployeeDialog extends JDialog
         txt.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:2");
         return txt;
     }
-
+    // Hàm tiện ích để tạo JPanel chứa JLabel và JTextField với kiểu dáng hiện đại
     private JPanel createFieldWrapper(String labelText, JTextField field) 
     {
         JPanel pnl = new JPanel(new BorderLayout(5, 5));
@@ -120,8 +121,6 @@ public class AddEmployeeDialog extends JDialog
                 Date dob = Date.valueOf(txtDob.getText().trim());
                 Date joinDate = Date.valueOf(txtJoinDate.getText().trim());
 
-                
-                
                 double salary;
                 try 
                 {
@@ -157,15 +156,16 @@ public class AddEmployeeDialog extends JDialog
                 }
 
             } 
-            // Bắt lỗi khi người dùng nhập sai định dạng số (VD: nhập chữ vào trường lương)
-            catch (IllegalArgumentException ex) 
-            {
+            
+                // Bắt lỗi khi người dùng nhập sai định dạng số (VD: nhập chữ vào trường lương)
+                catch (IllegalArgumentException ex) 
+                {
                 // Lỗi khi người dùng gõ sai định dạng ngày tháng (VD: 2026/03/16 thay vì 2026-03-16)
                 JOptionPane.showMessageDialog(this, 
                     "Sai định dạng ngày tháng!\nVui lòng nhập theo mẫu: Năm-Tháng-Ngày (VD: 2006-05-29)", 
                     "Lỗi định dạng", 
                     JOptionPane.WARNING_MESSAGE);
-            } 
+                } 
             catch (Exception ex) 
             {
                 JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);

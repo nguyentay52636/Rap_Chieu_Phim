@@ -1,6 +1,7 @@
 package org.example.DTO;
 
-public class TrangThaiGheDTO {
+public class TrangThaiGheDTO 
+{
     private String hangGhe;
     private int soGhe;
     private String trangThai;

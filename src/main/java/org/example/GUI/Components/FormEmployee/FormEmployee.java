@@ -55,12 +55,13 @@ public class FormEmployee extends JPanel
         pnlButtons.add(btnView); pnlButtons.add(btnEdit); pnlButtons.add(btnDelete);
         pnlButtons.add(btnAdd); pnlButtons.add(btnExcel); pnlButtons.add(btnExportExcel);
 
+        //Panel tìm kiếm
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));//tạo khung tìm kiếm
         pnlSearch.setBackground(Color.WHITE);
         pnlSearch.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)), "Tìm kiếm", TitledBorder.LEFT, TitledBorder.TOP));
+            BorderFactory.createLineBorder(new Color(200, 200, 200)), "Tìm kiếm", TitledBorder.LEFT, TitledBorder.TOP));
 
-       // Cập nhật JComboBox thêm Tất cả, Ngày Sinh, Ngày Vào Làm, Lương Cơ Bản
+       // Cập nhật JComboBox gồm Tất cả, Ngày Sinh, Ngày Vào Làm, Lương Cơ Bản
         cbSearch = new JComboBox<>(new String[]{"Tất cả", "Mã NV", "Họ Tên", "Ngày Sinh", "Ngày Vào Làm", "Lương Cơ Bản"});
         cbSearch.setPreferredSize(new Dimension(100, 35));
         txtSearch = new JTextField(20);
@@ -129,9 +130,10 @@ public class FormEmployee extends JPanel
                         if (employeeBUS.xoaNhanVien(emp.getMaNV())) 
                         {
                             JOptionPane.showMessageDialog(this, "Xóa thành công!");
-                            loadDataToTable();
+                            loadDataToTable();//load lại dữ liệu mới nhất từ database
                         } 
-                        else JOptionPane.showMessageDialog(this, "Không thể xóa nhân viên này!");
+                        else 
+                            JOptionPane.showMessageDialog(this, "Không thể xóa nhân viên này!");
                     } 
                 catch (Exception ex) 
                 {
@@ -140,7 +142,7 @@ public class FormEmployee extends JPanel
             }
         });
 
-//--- Sự kiện Sửa sẽ mở dialog sửa nhân viên với thông tin của nhân viên được chọn
+        //Nút Sửa sẽ mở dialog sửa nhân viên với thông tin của nhân viên được chọn
         btnEdit.addActionListener(e -> 
             {
                 EmployeeDTO emp = getSelectedEmployee("Sửa");//lấy thông tin nhân viên được chọn để sửa
@@ -148,7 +150,7 @@ public class FormEmployee extends JPanel
                     new EditEmployeeDialog(this, employeeBUS, emp).setVisible(true);//mở dialog sửa nhân viên với thông tin của nhân viên được chọn
             });
 
-//--- Sự kiện Xem sẽ mở dialog xem chi tiết nhân viên với thông tin của nhân viên được chọn
+        //Nút Xem sẽ mở dialog xem chi tiết nhân viên với thông tin của nhân viên được chọn
         btnView.addActionListener(e -> 
         {
             EmployeeDTO emp = getSelectedEmployee("Xem");
@@ -156,7 +158,7 @@ public class FormEmployee extends JPanel
             new DetailEmployeeDialog((JFrame) SwingUtilities.getWindowAncestor(this), emp).setVisible(true);//mở dialog xem chi tiết nhân viên với thông tin của nhân viên được chọn và truyền vào parent là JFrame chứa form này để dialog có thể căn giữa trên form cha
         });
 
-//--- Sự kiện nhập Excel 
+        //--- Sự kiện nhập Excel
         btnExcel.addActionListener(e -> 
         {
             JFileChooser fc = new JFileChooser();
@@ -170,7 +172,7 @@ public class FormEmployee extends JPanel
             }
         });
 
-//--- Sự kiện xuất Excel
+        //--- Sự kiện xuất Excel
         btnExportExcel.addActionListener(e -> 
         {
             JFileChooser fc = new JFileChooser();
@@ -199,14 +201,15 @@ public class FormEmployee extends JPanel
        // 2. Tìm kiếm với keyword và type
         ArrayList<EmployeeDTO> result = employeeBUS.timKiem(keyword, type);
         
-        // 3. Đem kết quả bưng lên mâm (Bảng)
+        // 3. Đem kết quả bưng lên Bảng
         fillTable(result); 
     }
 
     //Hàm này sẽ được gọi sau khi thêm/sửa/xóa để load lại dữ liệu mới nhất từ database và hiển thị lên bảng
     private void fillTable(ArrayList<EmployeeDTO> list) 
     {
-        model.setRowCount(0);
+        model.setRowCount(0);//xoa tat ca cac dong trong bang
+
         for (EmployeeDTO emp : list) 
         {
             model.addRow(new Object[]//thêm một dòng mới vào bảng với các cột tương ứng là mã nhân viên, họ tên, ngày sinh, ngày vào làm và lương cơ bản, trong đó ngày sinh và ngày vào làm được định dạng lại cho dễ đọc hơn, còn lương cơ bản được định dạng với dấu phẩy phân cách hàng nghìn và thêm đơn vị VNĐ
@@ -236,7 +239,8 @@ public class FormEmployee extends JPanel
             JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 nhân viên để " + actionName + "!");
             return null;
         }
-        int maNV = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+        int maNV = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());//Lấy mã nhân viên của dòng chọn
+        
         for (EmployeeDTO emp : employeeBUS.getDanhSach()) 
         {
             if (emp.getMaNV() == maNV) 

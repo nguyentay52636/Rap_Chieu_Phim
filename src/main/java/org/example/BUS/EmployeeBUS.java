@@ -112,7 +112,7 @@ public boolean validate (EmployeeDTO emp)
         
         if (employeeDAO.insert(emp))  //nếu thêm thành công vào database thì mới thêm vào listEmployee để đồng bộ với database, nếu không thêm vào database thì không thêm vào listEmployee để tránh lỗi dữ liệu không đồng bộ
         {
-            docDanhSach();
+            docDanhSach();//cập nhật lại dữ liệu mới nhất từ database vào listEmployee sau khi thêm thông tin nhân viên
             return true;
         }
         return false;
@@ -125,15 +125,7 @@ public boolean validate (EmployeeDTO emp)
             return false;
         if (employeeDAO.update(emp)) 
         {
-             docDanhSach(); //cập nhật lại dữ liệu mới nhất từ database vào listEmployee sau khi sửa thành công, giúp đồng bộ với database
-            for (int i = 0; i < listEmployee.size(); i++) 
-            {
-                if (listEmployee.get(i).getMaNV() == emp.getMaNV()) //nếu mã nhân viên trùng với mã nhân viên cần sửa thì cập nhật lại thông tin mới vào listEmployee để đồng bộ với database
-                {
-                    listEmployee.set(i, emp);
-                    break;
-                }
-            }
+            docDanhSach(); //cập nhật lại dữ liệu mới nhất từ database vào listEmployee sau khi sửa thành công, giúp đồng bộ với database
             return true;
         }
         return false;

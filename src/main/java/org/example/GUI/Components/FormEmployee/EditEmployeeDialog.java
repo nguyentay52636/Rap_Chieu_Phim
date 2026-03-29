@@ -16,7 +16,8 @@ public class EditEmployeeDialog extends JDialog
     private FormEmployee parent;
     private EmployeeDTO currentEmp; // Giữ thông tin nhân viên đang sửa
 
-    public EditEmployeeDialog(FormEmployee parent, EmployeeBUS bus, EmployeeDTO emp) {
+    public EditEmployeeDialog(FormEmployee parent, EmployeeBUS bus, EmployeeDTO emp) 
+    {
         super((Frame) SwingUtilities.getWindowAncestor(parent), "CẬP NHẬT NHÂN VIÊN", true);
         this.parent = parent;
         this.employeeBUS = bus;
@@ -77,7 +78,7 @@ public class EditEmployeeDialog extends JDialog
         pnlButtons.add(btnSave);
         add(pnlButtons, BorderLayout.SOUTH);
     }
-
+    // --- HÀM Tạo JTEXTFIELD ---
     private JTextField createModernField(String title, String placeholder) 
     {
         JTextField txt = new JTextField();
@@ -85,7 +86,7 @@ public class EditEmployeeDialog extends JDialog
         txt.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:2");
         return txt;
     }
-
+    //    --- HÀM Tạo PANEL ---
     private JPanel createFieldWrapper(String labelText, JTextField field) 
     {
         JPanel pnl = new JPanel(new BorderLayout(5, 5));
@@ -114,7 +115,8 @@ public class EditEmployeeDialog extends JDialog
         // Sự kiện cho nút "Hủy bỏ" để đóng dialog
         btnCancel.addActionListener(e -> dispose());
         // Sự kiện cho nút "Lưu thay đổi" để cập nhật thông tin nhân viên
-        btnSave.addActionListener(e -> {
+        btnSave.addActionListener(e -> 
+        {
             try 
             {
 
@@ -166,13 +168,13 @@ public class EditEmployeeDialog extends JDialog
                 }
 
             } 
-            catch (IllegalArgumentException ex) 
-            {
+                catch (IllegalArgumentException ex) 
+                {
                 JOptionPane.showMessageDialog(this, 
-                    "Sai định dạng ngày tháng!\nVui lòng nhập theo mẫu: Năm-Tháng-Ngày (VD: 2000-01-25)", 
+                    "Sai định dạng ngày tháng!\nVui lòng nhập theo mẫu: Năm-Tháng-Ngày (VD: 2006-05-29)", 
                     "Lỗi định dạng", 
                     JOptionPane.WARNING_MESSAGE);
-            } 
+                } 
             catch (Exception ex) 
             {
                 JOptionPane.showMessageDialog(this, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi hệ thống", JOptionPane.ERROR_MESSAGE);
