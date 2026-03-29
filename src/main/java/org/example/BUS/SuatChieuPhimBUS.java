@@ -219,4 +219,9 @@ public class SuatChieuPhimBUS {
         if (cell.getCellType() == CellType.STRING) return cell.getStringCellValue();
         throw new Exception("Sai định dạng chuỗi");
     }
+
+    // Nối từ GUI xuống DAO
+    public List<SuatChieuPhimDTO> laySuatChieuTheoNgayVaPhim(java.sql.Date ngayChieu, int maPhim) {
+        return suatChieuDAO.laySuatChieuTheoNgayVaPhim(ngayChieu, maPhim);
+    }
 }

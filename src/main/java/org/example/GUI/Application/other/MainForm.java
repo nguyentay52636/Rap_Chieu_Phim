@@ -21,8 +21,9 @@ import org.example.GUI.Components.FormEmployee.FormEmployee;
 import org.example.GUI.Components.FormHoaDon.FormHoaDon;
 import org.example.GUI.Components.FormPhongChieu.FormPhongChieu;
 import org.example.GUI.Components.FormProduct.FormProduct;
+import org.example.GUI.Components.FormTicket.FormTicket;
 import org.example.GUI.Components.FormTypeProduct.FormTypeProduct;
-import org.example.GUI.Components.FormVe.FormVe;
+
 import org.example.GUI.Components.FormThongKe.FormThongKe;
 import org.example.GUI.Components.FormPhim.FormPhim;
 import org.example.GUI.menu.Menu;
@@ -87,7 +88,7 @@ public class MainForm extends JLayeredPane {
             case 2 -> showForm(new FormProduct());
             case 3 -> showForm(new FormTypeProduct());
             case 4 -> showForm(new FormShowTime());             
-            case 5 -> showForm(new FormVe());              
+            case 5 -> showForm(new FormTicket());
             case 6 -> showForm(new FormHoaDon(" Hoá đơn"));
             case 7 -> showForm(new FormCustomer());
             case 8 -> showForm(new FormEmployee("Nhân viên"));

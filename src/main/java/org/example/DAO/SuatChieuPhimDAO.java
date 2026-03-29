@@ -32,18 +32,20 @@ public class SuatChieuPhimDAO {
     }
 
     public boolean insert(SuatChieuPhimDTO sc) {
-        String sql = "INSERT INTO SuatChieu (MaPhim, MaPhong, GioBatDau, GioKetThuc, GiaVeGoc) VALUES (?, ?, ?, ?, ?)";
+        // ĐÃ THÊM: NgayChieu vào câu SQL
+        String sql = "INSERT INTO SuatChieu (MaPhim, MaPhong, NgayChieu, GioBatDau, GioKetThuc, GiaVeGoc) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection con = UtilsJDBC.getConnectDB();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, sc.getMaPhim());
             ps.setInt(2, sc.getMaPhong());
 
-            // Dùng Timestamp để lưu thẳng LocalDateTime xuống CSDL (DATETIME)
-            ps.setTimestamp(3, Timestamp.valueOf(sc.getGioBatDau()));
-            ps.setTimestamp(4, Timestamp.valueOf(sc.getGioKetThuc()));
+            // Tách LocalDateTime thành Date và Time cho Database
+            ps.setDate(3, java.sql.Date.valueOf(sc.getGioBatDau().toLocalDate()));
+            ps.setTime(4, java.sql.Time.valueOf(sc.getGioBatDau().toLocalTime()));
+            ps.setTime(5, java.sql.Time.valueOf(sc.getGioKetThuc().toLocalTime()));
 
-            ps.setDouble(5, sc.getGiaVeGoc());
+            ps.setDouble(6, sc.getGiaVeGoc());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -53,18 +55,21 @@ public class SuatChieuPhimDAO {
     }
 
     public boolean update(SuatChieuPhimDTO sc) {
-        String sql = "UPDATE SuatChieu SET MaPhim = ?, MaPhong = ?, GioBatDau = ?, GioKetThuc = ?, GiaVeGoc = ? WHERE MaSuatChieu = ?";
+        // ĐÃ THÊM: NgayChieu vào câu SQL
+        String sql = "UPDATE SuatChieu SET MaPhim = ?, MaPhong = ?, NgayChieu = ?, GioBatDau = ?, GioKetThuc = ?, GiaVeGoc = ? WHERE MaSuatChieu = ?";
         try (Connection con = UtilsJDBC.getConnectDB();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, sc.getMaPhim());
             ps.setInt(2, sc.getMaPhong());
 
-            ps.setTimestamp(3, Timestamp.valueOf(sc.getGioBatDau()));
-            ps.setTimestamp(4, Timestamp.valueOf(sc.getGioKetThuc()));
+            // Tách LocalDateTime thành Date và Time
+            ps.setDate(3, java.sql.Date.valueOf(sc.getGioBatDau().toLocalDate()));
+            ps.setTime(4, java.sql.Time.valueOf(sc.getGioBatDau().toLocalTime()));
+            ps.setTime(5, java.sql.Time.valueOf(sc.getGioKetThuc().toLocalTime()));
 
-            ps.setDouble(5, sc.getGiaVeGoc());
-            ps.setInt(6, sc.getMaSuatChieu());
+            ps.setDouble(6, sc.getGiaVeGoc());
+            ps.setInt(7, sc.getMaSuatChieu());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -134,14 +139,15 @@ public class SuatChieuPhimDAO {
 
     public java.util.List<org.example.DTO.TrangThaiGheDTO> layTrangThaiGhe(int maSuatChieu, int maPhong) {
         java.util.List<org.example.DTO.TrangThaiGheDTO> list = new java.util.ArrayList<>();
-        // LEFT JOIN để lấy tất cả ghế của phòng, kèm theo trạng thái vé (nếu có) của suất chiếu này
-        String sql = "SELECT g.HangGhe, g.SoGhe, COALESCE(v.TrangThai, 'Trong') AS TrangThai " +
+
+        // 1. Thêm g.MaGhe vào đầu câu SELECT
+        String sql = "SELECT g.MaGhe, g.HangGhe, g.SoGhe, COALESCE(v.TrangThai, 'Trong') AS TrangThai " +
                 "FROM Ghe g " +
                 "LEFT JOIN Ve v ON g.MaGhe = v.MaGhe AND v.MaSuatChieu = ? " +
                 "WHERE g.MaPhong = ? " +
                 "ORDER BY g.HangGhe ASC, g.SoGhe ASC";
 
-        try (java.sql.Connection con = UtilsJDBC.getConnectDB();
+        try (java.sql.Connection con = org.example.Connection.UtilsJDBC.getConnectDB();
              java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, maSuatChieu);
@@ -149,7 +155,9 @@ public class SuatChieuPhimDAO {
 
             try (java.sql.ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    // 2. Truyền đủ 4 tham số vào đây
                     list.add(new org.example.DTO.TrangThaiGheDTO(
+                            rs.getInt("MaGhe"),     // Dòng bạn đang bị thiếu là đây
                             rs.getString("HangGhe"),
                             rs.getInt("SoGhe"),
                             rs.getString("TrangThai")
@@ -179,4 +187,33 @@ public class SuatChieuPhimDAO {
                 rs.getDouble("GiaVeGoc")
         );
     }
+
+    public List<SuatChieuPhimDTO> laySuatChieuTheoNgayVaPhim(java.sql.Date ngayChieu, int maPhim) {
+        List<SuatChieuPhimDTO> list = new ArrayList<>();
+
+        // CHÚ Ý QUAN TRỌNG: Đã thêm cột NgayChieu vào sau MaPhong
+        String sql = "SELECT MaSuatChieu, MaPhim, MaPhong, NgayChieu, GioBatDau, GioKetThuc, GiaVeGoc " +
+                "FROM SuatChieu " +
+                "WHERE NgayChieu = ? AND MaPhim = ? AND TrangThai = 'SapChieu' " +
+                "ORDER BY GioBatDau ASC";
+
+        try (Connection con = UtilsJDBC.getConnectDB();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setDate(1, ngayChieu);
+            ps.setInt(2, maPhim);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToDTO(rs));
+                }
+            }
+        } catch (SQLException e) {
+            // Nếu có lỗi, nó sẽ in ra màn hình Console (Run tab) ở dưới đáy IDE của bạn
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
 }

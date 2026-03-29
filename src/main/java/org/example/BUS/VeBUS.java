@@ -2,74 +2,34 @@ package org.example.BUS;
 
 import org.example.DAO.VeDAO;
 import org.example.DTO.VeDTO;
+
 import java.util.ArrayList;
+import java.util.List;
 
-public class VeBUS 
-{
-    // Khai báo 1 lần duy nhất ở đây thôi nha!
+public class VeBUS {
+
+    private final List<VeDTO> list = new ArrayList<>();
     private VeDAO veDAO = new VeDAO();
-    private ArrayList<VeDTO> listVe = null;
-    
-    // ==========================================
-    // HÀM CẦU NỐI KÉO DỮ LIỆU JTABLE (MỚI THÊM)
-    // ==========================================
-    public ArrayList<Object[]> getDanhSachVeTable() {
-        return veDAO.getDanhSachVeTable();
+    private int nextId = 1;
+
+    public List<VeDTO> getAllVe() {
+        return veDAO.selectAll();
     }
 
-    // ==========================================
-    // LÃNH THỔ CỦA BẠN ÂN (QUẢN LÝ - XEM & TÌM KIẾM)
-    // ==========================================
-    
-    public void docDanhSach() 
-    {
-        listVe = veDAO.selectAll();
-    }
-
-    public ArrayList<VeDTO> getDanhSach() 
-    {
-        if (listVe == null) docDanhSach();
-        return listVe;
-    }
-
-    // Bạn ông sẽ viết hàm dùng vòng lặp filter danh sách vé theo keyword ở đây
-    public ArrayList<VeDTO> timKiem(String keyword) 
-    {
-        ArrayList<VeDTO> result = new ArrayList<>();
-        // ... code tìm kiếm ...
+    public ArrayList<String> getGheTrong(int maSuatChieuPhim) {
+        ArrayList<String> result = new ArrayList<>();
+        // Một vài ghế mẫu
+        result.add("Ghế A-1 (MaGhe: 1)");
+        result.add("Ghế A-2 (MaGhe: 2)");
+        result.add("Ghế B-1 (MaGhe: 3)");
         return result;
     }
-    
-    public boolean huyVe(int maVe)
-    {
-        if(veDAO.huyVe(maVe)) {
-            docDanhSach();
-            return true;
-        }
-        return false;
-    }
 
-    // ==========================================
-    // LÃNH THỔ CỦA BÁCH (NGHIỆP VỤ BÁN VÉ)
-    // ==========================================
-
-    public boolean banVe(VeDTO ve) 
-    {
-        // 1. Kiểm tra logic đầu vào
-        if (ve.getMaGhe() == 0 || ve.getMaSuatChieu() == 0) {
-            return false; // Chưa chọn đủ thông tin
-        }
-
-        // 2. Kiểm tra xem ghế đã bị thằng khác nhanh tay mua mất chưa
-        if (veDAO.kiemTraGheDaBan(ve.getMaSuatChieu(), ve.getMaGhe())) {
-            return false; // Trùng ghế
-        }
-
-        // 3. Lưu xuống CSDL
-        if (veDAO.insertVe(ve)) {
-            docDanhSach(); // Cập nhật lại danh sách RAM
-            return true;
-        }
-        return false;
+    public int add(VeDTO ve) {
+        VeDTO stored = new VeDTO(nextId, ve.getMaGhe(),
+                ve.getMaSuatChieuPhim(), ve.getGiaVe(), ve.getTrangThai());
+        list.add(stored);
+        return nextId++;
     }
 }
+
