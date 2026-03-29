@@ -6,8 +6,16 @@ import java.util.ArrayList;
 
 public class VeBUS 
 {
+    // Khai báo 1 lần duy nhất ở đây thôi nha!
     private VeDAO veDAO = new VeDAO();
     private ArrayList<VeDTO> listVe = null;
+    
+    // ==========================================
+    // HÀM CẦU NỐI KÉO DỮ LIỆU JTABLE (MỚI THÊM)
+    // ==========================================
+    public ArrayList<Object[]> getDanhSachVeTable() {
+        return veDAO.getDanhSachVeTable();
+    }
 
     // ==========================================
     // LÃNH THỔ CỦA BẠN ÂN (QUẢN LÝ - XEM & TÌM KIẾM)
