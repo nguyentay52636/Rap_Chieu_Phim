@@ -12,11 +12,9 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import org.example.BUS.KhachHangBUS;
-import org.example.BUS.LoaiGheBUS;
 import org.example.BUS.PhongChieuBUS;
 import org.example.DTO.GheDTO;
 import org.example.DTO.KhachHangDTO;
-import org.example.DTO.LoaiGheDTO;
 import org.example.DTO.PhongChieuDTO;
 import org.example.GUI.Components.FormCustomer.AddCustomerDialog;
 import org.example.GUI.Components.FormCustomer.FormCustomer;
@@ -28,7 +26,6 @@ public class FormPhongChieu extends JPanel {
     private DefaultTableModel model;
     private JTable tablePhongChieu;
     private final PhongChieuBUS pcBUS = new PhongChieuBUS();
-    private final LoaiGheBUS lgBUS = new LoaiGheBUS();
 
     public FormPhongChieu() {
         setLayout(new BorderLayout(10, 10));
@@ -192,21 +189,16 @@ public class FormPhongChieu extends JPanel {
                 int soHang = Integer.parseInt(soHangStr);
                 int soGhe = Integer.parseInt(soGheStr);
 
-                if (soHang <= 0 || soGhe <= 0 || soHang > 26) {
-                    JOptionPane.showMessageDialog(dialog, "Số hàng (tối đa 26, bảng chữ cái English) và số ghế phải lớn hơn 0!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                if (soHang <= 0 || soGhe <= 0) {
+                    JOptionPane.showMessageDialog(dialog, "Số hàng và số ghế phải lớn hơn 0!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                // Gắn MaPhong = 0, CSDL sẽ tự động tăng
+                // Gắn MaPhong = 0, CSDL sẽ tự động tăng (Auto Increment)
                 PhongChieuDTO pc = new PhongChieuDTO(0, tenPhong, loaiPhong, soHang, soGhe);
 
-                // Lấy mã loại ghế mặc định (Lấy loại đầu tiên trong CSDL)
-                List<LoaiGheDTO> listLoaiGhe = lgBUS.getList();
-                int defaultMaLoai = listLoaiGhe.isEmpty() ? 1 : listLoaiGhe.get(0).getMaLoaiGhe();
-
-                // ---> GỌI HÀM MỚI TẠO ĐỂ THÊM PHÒNG & TẠO GHẾ CÙNG LÚC <---
-                if (pcBUS.addRoomWithSeats(pc, defaultMaLoai)) {
-                    JOptionPane.showMessageDialog(dialog, "Thêm phòng chiếu và khởi tạo sơ đồ ghế thành công!");
+                if (pcBUS.add(pc)) {
+                    JOptionPane.showMessageDialog(dialog, "Thêm phòng chiếu thành công!");
                     loadDataToTable(); // Refresh lại bảng
                     dialog.dispose();
                 } else {
@@ -290,344 +282,49 @@ public class FormPhongChieu extends JPanel {
         root.setBorder(new EmptyBorder(12, 12, 12, 12));
         root.setBackground(new Color(245, 245, 250));
 
-        // --- BỘ NHỚ TẠM THỜI (IN-MEMORY STATE) ---
-        int[] currentDim = {SoHang, SoGheMoiHang};
-        List<String> selectedSeats = new ArrayList<>();
-        List<GheDTO> localSeats = new ArrayList<>();
-        if (danhSachGhe != null) {
-            localSeats.addAll(danhSachGhe);
-        }
-        int idPhong = Integer.parseInt(maPhong);
+        List<String> selectedSeats = new ArrayList<String>();
 
-        // --- TOP PANEL: ALL CONTROLS ---
-        JPanel topPanel = new JPanel(new BorderLayout(10, 0));
+        JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(new Color(245, 245, 250));
 
-        // Gom nhóm các công cụ sang bên trái (Nằm trên cùng 1 dòng)
-        JPanel leftControls = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        leftControls.setOpaque(false);
-
-        // 1. Chỉnh sửa loại ghế
-        JPanel chairPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        chairPanel.setOpaque(false);
+        JPanel chairPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        chairPanel.setBackground(new Color(245, 245, 250));
         chairPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)), "Đổi Loại", TitledBorder.LEFT, TitledBorder.TOP));
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                "Quản Lý Ghế",
+                TitledBorder.LEFT,
+                TitledBorder.TOP));
+        chairPanel.setOpaque(false);
 
-        List<LoaiGheDTO> listLoaiGhe = lgBUS.getList();
-        String[] dsLoaiGhe = listLoaiGhe.stream().map(LoaiGheDTO::getTenLoaiGhe).toArray(String[]::new);
-        JComboBox<String> optLoaiGhe = createStyledComboBox(dsLoaiGhe);
-        JButton btnApplySeatType = createStyledButton("Đổi", new Color(255, 193, 7), Color.BLACK);
-        chairPanel.add(optLoaiGhe);
-        chairPanel.add(btnApplySeatType);
+        JButton btnEdit = createStyledButton("Sửa", new Color(255, 193, 7), Color.BLACK);
+        JButton btnView = createStyledButton("Xem", new Color(0, 123, 255), Color.WHITE);
 
-        // 2. Chỉnh sửa kích thước phòng
-        JPanel dimPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        dimPanel.setOpaque(false);
+        chairPanel.add(btnEdit);
+        chairPanel.add(btnView);
+
+        topPanel.add(chairPanel, BorderLayout.WEST);
+
+        JPanel dimPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        dimPanel.setBackground(new Color(245, 245, 250));
         dimPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)), "Kích Thước", TitledBorder.LEFT, TitledBorder.TOP));
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                "Quản Lý Cấu Trúc",
+                TitledBorder.LEFT,
+                TitledBorder.TOP));
+        dimPanel.setOpaque(false);
 
-        dimPanel.add(createLabel("Hàng:"));
-        JTextField txtSoHang = new JTextField(String.valueOf(currentDim[0]), 3);
-        txtSoHang.setHorizontalAlignment(JTextField.CENTER);
-        dimPanel.add(txtSoHang);
+        dimPanel.add(createLabel("Độ dài(Ghế):"));
+        JTextField x = new JTextField();
+        x.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        dimPanel.add(createLabel("Ghế/Hàng:"));
-        JTextField txtSoGhe = new JTextField(String.valueOf(currentDim[1]), 3);
-        txtSoGhe.setHorizontalAlignment(JTextField.CENTER);
-        dimPanel.add(txtSoGhe);
+        dimPanel.add(createLabel("Độ rộng(Ghế):"));
 
-        JButton btnApplySize = createStyledButton("Tạo lại", new Color(0, 123, 255), Color.WHITE);
-        dimPanel.add(btnApplySize);
+        topPanel.add(dimPanel);
 
-        // 3. Chọn nhanh (Select All, Clear, Select Row)
-        JPanel selectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
-        selectionPanel.setOpaque(false);
-        selectionPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)), "Chọn Nhanh", TitledBorder.LEFT, TitledBorder.TOP));
-
-        JButton btnSelectAll = createStyledButton("Tất cả", new Color(23, 162, 184), Color.WHITE);
-        JButton btnClearSel = createStyledButton("Bỏ chọn", new Color(108, 117, 125), Color.WHITE);
-        btnClearSel.setPreferredSize(new Dimension(90, 35));
-        JComboBox<String> optRowSelect = createStyledComboBox(new String[]{}); // Sẽ được cập nhật tự động
-        JButton btnSelectRow = createStyledButton("Chọn Hàng", new Color(23, 162, 184), Color.WHITE);
-        btnSelectRow.setPreferredSize(new Dimension(120, 35));
-
-        selectionPanel.add(btnSelectAll);
-        selectionPanel.add(btnClearSel);
-        selectionPanel.add(optRowSelect);
-        selectionPanel.add(btnSelectRow);
-
-        // Gắn tất cả vào leftControls (Nằm ngang nhau)
-        leftControls.add(chairPanel);
-        leftControls.add(dimPanel);
-        leftControls.add(selectionPanel);
-
-        // ---> BỌC KHU VỰC BÊN TRÁI VÀO JSCROLLPANE <---
-        JScrollPane scrollLeftControls = new JScrollPane(leftControls);
-        scrollLeftControls.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER); // Tắt cuộn dọc
-        scrollLeftControls.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED); // Bật cuộn ngang
-        scrollLeftControls.setBorder(BorderFactory.createEmptyBorder()); // Bỏ viền để nhìn liền mạch
-        scrollLeftControls.setOpaque(false);
-        scrollLeftControls.getViewport().setOpaque(false);
-        scrollLeftControls.getHorizontalScrollBar().setUnitIncrement(16); // Cuộn chuột mượt mà
-
-        // 4. Nút Lưu & Thoát (Đặt bên phải)
-        JPanel rightControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
-        rightControls.setOpaque(false);
-        rightControls.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)), "Thoát", TitledBorder.LEFT, TitledBorder.TOP));
-        JButton btnCancel = createStyledButton("Hủy", new Color(108, 117, 125), Color.WHITE);
-        JButton btnSave = createStyledButton("Lưu", new Color(40, 167, 69), Color.WHITE);
-        rightControls.add(btnCancel);
-        rightControls.add(btnSave);
-
-        // ---> THAY ĐỔI VỊ TRÍ ADD VÀO topPanel <---
-        // Đặt scrollLeftControls ở CENTER để nó tự động co lại và hiện thanh cuộn khi cửa sổ nhỏ
-        // Đặt rightControls ở EAST để nó luôn giữ nguyên kích thước và bám sát lề phải
-        topPanel.add(scrollLeftControls, BorderLayout.CENTER);
-        topPanel.add(rightControls, BorderLayout.EAST);
         root.add(topPanel, BorderLayout.NORTH);
 
-        // --- CENTER PANEL: MÀN HÌNH & BẢN ĐỒ GHẾ ---
-        JPanel seatArea = new JPanel(new BorderLayout(10, 10));
-        seatArea.setOpaque(false);
 
-        JPanel screen = new JPanel(new BorderLayout());
-        screen.setBackground(new Color(30, 30, 35));
-        screen.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-        JLabel lblScreen = new JLabel("MÀN HÌNH", SwingConstants.CENTER);
-        lblScreen.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblScreen.setForeground(Color.WHITE);
-        screen.add(lblScreen, BorderLayout.CENTER);
-        seatArea.add(screen, BorderLayout.NORTH);
 
-        JPanel grid = new JPanel();
-        grid.setBackground(Color.WHITE);
-        JScrollPane scrollGrid = new JScrollPane(grid);
-
-        scrollGrid.getVerticalScrollBar().setUnitIncrement(SoHang);
-        scrollGrid.getHorizontalScrollBar().setUnitIncrement(SoGheMoiHang);
-
-        DefaultTableModel seatModel = new DefaultTableModel(new String[]{"Mã Ghế", "Hàng", "Số", "Loại", "Trạng thái"}, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
-        };
-        JTable seatTable = new JTable(seatModel);
-        seatTable.setRowHeight(30);
-        JScrollPane scrollTable = new JScrollPane(seatTable);
-
-        scrollTable.getVerticalScrollBar().setUnitIncrement(SoHang);
-        scrollTable.getHorizontalScrollBar().setUnitIncrement(SoGheMoiHang);
-
-        Color colorSelected = new Color(255, 193, 7); // Vàng
-        Color colorThuong = new Color(66, 103, 178); // Xanh dương mặc định cho mọi ghế
-
-        // --- HÀM RENDER LẠI GRID VÀ BẢNG DỰA TRÊN STATE ---
-        Runnable renderGrid = () -> {
-            grid.removeAll();
-            grid.setLayout(new GridLayout(currentDim[0], currentDim[1], 8, 8));
-            seatModel.setRowCount(0);
-            selectedSeats.clear();
-
-            // Cập nhật lại danh sách hàng trong ComboBox "Chọn Hàng"
-            optRowSelect.removeAllItems();
-            for (int i = 0; i < currentDim[0]; i++) {
-                optRowSelect.addItem(String.valueOf((char) ('A' + i)));
-            }
-
-            for (int i = 0; i < currentDim[0]; i++) {
-                char hang = (char) ('A' + i);
-                for (int j = 1; j <= currentDim[1]; j++) {
-                    int finalJ = j;
-                    String maGhe = hang + String.format("%02d", finalJ);
-                    JButton btn = new JButton(maGhe);
-                    btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-                    btn.setFocusPainted(false);
-                    btn.setPreferredSize(new Dimension(54, 44));
-
-                    GheDTO gheDb = localSeats.stream()
-                            .filter(g -> g.getHangGhe().equals(String.valueOf(hang)) && g.getSoGhe() == finalJ)
-                            .findFirst().orElse(null);
-
-                    if (gheDb == null) {
-                        int defaultMaLoai = listLoaiGhe.isEmpty() ? 1 : listLoaiGhe.get(0).getMaLoaiGhe();
-                        // Khởi tạo DTO với String
-                        gheDb = new GheDTO(0, idPhong, defaultMaLoai, String.valueOf(hang), finalJ);
-                        localSeats.add(gheDb);
-                    }
-
-                    String tenLoai = "Unknown";
-                    for (LoaiGheDTO loai : listLoaiGhe) {
-                        if (loai.getMaLoaiGhe() == gheDb.getMaLoaiGhe()) {
-                            tenLoai = loai.getTenLoaiGhe();
-                            break;
-                        }
-                    }
-
-                    btn.setBackground(colorThuong);
-                    btn.setForeground(Color.WHITE);
-                    btn.putClientProperty("originalColor", colorThuong);
-
-                    seatModel.addRow(new Object[]{maGhe, String.valueOf(hang), finalJ, tenLoai, ""});
-
-                    // Xử lý click chọn 1 ghế
-                    btn.addActionListener(e -> {
-                        boolean isSelecting = !btn.getBackground().equals(colorSelected);
-                        if (isSelecting) {
-                            btn.setBackground(colorSelected);
-                            btn.setForeground(Color.BLACK);
-                            selectedSeats.add(maGhe);
-                        } else {
-                            btn.setBackground((Color) btn.getClientProperty("originalColor"));
-                            btn.setForeground(Color.WHITE);
-                            selectedSeats.remove(maGhe);
-                        }
-
-                        for (int r = 0; r < seatModel.getRowCount(); r++) {
-                            if (seatModel.getValueAt(r, 0).equals(maGhe)) {
-                                seatModel.setValueAt(isSelecting ? "Đang chọn..." : "", r, 4);
-                                break;
-                            }
-                        }
-                    });
-
-                    grid.add(btn);
-                }
-            }
-            grid.revalidate();
-            grid.repaint();
-        };
-
-        renderGrid.run(); // Chạy lần đầu
-
-        // --- SỰ KIỆN CHO CÁC NÚT MỚI THÊM VÀO ---
-        btnSelectAll.addActionListener(e -> {
-            for (Component comp : grid.getComponents()) {
-                if (comp instanceof JButton btn) {
-                    String maGhe = btn.getText();
-                    if (!selectedSeats.contains(maGhe)) {
-                        btn.setBackground(colorSelected);
-                        btn.setForeground(Color.BLACK);
-                        selectedSeats.add(maGhe);
-                    }
-                }
-            }
-            // Update toàn bộ cột trạng thái của bảng
-            for (int r = 0; r < seatModel.getRowCount(); r++) {
-                seatModel.setValueAt("Đang chọn...", r, 4);
-            }
-        });
-
-        btnClearSel.addActionListener(e -> {
-            selectedSeats.clear();
-            for (Component comp : grid.getComponents()) {
-                if (comp instanceof JButton btn) {
-                    btn.setBackground((Color) btn.getClientProperty("originalColor"));
-                    btn.setForeground(Color.WHITE);
-                }
-            }
-            // Xóa toàn bộ cột trạng thái của bảng
-            for (int r = 0; r < seatModel.getRowCount(); r++) {
-                seatModel.setValueAt("", r, 4);
-            }
-        });
-
-        btnSelectRow.addActionListener(e -> {
-            String targetRow = (String) optRowSelect.getSelectedItem();
-            if (targetRow == null) return;
-
-            for (Component comp : grid.getComponents()) {
-                if (comp instanceof JButton btn) {
-                    String maGhe = btn.getText();
-                    // Nếu mã ghế bắt đầu bằng chữ cái của hàng (VD: "A")
-                    if (maGhe.startsWith(targetRow) && !selectedSeats.contains(maGhe)) {
-                        btn.setBackground(colorSelected);
-                        btn.setForeground(Color.BLACK);
-                        selectedSeats.add(maGhe);
-                    }
-                }
-            }
-            // Update bảng chỉ cho những ghế thuộc hàng đó
-            for (int r = 0; r < seatModel.getRowCount(); r++) {
-                if (seatModel.getValueAt(r, 0).toString().startsWith(targetRow)) {
-                    seatModel.setValueAt("Đang chọn...", r, 4);
-                }
-            }
-        });
-
-        // --- CÁC SỰ KIỆN CŨ ---
-        btnApplySize.addActionListener(e -> {
-            try {
-                int newRow = Integer.parseInt(txtSoHang.getText().trim());
-                int newCol = Integer.parseInt(txtSoGhe.getText().trim());
-                if (newRow <= 0 || newCol <= 0 || newRow > 26) {
-                    JOptionPane.showMessageDialog(root, "Kích thước không hợp lệ! (Hàng tối đa 26)");
-                    return;
-                }
-                currentDim[0] = newRow;
-                currentDim[1] = newCol;
-
-                localSeats.removeIf(g -> g.getHangGhe().charAt(0) > ('A' + currentDim[0] - 1) || g.getSoGhe() > currentDim[1]);
-                renderGrid.run();
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(root, "Vui lòng nhập số hợp lệ!");
-            }
-        });
-
-        btnApplySeatType.addActionListener(e -> {
-            if (selectedSeats.isEmpty()) {
-                JOptionPane.showMessageDialog(root, "Vui lòng chọn ghế trên bản đồ trước!"); return;
-            }
-            int maLoaiGheMoi = listLoaiGhe.get(optLoaiGhe.getSelectedIndex()).getMaLoaiGhe();
-
-            for (String seatCode : selectedSeats) {
-                String hangGhe = String.valueOf(seatCode.charAt(0));
-                int soGhe = Integer.parseInt(seatCode.substring(1));
-                localSeats.stream()
-                        .filter(g -> g.getHangGhe().equals(hangGhe) && g.getSoGhe() == soGhe)
-                        .forEach(g -> g.setMaLoaiGhe(maLoaiGheMoi));
-            }
-            renderGrid.run();
-        });
-
-        btnCancel.addActionListener(e -> SwingUtilities.getWindowAncestor(root).dispose());
-
-        btnSave.addActionListener(e -> {
-            PhongChieuDTO updatedRoom = new PhongChieuDTO(idPhong, tenPhong, loaiPhong, currentDim[0], currentDim[1]);
-            updatedRoom.setGheList(localSeats);
-
-            if (pcBUS.updateRoomAndSeats(updatedRoom)) {
-                JOptionPane.showMessageDialog(root, "Cập nhật phòng chiếu thành công!");
-                loadDataToTable();
-                SwingUtilities.getWindowAncestor(root).dispose();
-            } else {
-                JOptionPane.showMessageDialog(root, "Lỗi khi cập nhật CSDL!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollGrid, scrollTable);
-        split.setResizeWeight(0.75);
-        seatArea.add(split, BorderLayout.CENTER);
-
-        root.add(seatArea, BorderLayout.CENTER);
-
-        return root;
-    }
-
-    private JPanel createPreviewPanel(String maPhong, String tenPhong, String loaiPhong, int SoHang, int SoGheMoiHang, List<GheDTO> danhSachGhe) {
-        JPanel root = new JPanel(new BorderLayout(10, 10));
-        root.setBorder(new EmptyBorder(12, 12, 12, 12));
-        root.setBackground(new Color(245, 245, 250));
-
-        // --- TOP HEADER: THÔNG TIN PHÒNG ---
-        JLabel header = new JLabel("Phòng: " + tenPhong + " | Loại: " + loaiPhong + " | Mã: " + maPhong, SwingConstants.CENTER);
-        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        header.setOpaque(true);
-        header.setBackground(new Color(66, 103, 178));
-        header.setForeground(Color.WHITE);
-        header.setBorder(new EmptyBorder(10, 10, 10, 10));
-        root.add(header, BorderLayout.NORTH);
-
-        // --- CENTER PANEL: MÀN HÌNH & BẢN ĐỒ GHẾ ---
         JPanel seatArea = new JPanel(new BorderLayout(10, 10));
         seatArea.setOpaque(false);
 
@@ -644,43 +341,23 @@ public class FormPhongChieu extends JPanel {
         grid.setBackground(Color.WHITE);
         grid.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                "Sơ đồ ghế (Chỉ xem)",
+                "Bản đồ ghế (demo)",
                 TitledBorder.CENTER,
                 TitledBorder.TOP,
                 new Font("Segoe UI", Font.BOLD, 13)));
 
-        JScrollPane scrollGrid = new JScrollPane(grid);
-        scrollGrid.getViewport().setBackground(Color.WHITE);
-        // Chỉnh tốc độ cuộn mượt mà (dùng 16 pixel thay vì SoHang)
-        scrollGrid.getVerticalScrollBar().setUnitIncrement(16);
-        scrollGrid.getHorizontalScrollBar().setUnitIncrement(16);
-
-        // Bảng cập nhật cho giống UpdatePanel (Bỏ cột Trạng thái vì chỉ xem)
-        DefaultTableModel seatModel = new DefaultTableModel(new String[]{"Mã Ghế", "Hàng", "Số", "Loại"}, 0) {
+        DefaultTableModel seatModel = new DefaultTableModel(new String[]{"Mã Ghế", "Hàng", "Số", "Trạng thái"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        JTable seatTable = new JTable(seatModel);
-        seatTable.setRowHeight(30);
-        seatTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        seatTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
 
-        JScrollPane scrollTable = new JScrollPane(seatTable);
-        scrollTable.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                "Danh sách ghế",
-                TitledBorder.CENTER,
-                TitledBorder.TOP,
-                new Font("Segoe UI", Font.BOLD, 13)));
-        scrollTable.getVerticalScrollBar().setUnitIncrement(16);
-        scrollTable.getHorizontalScrollBar().setUnitIncrement(16);
+// ... (khởi tạo bảng màu)
+        Color colorThuong = new Color(66, 103, 178); // Xanh dương
+        Color colorVIP = new Color(220, 53, 69);     // Đỏ
+        Color colorSelected = new Color(255, 193, 7); // Vàng
 
-        Color colorThuong = new Color(66, 103, 178); // Màu xanh dương mặc định
-        List<LoaiGheDTO> listLoaiGhe = lgBUS.getList(); // Lấy danh sách tên loại ghế
-
-        // --- ĐỔ DỮ LIỆU VÀO GRID VÀ TABLE ---
         for (int i = 0; i < SoHang; i++) {
             char hang = (char) ('A' + i);
             for (int j = 1; j <= SoGheMoiHang; j++) {
@@ -690,46 +367,222 @@ public class FormPhongChieu extends JPanel {
                 btn.setFocusPainted(false);
                 btn.setPreferredSize(new Dimension(54, 44));
 
-                // 1. TÌM GHẾ TRONG DB (Sử dụng String cho HangGhe)
+                // 1. TÌM GHẾ NÀY TRONG CSDL
                 GheDTO gheDb = null;
                 if (danhSachGhe != null) {
                     for (GheDTO g : danhSachGhe) {
-                        if (g.getHangGhe().equals(String.valueOf(hang)) && g.getSoGhe() == j) {
+                        if (g.getHangGhe() == (int) hang && g.getSoGhe() == j) {
                             gheDb = g;
                             break;
                         }
                     }
                 }
 
-                // 2. TÌM TÊN LOẠI GHẾ
-                String tenLoai = "Unknown";
+                // 2. TÔ MÀU THEO LOẠI GHẾ
+                Color currentColor = colorThuong; // Mặc định
+                String tenLoai = "Thường";
+
                 if (gheDb != null) {
-                    for (LoaiGheDTO loai : listLoaiGhe) {
-                        if (loai.getMaLoaiGhe() == gheDb.getMaLoaiGhe()) {
-                            tenLoai = loai.getTenLoaiGhe();
+                    // Giả sử MaLoaiGhe = 2 là ghế VIP
+                    if (gheDb.getMaLoaiGhe() == 2) {
+                        currentColor = colorVIP;
+                        tenLoai = "VIP";
+                    }
+                }
+
+                btn.setBackground(currentColor);
+                btn.setForeground(Color.WHITE);
+                btn.putClientProperty("originalColor", currentColor);
+                seatModel.addRow(new Object[]{maGhe, String.valueOf(hang), j, tenLoai});
+
+                // Chế độ sửa: Cho phép chọn
+                Color finalCurrentColor = currentColor;
+                btn.addActionListener(e -> {
+                    JButton clickedBtn = (JButton) e.getSource();
+                    if (!clickedBtn.getBackground().equals(colorSelected)) {
+                        clickedBtn.setBackground(colorSelected);
+                        clickedBtn.setForeground(Color.BLACK);
+                        selectedSeats.add(maGhe);
+                    } else {
+                        // Trả về màu gốc (VIP hoặc Thường) khi bỏ chọn
+                        clickedBtn.setBackground(finalCurrentColor);
+                        clickedBtn.setForeground(Color.WHITE);
+                        selectedSeats.remove(maGhe);
+                    }
+                });
+
+                grid.add(btn);
+            }
+        }
+
+        JScrollPane scrollGrid = new JScrollPane(grid);
+        scrollGrid.getViewport().setBackground(Color.WHITE);
+
+        JTable seatTable = new JTable(seatModel);
+        seatTable.setRowHeight(32);
+        seatTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        seatTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        JScrollPane scrollTable = new JScrollPane(seatTable);
+        scrollTable.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                "Danh sách ghế (demo)",
+                TitledBorder.CENTER,
+                TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 13)));
+
+        JPanel leftPanel = new JPanel(new BorderLayout(0, 10));
+        leftPanel.setOpaque(false);
+        leftPanel.add(screen, BorderLayout.NORTH);
+        leftPanel.add(scrollGrid, BorderLayout.CENTER);
+
+        JPanel bottomControlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomControlPanel.setOpaque(false);
+
+        JButton btnClear = new JButton("Bỏ chọn tất cả");
+        btnClear.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnClear.setBackground(new Color(108, 117, 125)); // Màu xám (như nút Secondary của Bootstrap)
+        btnClear.setForeground(Color.WHITE);
+        btnClear.setFocusPainted(false);
+
+        btnClear.addActionListener(e -> {
+            if (selectedSeats.isEmpty()) return; // Không có gì để xóa thì thôi
+
+            selectedSeats.clear(); // Xóa sạch danh sách đang chọn
+
+            // Duyệt qua tất cả các nút ghế trên bản đồ và trả về màu gốc
+            for (Component comp : grid.getComponents()) {
+                if (comp instanceof JButton) {
+                    JButton b = (JButton) comp;
+                    Color originalColor = (Color) b.getClientProperty("originalColor");
+                    if (originalColor != null) {
+                        b.setBackground(originalColor);
+                        b.setForeground(Color.WHITE);
+                    }
+                }
+            }
+            System.out.println("Đã reset! Danh sách ghế đang chọn: " + selectedSeats);
+        });
+
+        bottomControlPanel.add(btnClear);
+        leftPanel.add(bottomControlPanel, BorderLayout.SOUTH); // Gắn xuống đáy của sơ đồ ghế
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, scrollTable);
+        split.setResizeWeight(0.80);
+        split.setDividerSize(8);
+        seatArea.add(split, BorderLayout.CENTER);
+
+        root.add(seatArea, BorderLayout.CENTER);
+        return root;
+    }
+
+    private JPanel createPreviewPanel(String maPhong, String tenPhong, String loaiPhong, int SoHang, int SoGheMoiHang, List<GheDTO> danhSachGhe) {
+        JPanel root = new JPanel(new BorderLayout(10, 10));
+        root.setBorder(new EmptyBorder(12, 12, 12, 12));
+        root.setBackground(new Color(245, 245, 250));
+
+        JLabel header = new JLabel("Phòng: " + tenPhong + " | Loại: " + loaiPhong + " | Mã: " + maPhong, SwingConstants.CENTER);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        header.setOpaque(true);
+        header.setBackground(new Color(66, 103, 178));
+        header.setForeground(Color.WHITE);
+        header.setBorder(new EmptyBorder(10, 10, 10, 10));
+        root.add(header, BorderLayout.NORTH);
+
+        JPanel seatArea = new JPanel(new BorderLayout(10, 10));
+        seatArea.setOpaque(false);
+
+        JPanel screen = new JPanel(new BorderLayout());
+        screen.setBackground(new Color(30, 30, 35));
+        screen.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        JLabel lblScreen = new JLabel("MÀN HÌNH", SwingConstants.CENTER);
+        lblScreen.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblScreen.setForeground(Color.WHITE);
+        screen.add(lblScreen, BorderLayout.CENTER);
+        seatArea.add(screen, BorderLayout.NORTH);
+
+        JPanel grid = new JPanel(new GridLayout(SoHang, SoGheMoiHang, 8, 8));
+        grid.setBackground(Color.WHITE);
+        grid.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                "Bản đồ ghế (demo)",
+                TitledBorder.CENTER,
+                TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 13)));
+
+        DefaultTableModel seatModel = new DefaultTableModel(new String[]{"Mã Ghế", "Hàng", "Số", "Trạng thái"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+// ... (khởi tạo bảng màu)
+        Color colorThuong = new Color(66, 103, 178); // Xanh dương
+        Color colorVIP = new Color(220, 53, 69);     // Đỏ
+
+        for (int i = 0; i < SoHang; i++) {
+            char hang = (char) ('A' + i);
+            for (int j = 1; j <= SoGheMoiHang; j++) {
+                String maGhe = hang + String.format("%02d", j);
+                JButton btn = new JButton(maGhe);
+                btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                btn.setFocusPainted(false);
+                btn.setPreferredSize(new Dimension(54, 44));
+
+                // 1. TÌM GHẾ NÀY TRONG CSDL
+                GheDTO gheDb = null;
+                if (danhSachGhe != null) {
+                    for (GheDTO g : danhSachGhe) {
+                        if (g.getHangGhe() == (int) hang && g.getSoGhe() == j) {
+                            gheDb = g;
                             break;
                         }
                     }
-                } else {
-                    tenLoai = "Chưa khởi tạo";
                 }
 
-                btn.setBackground(colorThuong);
-                btn.setForeground(Color.WHITE);
+                // 2. TÔ MÀU THEO LOẠI GHẾ
+                Color currentColor = colorThuong; // Mặc định
+                String tenLoai = "Thường";
 
+                if (gheDb != null) {
+                    // Giả sử MaLoaiGhe = 2 là ghế VIP
+                    if (gheDb.getMaLoaiGhe() == 2) {
+                        currentColor = colorVIP;
+                        tenLoai = "VIP";
+                    }
+                }
+
+                btn.setBackground(currentColor);
+                btn.setForeground(Color.WHITE);
+                btn.putClientProperty("originalColor", currentColor);
                 seatModel.addRow(new Object[]{maGhe, String.valueOf(hang), j, tenLoai});
 
-                // CHẾ ĐỘ CHỈ XEM: Vô hiệu hóa mọi hiệu ứng click/hover
+
+                // Chế độ xem: Khóa click
                 btn.setModel(new javax.swing.DefaultButtonModel() {
                     @Override public boolean isArmed() { return false; }
                     @Override public boolean isPressed() { return false; }
                     @Override public boolean isRollover() { return false; }
                 });
                 btn.setFocusable(false);
-
                 grid.add(btn);
             }
         }
+
+        JScrollPane scrollGrid = new JScrollPane(grid);
+        scrollGrid.getViewport().setBackground(Color.WHITE);
+
+        JTable seatTable = new JTable(seatModel);
+        seatTable.setRowHeight(32);
+        seatTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        seatTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        JScrollPane scrollTable = new JScrollPane(seatTable);
+        scrollTable.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                "Danh sách ghế (demo)",
+                TitledBorder.CENTER,
+                TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 13)));
 
         JPanel leftPanel = new JPanel(new BorderLayout(0, 10));
         leftPanel.setOpaque(false);
@@ -737,7 +590,7 @@ public class FormPhongChieu extends JPanel {
         leftPanel.add(scrollGrid, BorderLayout.CENTER);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, scrollTable);
-        split.setResizeWeight(0.75); // Căn tỷ lệ giống màn hình Update
+        split.setResizeWeight(0.80);
         split.setDividerSize(8);
         seatArea.add(split, BorderLayout.CENTER);
 
