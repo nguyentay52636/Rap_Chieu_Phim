@@ -596,8 +596,16 @@ public class FormPhongChieu extends JPanel {
             }
         });
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollGrid, scrollTable);
+        // --- BỌC MÀN HÌNH VÀ BẢN ĐỒ VÀO CHUNG BÊN TRÁI ---
+        JPanel leftPanel = new JPanel(new BorderLayout(0, 10));
+        leftPanel.setOpaque(false);
+        leftPanel.add(screen, BorderLayout.NORTH); // Đặt màn hình lên trên
+        leftPanel.add(scrollGrid, BorderLayout.CENTER); // Đặt lưới ghế ở dưới
+
+        // Bỏ leftPanel vào nửa bên trái của SplitPane, bảng vào nửa bên phải
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, scrollTable);
         split.setResizeWeight(0.75);
+        split.setDividerSize(8);
         seatArea.add(split, BorderLayout.CENTER);
 
         root.add(seatArea, BorderLayout.CENTER);
@@ -630,7 +638,6 @@ public class FormPhongChieu extends JPanel {
         lblScreen.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblScreen.setForeground(Color.WHITE);
         screen.add(lblScreen, BorderLayout.CENTER);
-        seatArea.add(screen, BorderLayout.NORTH);
 
         JPanel grid = new JPanel(new GridLayout(SoHang, SoGheMoiHang, 8, 8));
         grid.setBackground(Color.WHITE);
