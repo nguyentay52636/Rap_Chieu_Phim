@@ -17,9 +17,8 @@ public class PhimDTO {
     public PhimDTO() {
     }
 
-    // Constructor gọn cho các form/UI đang dùng (không dùng NgàyKC & Trạng thái)
     public PhimDTO(int maPhim, int maLoaiPhim, String tenPhim, int thoiLuong,
-                   String daoDien, int namSanXuat, String posterURL) {
+            String daoDien, int namSanXuat, String posterURL) {
         this.maPhim = maPhim;
         this.maLoaiPhim = maLoaiPhim;
         this.tenPhim = tenPhim;
@@ -30,9 +29,9 @@ public class PhimDTO {
     }
 
     public PhimDTO(int maPhim, int maLoaiPhim, String tenPhim, int thoiLuong,
-                   String daoDien, int namSanXuat, String anhMauPhim,
-                   Date ngayKhoiChieu, String trangThai) {
-        this.maPhim = maPhim;   
+            String daoDien, int namSanXuat, String anhMauPhim,
+            Date ngayKhoiChieu, String trangThai) {
+        this.maPhim = maPhim;
         this.maLoaiPhim = maLoaiPhim;
         this.tenPhim = tenPhim;
         this.thoiLuong = thoiLuong;
@@ -43,7 +42,6 @@ public class PhimDTO {
         this.trangThai = trangThai;
     }
 
-    // Alias để khớp naming trong một số form/BUS cũ
     public int getMaTheLoaiPhim() {
         return maLoaiPhim;
     }
