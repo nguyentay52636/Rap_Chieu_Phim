@@ -27,8 +27,7 @@ public class SanPhamDAO {
                         rs.getInt("GiaBan"),
                         rs.getString("KichThuoc"),
                         rs.getInt("soluong"),
-                        rs.getString("trangthai") != null ? rs.getString("trangthai") : ""
-                );
+                        rs.getString("trangthai") != null ? rs.getString("trangthai") : "");
                 list.add(sp);
             }
             rs.close();

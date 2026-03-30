@@ -8,14 +8,15 @@ public class DialogAddPhim extends JDialog {
     private boolean saved = false;
 
     private final JTextField ten = createStyledTextField(30);
-    private final JComboBox<String> theLoai = createStyledComboBox(new String[]{
-            "Hành động", "Tình cảm", "Kinh dị", "Hài hước", "Khoa học viễn tưởng", "Hoạt hình", "Phiêu lưu", "Tâm lý", "Hình sự"
+    private final JComboBox<String> theLoai = createStyledComboBox(new String[] {
+            "Hành động", "Tình cảm", "Kinh dị", "Hài hước", "Khoa học viễn tưởng", "Hoạt hình", "Phiêu lưu", "Tâm lý",
+            "Hình sự"
     });
     private final JTextField thoiLuong = createStyledTextField(10);
     private final JTextField daoDien = createStyledTextField(30);
     private final JTextField nam = createStyledTextField(10);
     private final JTextField ngayKC = createStyledTextField(15);
-    private final JComboBox<String> trangThai = createStyledComboBox(new String[]{
+    private final JComboBox<String> trangThai = createStyledComboBox(new String[] {
             "Đang chiếu", "Sắp chiếu", "Ngừng chiếu"
     });
     private final JTextField posterUrl = createStyledTextField(40);
@@ -89,8 +90,7 @@ public class DialogAddPhim extends JDialog {
         tf.setCaretColor(new Color(33, 37, 41));
         tf.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(204, 204, 204), 1, true),
-                BorderFactory.createEmptyBorder(10, 12, 10, 12)
-        ));
+                BorderFactory.createEmptyBorder(10, 12, 10, 12)));
         return tf;
     }
 
@@ -107,7 +107,7 @@ public class DialogAddPhim extends JDialog {
     }
 
     private void addFormRow(JPanel panel, GridBagConstraints gbc, int row,
-                            String labelText, JComponent component, boolean required) {
+            String labelText, JComponent component, boolean required) {
 
         gbc.gridx = 0;
         gbc.gridy = row;

@@ -15,7 +15,6 @@ import java.util.List;
 public class PhongChieuBUS {
     private final PhongChieuDAO phongChieuDAO = new PhongChieuDAO();
     private List<PhongChieuDTO> listPc = new ArrayList<>();
-    private final LoaiGheBUS lgBUS = new LoaiGheBUS();
 
     public PhongChieuBUS() {
         refreshList();
