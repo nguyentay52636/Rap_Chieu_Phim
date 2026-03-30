@@ -77,6 +77,7 @@ org/example/GUI/Components/FormShowTime/ScAdvancedSearchDialog.class
 org/example/GUI/Components/FormAuth/LoginForm$1.class
 org/example/GUI/menu/PopupSubmenu.class
 org/example/BUS/KhachHangBUS.class
+org/example/GUI/Components/FormPhim/FormPhim$3.class
 org/example/GUI/Components/FormCustomer/FormCustomer$2.class
 org/example/BUS/PhongChieuBUS.class
 org/example/GUI/Components/FormHoaDon/FormHoaDon.class
@@ -92,6 +93,7 @@ org/example/GUI/Components/FormPhongChieu/ModernColorPicker$2.class
 org/example/GUI/Components/FormAuth/LoginForm$2.class
 org/example/UtilsDate/FormattedDatePicker$1.class
 org/example/GUI/Components/FormProduct/AddProductDialog.class
+org/example/GUI/Components/FormPhongChieu/FormPhongChieu$2.class
 org/example/UtilsDate/FormattedDatePicker.class
 org/example/GUI/Components/FormShowTime/FormShowTime$1.class
 org/example/BUS/HoaDonBUS.class

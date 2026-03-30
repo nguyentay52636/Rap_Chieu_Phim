@@ -16,6 +16,7 @@ import org.example.BUS.TheLoaiPhimBUS;
 import org.example.DTO.PhimDTO;
 import org.example.DTO.TheLoaiPhimDTO;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FormPhim extends JPanel {
 
@@ -23,6 +24,7 @@ public class FormPhim extends JPanel {
     private JTable table;
     private JLabel lblPoster;
     private JTextField txtSearch;
+    private JComboBox<String> cbFilterTrangThai;
     private JButton btnThem, btnSua, btnXoa, btnLamMoi, btnTimKiem;
 
     private final Map<Integer, String> posterMap = new HashMap<>();
@@ -53,11 +55,24 @@ public class FormPhim extends JPanel {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 32));
         header.add(lblTitle, BorderLayout.CENTER);
 
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        // Search Panel
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         searchPanel.setOpaque(false);
-        txtSearch = new JTextField(28);
-        txtSearch.setPreferredSize(new Dimension(300, 40));
+
+        cbFilterTrangThai = new JComboBox<>(new String[]{
+            "Tất cả trạng thái", "Đang chiếu", "Sắp chiếu", "Ngừng chiếu"
+        });
+        cbFilterTrangThai.setPreferredSize(new Dimension(180, 40));
+        cbFilterTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cbFilterTrangThai.setBackground(Color.WHITE);
+
+        txtSearch = new JTextField(20);
+        txtSearch.setPreferredSize(new Dimension(250, 40));
+        txtSearch.setToolTipText("Tìm theo tên phim...");
         btnTimKiem = createStyledButton("Tìm kiếm", new Color(0, 123, 255), Color.WHITE);
+        
+        searchPanel.add(new JLabel("Lọc:"));
+        searchPanel.add(cbFilterTrangThai);
         searchPanel.add(txtSearch);
         searchPanel.add(btnTimKiem);
         header.add(searchPanel, BorderLayout.EAST);
@@ -103,23 +118,34 @@ public class FormPhim extends JPanel {
             loadFromBus();
         });
         btnXoa.addActionListener(e -> xoaPhim());
+        btnTimKiem.addActionListener(e -> locPhim());
+        cbFilterTrangThai.addActionListener(e -> locPhim());
+        
         table.getSelectionModel().addListSelectionListener(e -> showPoster());
         
-        // Double click to edit
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) suaPhimDialog();
+            }
+        });
+
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                locPhim();
             }
         });
     }
 
     private void loadFromBus() {
         if (phimBUS == null || theLoaiPhimBUS == null) return;
+        displayOnTable(phimBUS.getList());
+    }
+
+    private void displayOnTable(List<PhimDTO> list) {
         tableModel.setRowCount(0);
         posterMap.clear();
-        List<PhimDTO> list = phimBUS.getList();
         List<TheLoaiPhimDTO> listTL = theLoaiPhimBUS.getList();
-        
         for (PhimDTO p : list) {
             String tenTheLoai = "Khác";
             if (listTL != null) {
@@ -129,59 +155,74 @@ public class FormPhim extends JPanel {
                         .map(TheLoaiPhimDTO::getTenLoaiPhim)
                         .orElse("Mã: " + p.getMaTheLoaiPhim());
             }
-
             tableModel.addRow(new Object[]{
-                    p.getMaPhim(), p.getTenPhim(), tenTheLoai, p.getThoiLuong(),
+                    p.getMaPhim(), p.getTenPhim(), tenTheLoai, p.getThoiLuong() + " phút",
                     p.getDaoDien(), p.getNamSanXuat(), p.getNgayKhoiChieu(), p.getTrangThai()
             });
             posterMap.put(p.getMaPhim(), p.getPosterURL());
         }
     }
 
+    private void locPhim() {
+        String keyword = txtSearch.getText().trim().toLowerCase();
+        String trangThaiSelected = (String) cbFilterTrangThai.getSelectedItem();
+        
+        List<PhimDTO> filteredList = phimBUS.getList();
+        
+        // Lọc theo tên phim
+        if (!keyword.isEmpty()) {
+            filteredList = filteredList.stream()
+                    .filter(p -> p.getTenPhim().toLowerCase().contains(keyword))
+                    .collect(Collectors.toList());
+        }
+        
+        // Lọc theo trạng thái
+        if (!trangThaiSelected.equals("Tất cả trạng thái")) {
+            filteredList = filteredList.stream()
+                    .filter(p -> p.getTrangThai().equalsIgnoreCase(trangThaiSelected))
+                    .collect(Collectors.toList());
+        }
+        
+        displayOnTable(filteredList);
+    }
+
     private void themPhimDialog() {
         Window owner = SwingUtilities.getWindowAncestor(this);
         DialogAddPhim dialog = new DialogAddPhim(owner);
         dialog.setVisible(true);
-        
-        if (!dialog.isSaved()) return;
+        if (dialog.isSaved()) {
+            try {
+                int maLoaiPhim = theLoaiPhimBUS.getList().stream()
+                        .filter(tl -> tl.getTenLoaiPhim().equalsIgnoreCase(dialog.getTheLoai()))
+                        .findFirst().map(TheLoaiPhimDTO::getMaLoaiPhim).orElse(1);
 
-        try {
-            int maLoaiPhim = theLoaiPhimBUS.getList().stream()
-                    .filter(tl -> tl.getTenLoaiPhim().equalsIgnoreCase(dialog.getTheLoai()))
-                    .findFirst()
-                    .map(TheLoaiPhimDTO::getMaLoaiPhim)
-                    .orElse(1);
+                PhimDTO p = new PhimDTO();
+                p.setTenPhim(dialog.getTenPhim());
+                p.setMaTheLoaiPhim(maLoaiPhim);
+                p.setThoiLuong(dialog.getThoiLuong());
+                p.setDaoDien(dialog.getDaoDien());
+                p.setNamSanXuat(dialog.getNamSanXuat());
+                p.setPosterURL(dialog.getPosterUrl());
+                p.setTrangThai(dialog.getTrangThai());
+                p.setNgayKhoiChieu(java.sql.Date.valueOf(dialog.getNgayKhoiChieu()));
 
-            PhimDTO p = new PhimDTO();
-            p.setTenPhim(dialog.getTenPhim());
-            p.setMaTheLoaiPhim(maLoaiPhim);
-            p.setThoiLuong(dialog.getThoiLuong());
-            p.setDaoDien(dialog.getDaoDien());
-            p.setNamSanXuat(dialog.getNamSanXuat());
-            p.setPosterURL(dialog.getPosterUrl());
-            p.setTrangThai(dialog.getTrangThai());
-            p.setNgayKhoiChieu(java.sql.Date.valueOf(dialog.getNgayKhoiChieu()));
-
-            if (phimBUS.add(p)) {
-                JOptionPane.showMessageDialog(this, "✅ THÀNH CÔNG: Đã thêm phim mới!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-                loadFromBus();
+                if (phimBUS.add(p)) {
+                    JOptionPane.showMessageDialog(this, "✅ Đã thêm phim mới!");
+                    loadFromBus();
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "❌ Lỗi: " + ex.getMessage());
             }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "❌ LỖI: " + ex.getMessage());
         }
     }
 
     private void suaPhimDialog() {
         int row = table.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn phim cần sửa!");
-            return;
-        }
-
+        if (row == -1) return;
         int maPhim = (int) tableModel.getValueAt(row, 0);
         String tenPhim = (String) tableModel.getValueAt(row, 1);
         String theLoai = (String) tableModel.getValueAt(row, 2);
-        String thoiLuongStr = tableModel.getValueAt(row, 3).toString();
+        String thoiLuongStr = tableModel.getValueAt(row, 3).toString().replace(" phút", "");
         String daoDien = (String) tableModel.getValueAt(row, 4);
         String namStr = tableModel.getValueAt(row, 5).toString();
         String ngayKC = tableModel.getValueAt(row, 6).toString();
@@ -196,12 +237,10 @@ public class FormPhim extends JPanel {
             try {
                 int maLoaiPhim = theLoaiPhimBUS.getList().stream()
                         .filter(tl -> tl.getTenLoaiPhim().equalsIgnoreCase(dialog.getTheLoai()))
-                        .findFirst()
-                        .map(TheLoaiPhimDTO::getMaLoaiPhim)
-                        .orElse(1);
+                        .findFirst().map(TheLoaiPhimDTO::getMaLoaiPhim).orElse(1);
 
                 PhimDTO p = new PhimDTO();
-                p.setMaPhim(maPhim); 
+                p.setMaPhim(maPhim);
                 p.setTenPhim(dialog.getTenPhim());
                 p.setMaTheLoaiPhim(maLoaiPhim);
                 p.setThoiLuong(dialog.getThoiLuong());
@@ -216,17 +255,16 @@ public class FormPhim extends JPanel {
                     loadFromBus();
                 }
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Lỗi cập nhật: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
             }
         }
     }
 
     private void xoaPhim() {
-        if (phimBUS == null) return;
         int row = table.getSelectedRow();
         if (row == -1) return;
         int maPhim = (int) tableModel.getValueAt(row, 0);
-        if (confirmDelete()) {
+        if (JOptionPane.showConfirmDialog(this, "Xóa phim này?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             if (phimBUS.delete(maPhim)) {
                 JOptionPane.showMessageDialog(this, "Đã xóa!");
                 loadFromBus();
@@ -234,17 +272,10 @@ public class FormPhim extends JPanel {
         }
     }
 
-    private boolean confirmDelete() {
-        return JOptionPane.showConfirmDialog(this, "Xóa phim này?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-    }
-
     private void showPoster() {
         int row = table.getSelectedRow();
         if (row == -1) return;
-        Object val = tableModel.getValueAt(row, 0);
-        if (val == null) return;
-        String fileName = posterMap.get((int) val);
-        
+        String fileName = posterMap.get((int) tableModel.getValueAt(row, 0));
         lblPoster.setIcon(null);
         if (fileName == null || fileName.isEmpty()) {
             lblPoster.setText("Không có ảnh");
