@@ -8,111 +8,145 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileOutputStream;
 
-public class FormTicket extends JPanel {
-
+public class FormTicket extends JPanel 
+{
     private DefaultTableModel model;
     private JTable tableTicket;
 
-    // Khai báo các nút chức năng
-    private JButton btnView, btnAdd, btnHuy, btnNhap, btnXuat, btnLamMoi; // Thêm btnLamMoi
+    // Khai báo các nút chức năng trên giao diện
+    private JButton btnView, btnAdd, btnHuy, btnXuat, btnLamMoi;
 
-    public FormTicket() {
+    // Khởi tạo Form
+    public FormTicket() 
+    {
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(UIManager.getColor("Panel.background"));
 
-        // ================== TOP PANEL (CHỨC NĂNG & TÌM KIẾM) ==================
+        // ================== TOP PANEL (CHỨA NÚT VÀ TÌM KIẾM) ==================
         JPanel topPanel = new JPanel(new GridLayout(2, 1, 0, 10));
         topPanel.setBackground(UIManager.getColor("Panel.background"));
 
-        // --- Dòng 1: Panel Chức năng ---
+        // --- Panel Chức năng (Các nút Thêm, Xem, Hủy...) ---
         JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
         pnlActions.setBackground(UIManager.getColor("Panel.background"));
         pnlActions.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(UIManager.getColor("Component.borderColor")),
                 "Quản Lý Vé Phim", TitledBorder.LEFT, TitledBorder.TOP));
 
-        btnView = createStyledButton("Xem", new Color(102, 187, 106), Color.WHITE, "/org/example/GUI/resources/images/view.png");
+        // Khởi tạo các nút (Dùng hàm tự viết ở cuối file cho lẹ)
+        btnView = createStyledButton("Xem Chi Tiết", new Color(102, 187, 106), Color.WHITE);
         btnView.addActionListener(e -> actionXemChiTiet());
         pnlActions.add(btnView);
 
-        btnAdd = createStyledButton("Thêm", new Color(0, 123, 255), Color.WHITE, "/org/example/GUI/resources/images/plus.png");
+        btnAdd = createStyledButton("Thêm Vé Mới", new Color(0, 123, 255), Color.WHITE);
         btnAdd.addActionListener(e -> actionThemVe());
         pnlActions.add(btnAdd);
 
-        btnHuy = createStyledButton("Hủy", new Color(220, 53, 69), Color.WHITE, "/org/example/GUI/resources/images/icons8-cancel-64.png");
+        btnHuy = createStyledButton("Hủy Vé", new Color(220, 53, 69), Color.WHITE);
         btnHuy.addActionListener(e -> actionHuyVe());
         pnlActions.add(btnHuy);
 
-        btnNhap = createStyledButton("Nhập Excel", new Color(153, 102, 255), Color.WHITE, "/org/example/GUI/resources/images/icons8_ms_excel_30px.png");
-        btnNhap.addActionListener(e -> nhapExcel());
-        pnlActions.add(btnNhap);
-
-        btnXuat = createStyledButton("Xuất Excel", new Color(153, 102, 255), Color.WHITE, "/org/example/GUI/resources/images/icons8_ms_excel_30px.png");
+        btnXuat = createStyledButton("Xuất Excel", new Color(153, 102, 255), Color.WHITE);
         btnXuat.addActionListener(e -> xuatExcel());
         pnlActions.add(btnXuat);
 
-        // --- Dòng 2: Panel Tìm kiếm ---
+        // --- Panel Tìm kiếm (Tra cứu vé) ---
         JPanel pnlSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 15));
         pnlSearch.setBackground(UIManager.getColor("Panel.background"));
         pnlSearch.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(UIManager.getColor("Component.borderColor")),
                 "Tra Cứu Vé Đã Bán", TitledBorder.LEFT, TitledBorder.TOP));
 
-        pnlSearch.add(new JLabel("Mã Vé:"));
-        JTextField txtTimMa = new JTextField(10);
-        txtTimMa.putClientProperty("JTextField.placeholderText", "Nhập mã vé...");
-        txtTimMa.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        pnlSearch.add(txtTimMa);
+        pnlSearch.add(new JLabel("Tìm theo:"));
+        JComboBox<String> cbTieuChi = new JComboBox<>(new String[]{"Tất cả", "Mã Vé", "Tên Phim", "Khách Hàng"});
+        cbTieuChi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        pnlSearch.add(cbTieuChi);
 
-        pnlSearch.add(new JLabel("Tên Phim:"));
-        JTextField txtTimPhim = new JTextField(15);
-        txtTimPhim.putClientProperty("JTextField.placeholderText", "Nhập tên phim...");
-        txtTimPhim.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        pnlSearch.add(txtTimPhim);
+        JTextField txtTuKhoa = new JTextField(15);
+        txtTuKhoa.putClientProperty("JTextField.placeholderText", "Nhập từ khóa...");
+        txtTuKhoa.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        pnlSearch.add(txtTuKhoa);
 
         pnlSearch.add(new JLabel("Trạng thái:"));
-        JComboBox<String> cbTrangThai = new JComboBox<>(new String[]{"Tất cả", "Đã thanh toán", "Đã Check-in", "Đã Hủy"});
+        JComboBox<String> cbTrangThai = new JComboBox<>(new String[]{"Tất cả", "Chưa thanh toán", "Đã thanh toán", "Đã Hủy", "Da Ban"});
         cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         pnlSearch.add(cbTrangThai);
 
-        JButton btnTim = new JButton("Lọc / Tìm kiếm");
-        btnTim.setBackground(new Color(0, 123, 255));
-        btnTim.setForeground(Color.WHITE);
-        btnTim.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        pnlSearch.add(btnTim);
+        
+        // Sự kiện tìm kiếm chung (Gọi BUS lấy dữ liệu ném lên bảng)
+        Runnable runSearch = () -> 
+        {
+            String tieuChi = cbTieuChi.getSelectedItem().toString();
+            String tuKhoa = txtTuKhoa.getText();
+            String trangThai = cbTrangThai.getSelectedItem().toString();
 
-        // NÚT LÀM MỚI (MỚI THÊM)
-        btnLamMoi = new JButton("Làm mới");
-        btnLamMoi.setBackground(new Color(108, 117, 125));
-        btnLamMoi.setForeground(Color.WHITE);
-        btnLamMoi.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnLamMoi.addActionListener(e -> loadDataToTable()); // Gọi hàm load data
+            org.example.BUS.VeBUS veBUS = new org.example.BUS.VeBUS();
+            java.util.List<org.example.DTO.VeDTO> ketQua = veBUS.timKiemVe(tieuChi, tuKhoa, trangThai);
+
+            model.setRowCount(0);
+            java.text.DecimalFormat df = new java.text.DecimalFormat("#,###");
+            for (org.example.DTO.VeDTO v : ketQua) {
+                model.addRow(new Object[]{
+                        v.getMaVe(), v.getKhachHang(), v.getTenPhim(), v.getTenPhong(), v.getTenGhe(),
+                        v.getNgayChieu(), v.getGioBatDau(), df.format(v.getGiaVe()) + " VNĐ", v.getTrangThai()
+                });
+            }
+        };
+
+        // Gắn sự kiện (Gõ ký tự tới đâu lọc tới đó ngay lập tức)
+        txtTuKhoa.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { runSearch.run(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { runSearch.run(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { runSearch.run(); }
+        });
+
+        // Bấm chọn combobox cũng lọc luôn
+        cbTieuChi.addActionListener(e -> runSearch.run());
+        cbTrangThai.addActionListener(e -> runSearch.run());
+
+        // Nút reset form tìm kiếm
+        btnLamMoi = createStyledButton("Làm mới", new Color(108, 117, 125), Color.WHITE);
+        btnLamMoi.addActionListener(e -> {
+            cbTieuChi.setSelectedIndex(0);
+            cbTrangThai.setSelectedIndex(0);
+            txtTuKhoa.setText("");
+            loadDataToTable();
+        });
         pnlSearch.add(btnLamMoi);
 
         topPanel.add(pnlActions);
         topPanel.add(pnlSearch);
 
-        // ================== CENTER PANEL (BẢNG DỮ LIỆU) ==================
+        // ================== CENTER PANEL (BẢNG JTABLE) ==================
         String[] columnNames = {"Mã Vé", "Khách Hàng", "Tên Phim", "Phòng", "Ghế", "Ngày Chiếu", "Giờ", "Giá Tiền", "Trạng Thái"};
-        model = new DefaultTableModel(columnNames, 0) {
+        model = new DefaultTableModel(columnNames, 0) 
+        {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) { return false; } // Khóa không cho gõ bậy vào bảng
         };
 
         tableTicket = new JTable(model) {
             @Override
-            public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column) 
+            {
                 Component c = super.prepareRenderer(renderer, row, column);
-                if (c instanceof JComponent) {
+                if (c instanceof JComponent) 
+                {
                     ((JComponent) c).setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
                 }
-                if (!isRowSelected(row)) {
+                // Tạo màu xen kẽ cho các dòng của bảng (Zebra striping)
+                if (!isRowSelected(row)) 
+                {
                     Color bg = UIManager.getColor("Table.background");
-                    if (bg != null) {
+                    if (bg != null) 
+                    {
                         if (row % 2 == 0) c.setBackground(bg);
-                        else {
+                        else 
+                        {
                             int r = bg.getRed(), g = bg.getGreen(), b = bg.getBlue();
                             int offset = (r < 128) ? 12 : -12;
                             c.setBackground(new Color(
@@ -126,10 +160,13 @@ public class FormTicket extends JPanel {
                 return c;
             }
 
+            // In chữ "DANH SÁCH TRỐNG" nếu bảng không có dữ liệu
             @Override
-            protected void paintComponent(Graphics g) {
+            protected void paintComponent(Graphics g) 
+            {
                 super.paintComponent(g);
-                if (getRowCount() == 0) {
+                if (getRowCount() == 0) 
+                {
                     Graphics2D g2d = (Graphics2D) g.create();
                     g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
                     g2d.setFont(new Font("Segoe UI", Font.BOLD | Font.ITALIC, 28));
@@ -144,6 +181,7 @@ public class FormTicket extends JPanel {
             }
         };
 
+        // Làm đẹp bảng JTable
         tableTicket.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         tableTicket.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         tableTicket.getTableHeader().setBackground(new Color(66, 103, 178));
@@ -162,77 +200,80 @@ public class FormTicket extends JPanel {
         add(topPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Khởi động load data lần đầu
+        // Load dữ liệu lên bảng khi vừa mở form
         loadDataToTable();
     }
-
-    // =========================================================================
-    // HÀM LOAD DỮ LIỆU TỪ DATABASE
-    // =========================================================================
-    public void loadDataToTable() {
-        // 1. Xóa sạch dữ liệu cũ trên bảng
-        model.setRowCount(0);
-
-        // 2. Gọi BUS để lấy danh sách vé từ CSDL
-        org.example.BUS.VeBUS veBUS = new org.example.BUS.VeBUS();
-        java.util.List<org.example.DTO.VeDTO> danhSach = veBUS.getAllVe();
-
-        // 3. Định dạng tiền tệ cho đẹp (VD: 80000 -> 80,000)
-        java.text.DecimalFormat df = new java.text.DecimalFormat("#,###");
-
-        // 4. Đổ từng vé vào các hàng của JTable
-        for (org.example.DTO.VeDTO v : danhSach) {
-            model.addRow(new Object[]{
-                    v.getMaVe(),
-                    v.getKhachHang(),
-                    v.getTenPhim(),
-                    v.getTenPhong(),
-                    v.getTenGhe(),
-                    v.getNgayChieu(),
-                    v.getGioBatDau(),
-                    df.format(v.getGiaVe()) + " VNĐ",
-                    v.getTrangThai()
-            });
-        }
-    }
-
 
     // =========================================================================
     // CÁC HÀM XỬ LÝ SỰ KIỆN
     // =========================================================================
 
-    private void actionXemChiTiet() {
+    // Hàm lấy danh sách vé từ DB và đẩy lên bảng
+    public void loadDataToTable() 
+    {
+        model.setRowCount(0);
+        org.example.BUS.VeBUS veBUS = new org.example.BUS.VeBUS();
+        java.util.List<org.example.DTO.VeDTO> danhSach = veBUS.getAllVe();
+        java.text.DecimalFormat df = new java.text.DecimalFormat("#,###");
+
+        for (org.example.DTO.VeDTO v : danhSach) 
+        {
+            model.addRow(new Object[]{
+                    v.getMaVe(), v.getKhachHang(), v.getTenPhim(), v.getTenPhong(), v.getTenGhe(),
+                    v.getNgayChieu(), v.getGioBatDau(), df.format(v.getGiaVe()) + " VNĐ", v.getTrangThai()
+            });
+        }
+    }
+
+    // Mở popup xem chi tiết vé
+    private void actionXemChiTiet() 
+    {
         int selectedRow = tableTicket.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 vé để xem chi tiết!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 vé trên bảng để xem chi tiết!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
+
+        // Lấy dữ liệu từ các cột tương ứng (0: Mã vé, 1: Khách hàng, 2: Tên phim,...)
         String maVe = tableTicket.getValueAt(selectedRow, 0).toString();
-        JOptionPane.showMessageDialog(this, "Hiển thị Dialog xem chi tiết vé: " + maVe);
+        String khachHang = tableTicket.getValueAt(selectedRow, 1).toString();
+        String tenPhim = tableTicket.getValueAt(selectedRow, 2).toString();
+        String phong = tableTicket.getValueAt(selectedRow, 3).toString();
+        String ghe = tableTicket.getValueAt(selectedRow, 4).toString();
+        String ngay = tableTicket.getValueAt(selectedRow, 5).toString();
+        String gio = tableTicket.getValueAt(selectedRow, 6).toString();
+        String gia = tableTicket.getValueAt(selectedRow, 7).toString();
+        String trangThai = tableTicket.getValueAt(selectedRow, 8).toString();
+
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        DialogChiTietVe dialog = new DialogChiTietVe(owner, maVe, khachHang, tenPhim, phong, ghe, ngay, gio, gia, trangThai);
+        dialog.setVisible(true);
     }
 
-    private void actionThemVe() {
+    // Mở popup thêm vé
+    private void actionThemVe() 
+    {
         JFrame owner = (JFrame) SwingUtilities.getWindowAncestor(this);
         DialogChonSuatChieu dialogChonSuat = new DialogChonSuatChieu(owner);
-
-        // Mở Dialog (Code sẽ DỪNG Ở ĐÂY chờ đến khi bạn bán vé xong và Dialog tắt đi)
         dialogChonSuat.setVisible(true);
-
-        // Ngay sau khi Dialog tắt, hệ thống sẽ TỰ ĐỘNG LOAD LẠI BẢNG
-        loadDataToTable();
+        loadDataToTable(); // Load lại bảng sau khi tắt popup
     }
 
-    private void actionHuyVe() {
+    // Xử lý hủy vé
+    private void actionHuyVe() 
+    {
         int selectedRow = tableTicket.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 vé để hủy!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
+        // Lấy Mã Vé (Cột 0) và Trạng Thái (Cột 8)
         String maVe = tableTicket.getValueAt(selectedRow, 0).toString();
         String trangThai = tableTicket.getValueAt(selectedRow, 8).toString();
 
-        if (trangThai.equalsIgnoreCase("Đã Hủy")) {
+        if (trangThai.equalsIgnoreCase("Đã Hủy")) 
+        {
             JOptionPane.showMessageDialog(this, "Vé này đã được hủy trước đó!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
@@ -243,25 +284,77 @@ public class FormTicket extends JPanel {
                 "Xác nhận hủy vé", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE
         );
 
-        if (confirm == JOptionPane.YES_OPTION) {
-            tableTicket.setValueAt("Đã Hủy", selectedRow, 8);
-            JOptionPane.showMessageDialog(this, "Đã hủy vé " + maVe + " thành công!");
+        if (confirm == JOptionPane.YES_OPTION) 
+        {
+            org.example.BUS.VeBUS veBUS = new org.example.BUS.VeBUS();
+            // Gọi BUS để hủy dưới Database
+            if (veBUS.delete(Integer.parseInt(maVe))) 
+            {
+                tableTicket.setValueAt("Đã Hủy", selectedRow, 8); // Cập nhật lại cột 8 trên JTable
+                JOptionPane.showMessageDialog(this, "Đã hủy vé " + maVe + " thành công!");
+            } 
+            else 
+            {
+                JOptionPane.showMessageDialog(this, "Lỗi khi hủy vé dưới Database!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
-    private void nhapExcel() {
-        JOptionPane.showMessageDialog(this, "Chức năng đọc file Excel và import danh sách vé vào CSDL!");
-    }
+    // Xử lý xuất file Excel
+    private void xuatExcel() 
+    {
+        try 
+        {
+            JFileChooser jFileChooser = new JFileChooser();
+            jFileChooser.setDialogTitle("Chọn nơi lưu file Excel");
+            int choose = jFileChooser.showSaveDialog(this);
 
-    private void xuatExcel() {
-        JOptionPane.showMessageDialog(this, "Chức năng xuất dữ liệu bảng Vé ra file Excel!");
+            if (choose == JFileChooser.APPROVE_OPTION) 
+                {
+                File file = jFileChooser.getSelectedFile();
+                if (!file.getName().toLowerCase().endsWith(".xlsx")) 
+                {
+                    file = new File(file.getParentFile(), file.getName() + ".xlsx");
+                }
+
+                org.apache.poi.xssf.usermodel.XSSFWorkbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook();
+                org.apache.poi.xssf.usermodel.XSSFSheet sheet = workbook.createSheet("DanhSachVe");
+
+                // Ghi Header
+                org.apache.poi.xssf.usermodel.XSSFRow headerRow = sheet.createRow(0);
+                for (int i = 0; i < tableTicket.getColumnCount(); i++) {
+                    headerRow.createCell(i).setCellValue(tableTicket.getColumnName(i));
+                }
+
+                // Ghi dữ liệu từng dòng
+                for (int i = 0; i < tableTicket.getRowCount(); i++) {
+                    org.apache.poi.xssf.usermodel.XSSFRow row = sheet.createRow(i + 1);
+                    for (int j = 0; j < tableTicket.getColumnCount(); j++) {
+                        Object value = tableTicket.getValueAt(i, j);
+                        row.createCell(j).setCellValue(value != null ? value.toString() : "");
+                    }
+                }
+
+                FileOutputStream fos = new FileOutputStream(file);
+                workbook.write(fos);
+                fos.close();
+                workbook.close();
+
+                JOptionPane.showMessageDialog(this, "Xuất file Excel thành công!\nĐã lưu tại: " + file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi xuất Excel: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     // =========================================================================
-    // CÁC HÀM TIỆN ÍCH GIAO DIỆN
+    // HÀM TIỆN ÍCH
     // =========================================================================
 
-    private JButton createStyledButton(String text, Color bg, Color fg, String iconPath) {
+    // Hàm tạo giao diện cho nút bấm (dùng chung trong class này)
+    private JButton createStyledButton(String text, Color bg, Color fg) 
+    {
         JButton button = new JButton(text);
         button.setPreferredSize(new Dimension(145, 40));
         button.setBackground(bg);
@@ -270,11 +363,6 @@ public class FormTicket extends JPanel {
         button.setFocusPainted(false);
         button.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
 
-        ImageIcon icon = loadImageIcon(iconPath, 30, 30);
-        if (icon != null) {
-            button.setIcon(icon);
-        }
-
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) { button.setBackground(bg.brighter()); }
@@ -282,23 +370,5 @@ public class FormTicket extends JPanel {
             public void mouseExited(MouseEvent e) { button.setBackground(bg); }
         });
         return button;
-    }
-
-    private ImageIcon loadImageIcon(String path, int width, int height) {
-        try {
-            java.net.URL imgURL = getClass().getResource(path);
-            if (imgURL != null) {
-                ImageIcon originalIcon = new ImageIcon(imgURL);
-                java.awt.Image img = originalIcon.getImage();
-                java.awt.Image scaledImg = img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
-                return new ImageIcon(scaledImg);
-            } else {
-                System.err.println("Không tìm thấy icon tại: " + path);
-                return null;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 }

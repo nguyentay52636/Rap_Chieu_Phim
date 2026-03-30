@@ -12,12 +12,12 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DialogThanhToan extends JDialog {
-
+public class DialogThanhToan extends JDialog 
+{
     private int maSuatChieu;
     private int giaVeGoc;
 
-    // ĐÃ SỬA LẠI: Đồng bộ sử dụng TrangThaiGheDTO để khớp với DialogChonGhe bản cũ
+    // Danh sách ghế khách đã chọn từ Form trước truyền sang
     private List<TrangThaiGheDTO> danhSachGhe;
 
     private int tongTien;
@@ -30,17 +30,19 @@ public class DialogThanhToan extends JDialog {
 
     private Font font = new Font("Segoe UI", Font.PLAIN, 15);
 
-    public DialogThanhToan(JDialog owner, int maSuatChieu, int giaVeGoc, List<TrangThaiGheDTO> danhSachGhe) {
+    public DialogThanhToan(JDialog owner, int maSuatChieu, int giaVeGoc, List<TrangThaiGheDTO> danhSachGhe) 
+    {
         super(owner, "Bước 3: Thanh Toán Hóa Đơn", true);
         this.maSuatChieu = maSuatChieu;
         this.giaVeGoc = giaVeGoc;
         this.danhSachGhe = danhSachGhe;
-        this.tongTien = danhSachGhe.size() * giaVeGoc;
+        this.tongTien = danhSachGhe.size() * giaVeGoc; // Tính tổng tiền
 
         init(owner);
     }
 
-    private void init(JDialog owner) {
+    private void init(JDialog owner) 
+    {
         setSize(800, 550);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout(10, 10));
@@ -57,11 +59,12 @@ public class DialogThanhToan extends JDialog {
                 BorderFactory.createLineBorder(Color.GRAY), "Chi Tiết Giao Dịch", TitledBorder.LEFT, TitledBorder.TOP, new Font("Segoe UI", Font.BOLD, 14)));
 
         JTextArea txtBienLai = new JTextArea();
-        txtBienLai.setEditable(false);
+        txtBienLai.setEditable(false); // Khóa không cho sửa biên lai
         txtBienLai.setFont(new Font("Monospaced", Font.PLAIN, 15));
         txtBienLai.setBackground(new Color(245, 245, 245));
         txtBienLai.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+        // Format bill tính tiền
         StringBuilder sb = new StringBuilder();
         sb.append("MÃ SUẤT CHIẾU : ").append(maSuatChieu).append("\n");
         sb.append("SỐ LƯỢNG VÉ   : ").append(danhSachGhe.size()).append(" vé\n");
@@ -148,7 +151,12 @@ public class DialogThanhToan extends JDialog {
         add(pnlBottom, BorderLayout.SOUTH);
     }
 
-    private void loadNhanVien() {
+    // =========================================================================
+    // CÁC HÀM XỬ LÝ NGHIỆP VỤ
+    // =========================================================================
+
+    private void loadNhanVien() 
+    {
         EmployeeDAO empDAO = new EmployeeDAO();
         List<EmployeeDTO> listEmp = empDAO.selectAll();
         for (EmployeeDTO nv : listEmp) {
@@ -156,7 +164,8 @@ public class DialogThanhToan extends JDialog {
         }
     }
 
-    private void timKhachHang() {
+    private void timKhachHang() 
+    {
         String sdt = txtSDT.getText().trim();
         if (sdt.isEmpty()) {
             khachHangHienTai = null;
@@ -179,7 +188,8 @@ public class DialogThanhToan extends JDialog {
         }
     }
 
-    private void xuLyThanhToan() {
+    private void xuLyThanhToan() 
+    {
         ComboItemNhanVien nvChon = (ComboItemNhanVien) cbNhanVien.getSelectedItem();
         if (nvChon == null) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên thu ngân!", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -201,7 +211,7 @@ public class DialogThanhToan extends JDialog {
         // 2. Chuẩn bị danh sách Vé
         List<VeDTO> danhSachVe = new ArrayList<>();
         for (TrangThaiGheDTO g : danhSachGhe) {
-            // Lấy chính xác Mã Ghế từ TrangThaiGheDTO để tạo vé
+            // Lấy chính xác Mã Ghế từ TrangThaiGheDTO để tạo vé, giữ nguyên chữ "Da Ban" theo Database gốc của nhóm
             VeDTO ve = new VeDTO(0, g.getMaGhe(), maSuatChieu, giaVeGoc, "Da Ban");
             danhSachVe.add(ve);
         }
@@ -213,7 +223,8 @@ public class DialogThanhToan extends JDialog {
         if (thanhCong) {
             JOptionPane.showMessageDialog(this, "Thanh toán thành công! Vé đã được in.", "Thành công", JOptionPane.INFORMATION_MESSAGE);
 
-            // Tắt toàn bộ các Dialog (Thanh Toán, Chọn Ghế, Chọn Suất Chiếu) để về lại trang chủ
+            // CHIÊU BÀI DỌN DẸP GIAO DIỆN: 
+            // Tắt toàn bộ các Popup (Thanh Toán, Chọn Ghế, Chọn Suất Chiếu) để về lại Bảng Quản Lý Vé
             Window[] windows = Window.getWindows();
             for (Window window : windows) {
                 if (window instanceof JDialog) {
@@ -225,14 +236,22 @@ public class DialogThanhToan extends JDialog {
         }
     }
 
-    private class ComboItemNhanVien {
+    // Class phụ để bọc dữ liệu Nhân Viên cho Combobox
+    private class ComboItemNhanVien 
+    {
         int maNV;
         String tenNV;
-        public ComboItemNhanVien(int maNV, String tenNV) {
+        
+        public ComboItemNhanVien(int maNV, String tenNV) 
+        {
             this.maNV = maNV;
             this.tenNV = tenNV;
         }
+        
         @Override
-        public String toString() { return tenNV; }
+        public String toString() 
+        { 
+            return tenNV; 
+        }
     }
 }

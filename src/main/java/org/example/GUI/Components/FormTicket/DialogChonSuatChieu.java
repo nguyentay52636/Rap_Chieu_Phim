@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-public class DialogChonSuatChieu extends JDialog {
-
+public class DialogChonSuatChieu extends JDialog 
+{
     private JComboBox<ComboItemPhim> cbPhim;
     private JComboBox<String> cbNgay;
     private JComboBox<String> cbGio;
@@ -46,7 +46,8 @@ public class DialogChonSuatChieu extends JDialog {
 
     Font font = new Font("Segoe UI", Font.PLAIN, 14);
 
-    public DialogChonSuatChieu(JFrame owner) {
+    public DialogChonSuatChieu(JFrame owner) 
+    {
         super(owner, "Bước 1: Chọn Suất Chiếu Phim", true);
 
         // Tải dữ liệu 1 lần duy nhất khi mở Form
@@ -56,7 +57,8 @@ public class DialogChonSuatChieu extends JDialog {
         init(owner);
     }
 
-    private void init(JFrame owner) {
+    private void init(JFrame owner) 
+    {
         Dimension parentSize = owner.getSize();
         int width = (int) (parentSize.width * 0.85);
         int height = (int) (parentSize.height * 0.75);
@@ -171,7 +173,8 @@ public class DialogChonSuatChieu extends JDialog {
     // LOGIC "ĐỔ MỒI" (CASCADING COMBOBOXES)
     // =========================================================================
 
-    private void setupComboBoxListeners() {
+    private void setupComboBoxListeners() 
+    {
         cbPhim.addActionListener(e -> {
             if (!isUpdatingCombos) updateComboBoxNgay();
         });
@@ -181,7 +184,8 @@ public class DialogChonSuatChieu extends JDialog {
         });
     }
 
-    private void loadPhim() {
+    private void loadPhim() 
+    {
         isUpdatingCombos = true;
         cbPhim.removeAllItems();
         cbPhim.addItem(new ComboItemPhim(-1, "-- Chọn Phim --"));
@@ -198,32 +202,31 @@ public class DialogChonSuatChieu extends JDialog {
         timSuatChieu(); // Load sẵn toàn bộ bảng
     }
 
-    private void updateComboBoxNgay() {
+    private void updateComboBoxNgay() 
+    {
         isUpdatingCombos = true;
         cbNgay.removeAllItems();
         cbNgay.addItem("-- Tất cả ngày --");
 
         ComboItemPhim selectedPhim = (ComboItemPhim) cbPhim.getSelectedItem();
         if (selectedPhim != null && selectedPhim.maPhim != -1) {
-            // Tìm tất cả các ngày có lịch chiếu của phim này (Dùng TreeSet để tự động loại trùng & sắp xếp)
             Set<LocalDate> uniqueDates = new TreeSet<>();
             for (SuatChieuPhimDTO sc : allSuatChieu) {
                 if (sc.getMaPhim() == selectedPhim.maPhim) {
                     uniqueDates.add(sc.getGioBatDau().toLocalDate());
                 }
             }
-            // Đổ vào ComboBox Ngày
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             for (LocalDate date : uniqueDates) {
                 cbNgay.addItem(date.format(dtf));
             }
         }
-        isUpdatingCombos = false;
-
-        updateComboBoxGio(); // Kéo theo cập nhật Giờ
+        isUpdatingCombos = false; 
+        updateComboBoxGio(); 
     }
 
-    private void updateComboBoxGio() {
+    private void updateComboBoxGio() 
+    {
         isUpdatingCombos = true;
         cbGio.removeAllItems();
         cbGio.addItem("-- Tất cả giờ --");
@@ -232,7 +235,6 @@ public class DialogChonSuatChieu extends JDialog {
         String selectedNgay = (String) cbNgay.getSelectedItem();
 
         if (selectedPhim != null && selectedPhim.maPhim != -1 && selectedNgay != null && !selectedNgay.equals("-- Tất cả ngày --")) {
-            // Tìm tất cả các giờ chiếu của phim đó trong ngày đó
             Set<LocalTime> uniqueTimes = new TreeSet<>();
             DateTimeFormatter dtfDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate targetDate = LocalDate.parse(selectedNgay, dtfDate);
@@ -242,17 +244,17 @@ public class DialogChonSuatChieu extends JDialog {
                     uniqueTimes.add(sc.getGioBatDau().toLocalTime());
                 }
             }
-            // Đổ vào ComboBox Giờ
             DateTimeFormatter dtfTime = DateTimeFormatter.ofPattern("HH:mm");
             for (LocalTime time : uniqueTimes) {
                 cbGio.addItem(time.format(dtfTime));
             }
         }
-        isUpdatingCombos = false;
+        isUpdatingCombos = false; 
     }
 
-    private void lamMoiBoLoc() {
-        suatChieuBUS.refreshList(); // Lấy data mới nhất từ DB lỡ có người vừa thêm
+    private void lamMoiBoLoc() 
+    {
+        suatChieuBUS.refreshList(); 
         allSuatChieu = suatChieuBUS.getListSuatChieu();
 
         isUpdatingCombos = true;
@@ -267,7 +269,8 @@ public class DialogChonSuatChieu extends JDialog {
     // LOGIC TÌM KIẾM & ĐỔ BẢNG
     // =========================================================================
 
-    private void timSuatChieu() {
+    private void timSuatChieu() 
+    {
         ComboItemPhim selectedPhim = (ComboItemPhim) cbPhim.getSelectedItem();
         String selectedNgayStr = (String) cbNgay.getSelectedItem();
         String selectedGioStr = (String) cbGio.getSelectedItem();
@@ -279,7 +282,6 @@ public class DialogChonSuatChieu extends JDialog {
         DateTimeFormatter dtfDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter dtfTime = DateTimeFormatter.ofPattern("HH:mm");
 
-        // Dùng Java Stream để lọc list danh sách (Nhanh hơn gọi DB nhiều lần)
         List<SuatChieuPhimDTO> filteredList = allSuatChieu.stream().filter(sc -> {
             boolean matchPhim = (maPhim == -1) || (sc.getMaPhim() == maPhim);
             boolean matchNgay = selectedNgayStr == null || selectedNgayStr.equals("-- Tất cả ngày --")
@@ -290,7 +292,6 @@ public class DialogChonSuatChieu extends JDialog {
             return matchPhim && matchNgay && matchGio;
         }).collect(Collectors.toList());
 
-        // Đổ dữ liệu đã lọc vào bảng
         for (SuatChieuPhimDTO sc : filteredList) {
             String tenPhim = getTenPhimById(sc.getMaPhim());
 
@@ -300,14 +301,14 @@ public class DialogChonSuatChieu extends JDialog {
                     sc.getGioBatDau().format(dtfDate),
                     sc.getGioBatDau().format(dtfTime),
                     "Phòng " + sc.getMaPhong(),
-                    sc.getGiaVeGoc()
+                    sc.getGiaVeGoc() // Cột này có thể chứa dạng "160000.0"
             });
         }
         TableUtils.autoResizeColumns(tableSuatChieu);
     }
 
-    // Hàm phụ trợ tìm tên phim từ List
-    private String getTenPhimById(int id) {
+    private String getTenPhimById(int id) 
+    {
         for (PhimDTO p : allPhim) {
             if (p.getMaPhim() == id) return p.getTenPhim();
         }
@@ -318,26 +319,38 @@ public class DialogChonSuatChieu extends JDialog {
     // CHUYỂN BƯỚC 2
     // =========================================================================
 
-    private void actionTiepTuc(JFrame owner) {
+    private void actionTiepTuc(JFrame owner) 
+    {
         int row = tableSuatChieu.getSelectedRow();
         if (row == -1) {
             JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 suất chiếu!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        maSuatChieuDuocChon = Integer.parseInt(tableSuatChieu.getValueAt(row, 0).toString());
-        String tenPhong = tableSuatChieu.getValueAt(row, 4).toString();
-        maPhongDuocChon = Integer.parseInt(tenPhong.replace("Phòng ", "").trim());
-        giaVeGocDuocChon = (int) Double.parseDouble(tableSuatChieu.getValueAt(row, 5).toString());
+        try {
+            maSuatChieuDuocChon = Integer.parseInt(tableSuatChieu.getValueAt(row, 0).toString());
+            String tenPhong = tableSuatChieu.getValueAt(row, 4).toString();
+            maPhongDuocChon = Integer.parseInt(tenPhong.replace("Phòng ", "").trim());
+            
+            // 🔥 ĐÃ SỬA LỖI X10 GIÁ TIỀN Ở ĐÂY 🔥
+            // Dùng Double.parseDouble để nó đọc được chuỗi "160000.0" rồi ép về int (160000)
+            giaVeGocDuocChon = (int) Double.parseDouble(tableSuatChieu.getValueAt(row, 5).toString());
 
-        //setVisible(false);
+            // Tắt Popup Bước 1 trước khi mở Bước 2
+            this.dispose();
 
-        // Mở Bước 2: Sơ đồ ghế
-        DialogChonGhe dialogGhe = new DialogChonGhe(owner, maSuatChieuDuocChon, maPhongDuocChon, giaVeGocDuocChon);
-        dialogGhe.setVisible(true);
+            // Mở Bước 2: Sơ đồ ghế
+            DialogChonGhe dialogGhe = new DialogChonGhe(owner, maSuatChieuDuocChon, maPhongDuocChon, giaVeGocDuocChon);
+            dialogGhe.setVisible(true);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy thông tin suất chiếu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
-    private class ComboItemPhim {
+    private class ComboItemPhim 
+    {
         int maPhim;
         String tenPhim;
         public ComboItemPhim(int maPhim, String tenPhim) {
