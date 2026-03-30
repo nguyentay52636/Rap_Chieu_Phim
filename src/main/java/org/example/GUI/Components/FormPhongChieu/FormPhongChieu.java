@@ -1,6 +1,8 @@
 package org.example.GUI.Components.FormPhongChieu;
 
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -61,6 +63,15 @@ public class FormPhongChieu extends JPanel {
         JButton btnAdvSearch = createSquareButton("/org/example/GUI/resources/images/filter_icon1.png", 40, new Color(100, 181, 246));
         JButton btnRefresh = createSquareButton("/org/example/GUI/resources/images/reload.png", 40, new Color(100, 181, 246));
         searchPanel.add(btnSearch); searchPanel.add(btnAdvSearch); searchPanel.add(btnRefresh);
+
+        txtSearch.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    btnSearch.doClick();
+                }
+            }
+        });
 
         topPanel.add(buttonPanel, BorderLayout.WEST);
         topPanel.add(searchPanel, BorderLayout.EAST);

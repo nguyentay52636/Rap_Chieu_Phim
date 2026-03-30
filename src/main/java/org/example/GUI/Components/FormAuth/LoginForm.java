@@ -1,26 +1,15 @@
 package org.example.GUI.Components.FormAuth;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.Objects;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+
+import javax.swing.*;
 
 import org.example.GUI.Application.Application;
 
@@ -30,6 +19,7 @@ public class LoginForm extends JPanel {
     private JPanel Left;
     private JPanel Right;
     private JButton btnForgotPassword;
+    private JButton btnTogglePassword;
     private JButton btnLogin;
     private JButton btnSignUp;
     private JLabel lblTitle;
@@ -114,7 +104,10 @@ public class LoginForm extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    btnLogin.doClick();
+                    if (emailField.getText().isEmpty()) {
+                        btnLogin.doClick();
+                    }
+                    passwordField.requestFocusInWindow();
                 }
             }
         });
@@ -131,7 +124,8 @@ public class LoginForm extends JPanel {
 
         passwordField = new JPasswordField();
         passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        passwordField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)));
+        passwordField.setLayout(new BorderLayout());
+        passwordField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)),BorderFactory.createEmptyBorder(5,10,5,5)));
         passwordField.setBackground(Color.WHITE);
         passwordField.addKeyListener(new KeyAdapter() {
             @Override
@@ -141,6 +135,42 @@ public class LoginForm extends JPanel {
                 }
             }
         });
+        btnTogglePassword = new JButton();
+        btnTogglePassword.setPreferredSize(new Dimension(20,20));
+        btnTogglePassword.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnTogglePassword.setBorderPainted(false);
+        btnTogglePassword.setOpaque(false);
+//        btnTogglePassword.setBackground(new Color(55, 55, 55));
+        btnTogglePassword.setContentAreaFilled(false);
+
+        java.net.URL urlCLOSED = getClass().getResource("/org/example/GUI/resources/images/hide.png");
+        java.net.URL urlOPEN = getClass().getResource("/org/example/GUI/resources/images/view1.png");
+        ImageIcon iconClosed = null;
+        ImageIcon iconOpen = null;
+        if (urlCLOSED!=null&&urlOPEN!=null) {
+            Image imgClosed = new ImageIcon(urlCLOSED).getImage().getScaledInstance(15,15, Image.SCALE_SMOOTH);
+            Image imgOpen = new ImageIcon(urlOPEN).getImage().getScaledInstance(15,15, Image.SCALE_SMOOTH);
+            iconClosed = new ImageIcon(imgClosed);
+            iconOpen = new ImageIcon(imgOpen);
+        }
+        else {
+            System.out.println("Error: File not found!");
+        }
+        if (iconClosed!=null) btnTogglePassword.setIcon(iconClosed);
+        final ImageIcon finalIconClose = iconClosed;
+        final ImageIcon finalIconOpen = iconOpen;
+
+        btnTogglePassword.addActionListener(e -> {
+            if (passwordField.getEchoChar() != (char) 0) {
+                passwordField.setEchoChar((char) 0);
+                if (finalIconOpen!=null) btnTogglePassword.setIcon(finalIconOpen);
+            }
+            else {
+                passwordField.setEchoChar('•');
+                if (finalIconClose!=null) btnTogglePassword.setIcon(finalIconClose);
+            }
+        });
+        passwordField.add(btnTogglePassword, BorderLayout.EAST);
         passwordPanel.add(passwordField, "growx");
         Right.add(passwordPanel, "width 300px, center");
 
@@ -163,9 +193,23 @@ public class LoginForm extends JPanel {
             }
         });
         // Bấm đăng nhập: chuyển sang màn hình chính Application
-        btnLogin.addActionListener(e -> Application.login());
+        btnLogin.addActionListener(e -> {
+            String email = emailField.getText();
+            String pass = String.valueOf(passwordField.getPassword());
+
+            if (check(email, pass)) {
+                JOptionPane.showMessageDialog(this, "Đăng nhập thành công!");
+                Application.login();
+            }
+            else {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập lại thông tin!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        });
         Right.add(btnLogin, "center");
 
+        JPanel pnlFogor = new JPanel();
+        pnlFogor.setOpaque(false);
         btnForgotPassword = new JButton("Quên mật khẩu?");
         btnForgotPassword.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         btnForgotPassword.setForeground(new Color(0, 102, 255));
@@ -174,12 +218,45 @@ public class LoginForm extends JPanel {
         btnForgotPassword.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnForgotPassword.addActionListener(e -> {
         });
-        Right.add(btnForgotPassword, "center");
+        pnlFogor.add(btnForgotPassword);
+
+        JLabel lblHint = new JLabel();
+        java.net.URL hintUrl = getClass().getResource("/org/example/GUI/resources/images/information.png");
+        if (hintUrl != null) {
+            Image img = new ImageIcon(hintUrl).getImage().getScaledInstance(10, 10, Image.SCALE_SMOOTH);
+            lblHint.setIcon(new ImageIcon(img));
+        } else {
+            lblHint.setText("ⓘ");
+            lblHint.setForeground(new Color(0, 102, 255));
+        }
+        lblHint.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblHint.setOpaque(false);
+        lblHint.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        ToolTipManager.sharedInstance().setInitialDelay(100);
+        lblHint.setToolTipText("Nếu không biết hãy để trống.");
+        pnlFogor.add(lblHint);
+
+        Right.add(pnlFogor, "center");
 
  
 
         container.add(Left, "grow");
         container.add(Right, "grow");
         add(container, "center");
+    }
+
+    private boolean check(String email, String pass) {
+        List<List<String>> auth = List.of(
+                List.of("", "email", "36"),
+                List.of("", "12345", "363636")
+        );
+
+        for (int i = 0; i < auth.get(0).size(); i++) {
+            if (auth.get(0).get(i).equals(email)&&auth.get(1).get(i).equals(pass)){
+                return true;
+            }
+        }
+
+        return false;
     }
 }
