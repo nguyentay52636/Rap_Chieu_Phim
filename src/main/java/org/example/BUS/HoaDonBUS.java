@@ -15,11 +15,19 @@ public class HoaDonBUS {
         HoaDonDAO.getInstance().addCTHDVe(maHoaDon, maVe, giaVe);
     }
 
-    public HoaDonDTO findHoaDonById(int maHoaDon) {
+    public HoaDonDTO findById(int maHoaDon) {
         return HoaDonDAO.getInstance().findById(maHoaDon);
     }
 
-    public ArrayList<HoaDonDTO> searchHoaDon(String keyword) {
+    public ArrayList<HoaDonDTO> search(String keyword) {
         return HoaDonDAO.getInstance().search(keyword);
+    }
+    
+    public boolean update(HoaDonDTO hoaDon) {
+        return HoaDonDAO.getInstance().update(hoaDon);
+    }
+    
+    public boolean delete(int maHoaDon) {
+        return HoaDonDAO.getInstance().delete(maHoaDon);
     }
 }
