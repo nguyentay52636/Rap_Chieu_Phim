@@ -3,10 +3,10 @@ package org.example.DAO;
 import org.example.DTO.HoaDonDTO;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 public class HoaDonDAO {
@@ -23,82 +23,91 @@ public class HoaDonDAO {
     private HoaDonDAO() {
     }
 
+    // =========================
+    // THÊM HÓA ĐƠN
+    // =========================
     public int add(HoaDonDTO hoaDon) {
-        String sql = "INSERT INTO HoaDon ("
-                + "maKH, maNV, ngayBan, soLuongVe, tongTienVe, tongTienSanPham, "
-                + "maKhuyenMai, tongTienGiam, tongThanhToan"
-                + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO HoaDon (" +
+                "maKH, maNV, ngayBan, soLuongVe, tongTienVe, tongTienSanPham, " +
+                "maKhuyenMai, tongTienGiam, tongThanhToan" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (
-                Connection conn = JDBCUtil.getConnection(); PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+        ) {
             ps.setInt(1, hoaDon.getMaKH());
             ps.setInt(2, hoaDon.getMaNV());
-            ps.setDate(3, Date.valueOf(hoaDon.getNgayBan().toString()));
+            ps.setDate(3, hoaDon.getNgayBan());
             ps.setInt(4, hoaDon.getSoLuongVe());
-            ps.setDouble(5, hoaDon.getTongTienVe());
-            ps.setDouble(6, hoaDon.getTongTienSanPham());
+            ps.setInt(5, hoaDon.getTongTienVe());
+            ps.setInt(6, hoaDon.getTongTienSanPham());
 
-            if (hoaDon.getMaKhuyenMai() == 0) {
+            if (hoaDon.getMaKhuyenMai() == null) {
                 ps.setNull(7, java.sql.Types.INTEGER);
             } else {
                 ps.setInt(7, hoaDon.getMaKhuyenMai());
             }
 
-            ps.setDouble(8, hoaDon.getTongTienGiam());
-            ps.setDouble(9, hoaDon.getTongThanhToan());
+            ps.setInt(8, hoaDon.getTongTienGiam());
+            ps.setInt(9, hoaDon.getTongThanhToan());
 
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
+            int affectedRows = ps.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
                 }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return -1;
     }
 
+    // =========================
+    // THÊM CHI TIẾT HÓA ĐƠN VÉ
+    // =========================
     public boolean addCTHDVe(int maHoaDon, int maVe, int giaVe) {
         String sql = "INSERT INTO CTHD_VE (maHoaDon, maVe, giaVe) VALUES (?, ?, ?)";
 
         try (
-                Connection conn = JDBCUtil.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
             ps.setInt(1, maHoaDon);
             ps.setInt(2, maVe);
             ps.setInt(3, giaVe);
+
             return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return false;
     }
 
     // =========================
     // TÌM THEO MÃ HÓA ĐƠN
     // =========================
-    public HoaDonDTO findHoaDonById(int maHoaDon) {
+    public HoaDonDTO findById(int maHoaDon) {
         String sql = "SELECT * FROM HoaDon WHERE maHoaDon = ?";
 
         try (
-                Connection conn = JDBCUtil.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
             ps.setInt(1, maHoaDon);
-            ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                return new HoaDonDTO(
-                        rs.getInt("maHoaDon"),
-                        rs.getInt("maKH"),
-                        rs.getInt("maNV"),
-                        rs.getDate("ngayBan").toLocalDate(),
-                        rs.getInt("soLuongVe"),
-                        rs.getDouble("tongTienVe"),
-                        rs.getDouble("tongTienSanPham"),
-                        rs.getInt("maKhuyenMai"),
-                        rs.getDouble("tongTienGiam"),
-                        rs.getDouble("tongThanhToan")
-                );
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToHoaDonDTO(rs);
+                }
             }
 
         } catch (SQLException e) {
@@ -110,41 +119,31 @@ public class HoaDonDAO {
 
     // =========================
     // TÌM KIẾM THEO TỪ KHÓA
-    // Có thể tìm theo: mã hóa đơn, mã KH, mã NV, ngày bán
+    // có thể tìm theo mã hóa đơn, mã KH, mã NV, ngày bán
     // =========================
-    public ArrayList<HoaDonDTO> searchHoaDon(String keyword) {
+    public ArrayList<HoaDonDTO> search(String keyword) {
         ArrayList<HoaDonDTO> result = new ArrayList<>();
 
-        String sql = "SELECT * FROM HoaDon "
-                + "WHERE CAST(maHoaDon AS CHAR) LIKE ? "
-                + "OR CAST(maKH AS CHAR) LIKE ? "
-                + "OR CAST(maNV AS CHAR) LIKE ? "
-                + "OR CAST(ngayBan AS CHAR) LIKE ?";
+        String sql = "SELECT * FROM HoaDon " +
+                "WHERE CAST(maHoaDon AS CHAR) LIKE ? " +
+                "OR CAST(maKH AS CHAR) LIKE ? " +
+                "OR CAST(maNV AS CHAR) LIKE ? " +
+                "OR CAST(ngayBan AS CHAR) LIKE ?";
 
         try (
-                Connection conn = JDBCUtil.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
             String value = "%" + keyword + "%";
             ps.setString(1, value);
             ps.setString(2, value);
             ps.setString(3, value);
             ps.setString(4, value);
 
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                HoaDonDTO hoaDon = new HoaDonDTO(
-                        rs.getInt("maHoaDon"),
-                        rs.getInt("maKH"),
-                        rs.getInt("maNV"),
-                        rs.getDate("ngayBan").toLocalDate(),
-                        rs.getInt("soLuongVe"),
-                        rs.getDouble("tongTienVe"),
-                        rs.getDouble("tongTienSanPham"),
-                        rs.getInt("maKhuyenMai"),
-                        rs.getDouble("tongTienGiam"),
-                        rs.getDouble("tongThanhToan")
-                );
-                result.add(hoaDon);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(mapResultSetToHoaDonDTO(rs));
+                }
             }
 
         } catch (SQLException e) {
@@ -152,5 +151,26 @@ public class HoaDonDAO {
         }
 
         return result;
+    }
+
+    // =========================
+    // HÀM PHỤ: map ResultSet -> HoaDonDTO
+    // =========================
+    private HoaDonDTO mapResultSetToHoaDonDTO(ResultSet rs) throws SQLException {
+        int maKhuyenMaiValue = rs.getInt("maKhuyenMai");
+        Integer maKhuyenMai = rs.wasNull() ? null : maKhuyenMaiValue;
+
+        return new HoaDonDTO(
+                rs.getInt("maHoaDon"),
+                rs.getInt("maKH"),
+                rs.getInt("maNV"),
+                rs.getDate("ngayBan"),
+                rs.getInt("soLuongVe"),
+                rs.getInt("tongTienVe"),
+                rs.getInt("tongTienSanPham"),
+                maKhuyenMai,
+                rs.getInt("tongTienGiam"),
+                rs.getInt("tongThanhToan")
+        );
     }
 }
