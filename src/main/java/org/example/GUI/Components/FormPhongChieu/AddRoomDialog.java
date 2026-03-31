@@ -37,7 +37,8 @@ public class AddRoomDialog {
         JPanel panelBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         JButton btnHuy = parent.createStyledButton("Hủy", new Color(108, 117, 125), Color.WHITE);
         JButton btnThem = parent.createStyledButton("Lưu", new Color(40, 167, 69), Color.WHITE);
-        panelBottom.add(btnThem); panelBottom.add(btnHuy);
+        panelBottom.add(btnThem);
+        panelBottom.add(btnHuy);
 
         dialog.setLayout(new BorderLayout());
         dialog.add(panelCenter, BorderLayout.CENTER);

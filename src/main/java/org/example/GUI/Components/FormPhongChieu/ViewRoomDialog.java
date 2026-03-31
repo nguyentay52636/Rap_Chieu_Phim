@@ -39,7 +39,9 @@ public class ViewRoomDialog {
         root.setBorder(new EmptyBorder(12, 12, 12, 12));
 
         JLabel header = new JLabel("Phòng: " + tenPhong + " | Loại: " + loaiPhong + " | Mã: " + maPhong, SwingConstants.CENTER);
-        header.setOpaque(true); header.setBackground(new Color(66, 103, 178)); header.setForeground(Color.WHITE);
+        header.setOpaque(true);
+        header.setBackground(new Color(66, 103, 178));
+        header.setForeground(Color.WHITE);
         root.add(header, BorderLayout.NORTH);
 
         JPanel seatArea = new JPanel(new BorderLayout(10, 10));
@@ -68,7 +70,10 @@ public class ViewRoomDialog {
 
         // 3. LẤY LẠI FONT CHỮ VÀ VIỀN CHO BẢNG
         DefaultTableModel seatModel = new DefaultTableModel(new String[]{"Mã Ghế", "Hàng", "Số", "Loại"}, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         JTable seatTable = new JTable(seatModel);
         seatTable.setRowHeight(30);
@@ -98,11 +103,16 @@ public class ViewRoomDialog {
 
                 GheDTO gheDb = null;
                 if (danhSachGhe != null) {
-                    for (GheDTO g : danhSachGhe) if (g.getHangGhe().equals(String.valueOf(hang)) && g.getSoGhe() == j) { gheDb = g; break; }
+                    for (GheDTO g : danhSachGhe)
+                        if (g.getHangGhe().equals(String.valueOf(hang)) && g.getSoGhe() == j) {
+                            gheDb = g;
+                            break;
+                        }
                 }
                 String tenLoai = "Unknown";
                 if (gheDb != null) {
-                    for (LoaiGheDTO l : listLoaiGhe) if (l.getMaLoaiGhe() == gheDb.getMaLoaiGhe()) tenLoai = l.getTenLoaiGhe();
+                    for (LoaiGheDTO l : listLoaiGhe)
+                        if (l.getMaLoaiGhe() == gheDb.getMaLoaiGhe()) tenLoai = l.getTenLoaiGhe();
                 }
 
                 btn.setBackground(new Color(66, 103, 178));
@@ -111,9 +121,20 @@ public class ViewRoomDialog {
 
                 // ---> 2. THÊM LẠI MÔ HÌNH CHẶN HIỆU ỨNG CLICK/HOVER <---
                 btn.setModel(new javax.swing.DefaultButtonModel() {
-                    @Override public boolean isArmed() { return false; }
-                    @Override public boolean isPressed() { return false; }
-                    @Override public boolean isRollover() { return false; }
+                    @Override
+                    public boolean isArmed() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isPressed() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isRollover() {
+                        return false;
+                    }
                 });
 
                 seatModel.addRow(new Object[]{maGhe, String.valueOf(hang), j, tenLoai});
@@ -122,7 +143,8 @@ public class ViewRoomDialog {
         }
 
         JPanel leftPanel = new JPanel(new BorderLayout(0, 10));
-        leftPanel.add(screen, BorderLayout.NORTH); leftPanel.add(scrollGrid, BorderLayout.CENTER);
+        leftPanel.add(screen, BorderLayout.NORTH);
+        leftPanel.add(scrollGrid, BorderLayout.CENTER);
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, scrollTable);
         split.setResizeWeight(0.75);
         seatArea.add(split, BorderLayout.CENTER);
