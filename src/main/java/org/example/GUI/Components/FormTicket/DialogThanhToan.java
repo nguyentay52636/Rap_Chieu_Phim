@@ -204,9 +204,11 @@ public class DialogThanhToan extends JDialog
 
         // 1. Chuẩn bị đối tượng Hóa Đơn
         int maKH = (khachHangHienTai != null) ? khachHangHienTai.getMaKH() : 0;
-        java.sql.Date ngayBan = new java.sql.Date(System.currentTimeMillis());
+        java.sql.Timestamp ngayLapHoaDon = new java.sql.Timestamp(System.currentTimeMillis());
 
-        HoaDonDTO hoaDon = new HoaDonDTO(0, maKH, nvChon.maNV, ngayBan, danhSachGhe.size(), tongTien, 0, null, 0, tongTien);
+        // DTO mới chỉ còn đúng các field theo bảng HoaDon trong SQL:
+        // maHoaDon, maKH, maNV, ngayLapHoaDon, tongTienVe, tongTienSanPham, tongThanhToan
+        HoaDonDTO hoaDon = new HoaDonDTO(0, maKH, nvChon.maNV, ngayLapHoaDon, tongTien, 0, tongTien);
 
         // 2. Chuẩn bị danh sách Vé
         List<VeDTO> danhSachVe = new ArrayList<>();

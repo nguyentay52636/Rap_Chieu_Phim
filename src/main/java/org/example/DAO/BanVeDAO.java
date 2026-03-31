@@ -36,7 +36,7 @@ public class BanVeDAO {
                 }
                 psHoaDon.setInt(2, hoaDon.getMaNV());
                 // Ép từ java.sql.Date sang Timestamp để lưu được vào cột DATETIME của DB
-                psHoaDon.setTimestamp(3, new java.sql.Timestamp(hoaDon.getNgayBan().getTime()));
+                psHoaDon.setTimestamp(3, new java.sql.Timestamp(hoaDon.getNgayLapHoaDon().getTime()));
                 psHoaDon.setInt(4, hoaDon.getTongTienVe());
                 psHoaDon.setInt(5, hoaDon.getTongTienSanPham());
                 psHoaDon.setInt(6, hoaDon.getTongThanhToan());
