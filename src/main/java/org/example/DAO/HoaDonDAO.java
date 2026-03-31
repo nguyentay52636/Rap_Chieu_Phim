@@ -23,9 +23,6 @@ public class HoaDonDAO {
     private HoaDonDAO() {
     }
 
-    // =========================
-    // THÊM HÓA ĐƠN
-    // =========================
     public int add(HoaDonDTO hoaDon) {
         String sql = "INSERT INTO HoaDon (" +
                 "maKH, maNV, ngayBan, soLuongVe, tongTienVe, tongTienSanPham, " +
@@ -69,9 +66,6 @@ public class HoaDonDAO {
         return -1;
     }
 
-    // =========================
-    // THÊM CHI TIẾT HÓA ĐƠN VÉ
-    // =========================
     public boolean addCTHDVe(int maHoaDon, int maVe, int giaVe) {
         String sql = "INSERT INTO CTHD_VE (maHoaDon, maVe, giaVe) VALUES (?, ?, ?)";
 
@@ -92,9 +86,6 @@ public class HoaDonDAO {
         return false;
     }
 
-    // =========================
-    // TÌM THEO MÃ HÓA ĐƠN
-    // =========================
     public HoaDonDTO findById(int maHoaDon) {
         String sql = "SELECT * FROM HoaDon WHERE maHoaDon = ?";
 
@@ -117,10 +108,6 @@ public class HoaDonDAO {
         return null;
     }
 
-    // =========================
-    // TÌM KIẾM THEO TỪ KHÓA
-    // có thể tìm theo mã hóa đơn, mã KH, mã NV, ngày bán
-    // =========================
     public ArrayList<HoaDonDTO> search(String keyword) {
         ArrayList<HoaDonDTO> result = new ArrayList<>();
 
@@ -154,8 +141,71 @@ public class HoaDonDAO {
     }
 
     // =========================
-    // HÀM PHỤ: map ResultSet -> HoaDonDTO
+    // CHỈNH SỬA HÓA ĐƠN
     // =========================
+    public boolean update(HoaDonDTO hoaDon) {
+        String sql = "UPDATE HoaDon SET " +
+                "maKH = ?, " +
+                "maNV = ?, " +
+                "ngayBan = ?, " +
+                "soLuongVe = ?, " +
+                "tongTienVe = ?, " +
+                "tongTienSanPham = ?, " +
+                "maKhuyenMai = ?, " +
+                "tongTienGiam = ?, " +
+                "tongThanhToan = ? " +
+                "WHERE maHoaDon = ?";
+
+        try (
+                Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setInt(1, hoaDon.getMaKH());
+            ps.setInt(2, hoaDon.getMaNV());
+            ps.setDate(3, hoaDon.getNgayBan());
+            ps.setInt(4, hoaDon.getSoLuongVe());
+            ps.setInt(5, hoaDon.getTongTienVe());
+            ps.setInt(6, hoaDon.getTongTienSanPham());
+
+            if (hoaDon.getMaKhuyenMai() == null) {
+                ps.setNull(7, java.sql.Types.INTEGER);
+            } else {
+                ps.setInt(7, hoaDon.getMaKhuyenMai());
+            }
+
+            ps.setInt(8, hoaDon.getTongTienGiam());
+            ps.setInt(9, hoaDon.getTongThanhToan());
+            ps.setInt(10, hoaDon.getMaHoaDon());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    // =========================
+    // XÓA HÓA ĐƠN
+    // =========================
+    public boolean delete(int maHoaDon) {
+        String sql = "DELETE FROM HoaDon WHERE maHoaDon = ?";
+
+        try (
+                Connection conn = JDBCUtil.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setInt(1, maHoaDon);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     private HoaDonDTO mapResultSetToHoaDonDTO(ResultSet rs) throws SQLException {
         int maKhuyenMaiValue = rs.getInt("maKhuyenMai");
         Integer maKhuyenMai = rs.wasNull() ? null : maKhuyenMaiValue;
