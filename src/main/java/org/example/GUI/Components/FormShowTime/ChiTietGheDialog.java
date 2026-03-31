@@ -55,7 +55,7 @@ public class ChiTietGheDialog extends JDialog {
             btnGhe.setFocusPainted(false);
 
             // Tô màu theo trạng thái
-            if (ghe.getTrangThai().equalsIgnoreCase("Trong")) {
+            if (ghe.getTrangThai().equalsIgnoreCase("Trong")|| ghe.getTrangThai().equalsIgnoreCase("Đã Hủy")) {
                 btnGhe.setBackground(new Color(66, 103, 178)); // Màu xanh
                 btnGhe.setForeground(Color.WHITE);
             } else {
