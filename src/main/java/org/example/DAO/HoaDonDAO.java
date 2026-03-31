@@ -1,78 +1,59 @@
 package org.example.DAO;
 
+import org.example.Connection.UtilsJDBC;
 import org.example.DTO.HoaDonDTO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class HoaDonDAO {
 
-    private static HoaDonDAO instance;
-
-    public static HoaDonDAO getInstance() {
-        if (instance == null) {
-            instance = new HoaDonDAO();
-        }
-        return instance;
-    }
-
-    private HoaDonDAO() {
-    }
-
     public int add(HoaDonDTO hoaDon) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
         String sql = "INSERT INTO HoaDon (" +
                 "maKH, maNV, ngayBan, soLuongVe, tongTienVe, tongTienSanPham, " +
                 "maKhuyenMai, tongTienGiam, tongThanhToan" +
                 ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (
-                Connection conn = JDBCUtil.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-        ) {
-            ps.setInt(1, hoaDon.getMaKH());
-            ps.setInt(2, hoaDon.getMaNV());
-            ps.setDate(3, hoaDon.getNgayBan());
-            ps.setInt(4, hoaDon.getSoLuongVe());
-            ps.setInt(5, hoaDon.getTongTienVe());
-            ps.setInt(6, hoaDon.getTongTienSanPham());
+        try {
+            con = UtilsJDBC.getConnectDB();
+            ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
-            if (hoaDon.getMaKhuyenMai() == null) {
-                ps.setNull(7, java.sql.Types.INTEGER);
-            } else {
-                ps.setInt(7, hoaDon.getMaKhuyenMai());
-            }
-
-            ps.setInt(8, hoaDon.getTongTienGiam());
-            ps.setInt(9, hoaDon.getTongThanhToan());
+            setHoaDonInsertParams(ps, hoaDon);
 
             int affectedRows = ps.executeUpdate();
 
             if (affectedRows > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        return rs.getInt(1);
-                    }
+                rs = ps.getGeneratedKeys();
+                if (rs.next()) {
+                    return rs.getInt(1);
                 }
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+            closeConnection(con);
         }
 
         return -1;
     }
 
     public boolean addCTHDVe(int maHoaDon, int maVe, int giaVe) {
+        Connection con = null;
+        PreparedStatement ps = null;
+
         String sql = "INSERT INTO CTHD_VE (maHoaDon, maVe, giaVe) VALUES (?, ?, ?)";
 
-        try (
-                Connection conn = JDBCUtil.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-        ) {
+        try {
+            con = UtilsJDBC.getConnectDB();
+            ps = con.prepareStatement(sql);
+
             ps.setInt(1, maHoaDon);
             ps.setInt(2, maVe);
             ps.setInt(3, giaVe);
@@ -81,34 +62,47 @@ public class HoaDonDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeStatement(ps);
+            closeConnection(con);
         }
 
         return false;
     }
 
     public HoaDonDTO findById(int maHoaDon) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
         String sql = "SELECT * FROM HoaDon WHERE maHoaDon = ?";
 
-        try (
-                Connection conn = JDBCUtil.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-        ) {
+        try {
+            con = UtilsJDBC.getConnectDB();
+            ps = con.prepareStatement(sql);
             ps.setInt(1, maHoaDon);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToHoaDonDTO(rs);
-                }
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapResultSetToHoaDonDTO(rs);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+            closeConnection(con);
         }
 
         return null;
     }
 
     public ArrayList<HoaDonDTO> search(String keyword) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
         ArrayList<HoaDonDTO> result = new ArrayList<>();
 
         String sql = "SELECT * FROM HoaDon " +
@@ -117,33 +111,36 @@ public class HoaDonDAO {
                 "OR CAST(maNV AS CHAR) LIKE ? " +
                 "OR CAST(ngayBan AS CHAR) LIKE ?";
 
-        try (
-                Connection conn = JDBCUtil.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-        ) {
+        try {
+            con = UtilsJDBC.getConnectDB();
+            ps = con.prepareStatement(sql);
+
             String value = "%" + keyword + "%";
             ps.setString(1, value);
             ps.setString(2, value);
             ps.setString(3, value);
             ps.setString(4, value);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    result.add(mapResultSetToHoaDonDTO(rs));
-                }
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                result.add(mapResultSetToHoaDonDTO(rs));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+            closeConnection(con);
         }
 
         return result;
     }
 
-    // =========================
-    // CHỈNH SỬA HÓA ĐƠN
-    // =========================
     public boolean update(HoaDonDTO hoaDon) {
+        Connection con = null;
+        PreparedStatement ps = null;
+
         String sql = "UPDATE HoaDon SET " +
                 "maKH = ?, " +
                 "maNV = ?, " +
@@ -156,54 +153,82 @@ public class HoaDonDAO {
                 "tongThanhToan = ? " +
                 "WHERE maHoaDon = ?";
 
-        try (
-                Connection conn = JDBCUtil.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-        ) {
-            ps.setInt(1, hoaDon.getMaKH());
-            ps.setInt(2, hoaDon.getMaNV());
-            ps.setDate(3, hoaDon.getNgayBan());
-            ps.setInt(4, hoaDon.getSoLuongVe());
-            ps.setInt(5, hoaDon.getTongTienVe());
-            ps.setInt(6, hoaDon.getTongTienSanPham());
+        try {
+            con = UtilsJDBC.getConnectDB();
+            ps = con.prepareStatement(sql);
 
-            if (hoaDon.getMaKhuyenMai() == null) {
-                ps.setNull(7, java.sql.Types.INTEGER);
-            } else {
-                ps.setInt(7, hoaDon.getMaKhuyenMai());
-            }
-
-            ps.setInt(8, hoaDon.getTongTienGiam());
-            ps.setInt(9, hoaDon.getTongThanhToan());
-            ps.setInt(10, hoaDon.getMaHoaDon());
+            setHoaDonUpdateParams(ps, hoaDon);
 
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeStatement(ps);
+            closeConnection(con);
         }
 
         return false;
     }
 
-    // =========================
-    // XÓA HÓA ĐƠN
-    // =========================
     public boolean delete(int maHoaDon) {
+        Connection con = null;
+        PreparedStatement ps = null;
+
         String sql = "DELETE FROM HoaDon WHERE maHoaDon = ?";
 
-        try (
-                Connection conn = JDBCUtil.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-        ) {
+        try {
+            con = UtilsJDBC.getConnectDB();
+            ps = con.prepareStatement(sql);
             ps.setInt(1, maHoaDon);
+
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeStatement(ps);
+            closeConnection(con);
         }
 
         return false;
+    }
+
+    private void setHoaDonInsertParams(PreparedStatement ps, HoaDonDTO hoaDon) throws SQLException {
+        ps.setInt(1, hoaDon.getMaKH());
+        ps.setInt(2, hoaDon.getMaNV());
+        ps.setDate(3, hoaDon.getNgayBan());
+        ps.setInt(4, hoaDon.getSoLuongVe());
+        ps.setInt(5, hoaDon.getTongTienVe());
+        ps.setInt(6, hoaDon.getTongTienSanPham());
+
+        if (hoaDon.getMaKhuyenMai() == null) {
+            ps.setNull(7, Types.INTEGER);
+        } else {
+            ps.setInt(7, hoaDon.getMaKhuyenMai());
+        }
+
+        ps.setInt(8, hoaDon.getTongTienGiam());
+        ps.setInt(9, hoaDon.getTongThanhToan());
+    }
+
+    private void setHoaDonUpdateParams(PreparedStatement ps, HoaDonDTO hoaDon) throws SQLException {
+        ps.setInt(1, hoaDon.getMaKH());
+        ps.setInt(2, hoaDon.getMaNV());
+        ps.setDate(3, hoaDon.getNgayBan());
+        ps.setInt(4, hoaDon.getSoLuongVe());
+        ps.setInt(5, hoaDon.getTongTienVe());
+        ps.setInt(6, hoaDon.getTongTienSanPham());
+
+        if (hoaDon.getMaKhuyenMai() == null) {
+            ps.setNull(7, Types.INTEGER);
+        } else {
+            ps.setInt(7, hoaDon.getMaKhuyenMai());
+        }
+
+        ps.setInt(8, hoaDon.getTongTienGiam());
+        ps.setInt(9, hoaDon.getTongThanhToan());
+        ps.setInt(10, hoaDon.getMaHoaDon());
     }
 
     private HoaDonDTO mapResultSetToHoaDonDTO(ResultSet rs) throws SQLException {
@@ -222,5 +247,35 @@ public class HoaDonDAO {
                 rs.getInt("tongTienGiam"),
                 rs.getInt("tongThanhToan")
         );
+    }
+
+    private void closeResultSet(ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void closeStatement(Statement st) {
+        if (st != null) {
+            try {
+                st.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void closeConnection(Connection con) {
+        if (con != null) {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
