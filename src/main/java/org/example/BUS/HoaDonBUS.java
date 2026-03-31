@@ -7,27 +7,33 @@ import java.util.ArrayList;
 
 public class HoaDonBUS {
 
-    public int add(HoaDonDTO hoaDon) {
-        return HoaDonDAO.getInstance().add(hoaDon);
+    private final HoaDonDAO hoaDonDAO;
+
+    public HoaDonBUS() {
+        this.hoaDonDAO = new HoaDonDAO();
     }
 
-    public void addCTHDVe(int maHoaDon, int maVe, int giaVe) {
-        HoaDonDAO.getInstance().addCTHDVe(maHoaDon, maVe, giaVe);
+    public int add(HoaDonDTO hoaDon) {
+        return hoaDonDAO.add(hoaDon);
+    }
+
+    public boolean addCTHDVe(int maHoaDon, int maVe, int giaVe) {
+        return hoaDonDAO.addCTHDVe(maHoaDon, maVe, giaVe);
     }
 
     public HoaDonDTO findById(int maHoaDon) {
-        return HoaDonDAO.getInstance().findById(maHoaDon);
+        return hoaDonDAO.findById(maHoaDon);
     }
 
     public ArrayList<HoaDonDTO> search(String keyword) {
-        return HoaDonDAO.getInstance().search(keyword);
+        return hoaDonDAO.search(keyword);
     }
-    
+
     public boolean update(HoaDonDTO hoaDon) {
-        return HoaDonDAO.getInstance().update(hoaDon);
+        return hoaDonDAO.update(hoaDon);
     }
-    
+
     public boolean delete(int maHoaDon) {
-        return HoaDonDAO.getInstance().delete(maHoaDon);
+        return hoaDonDAO.delete(maHoaDon);
     }
 }
