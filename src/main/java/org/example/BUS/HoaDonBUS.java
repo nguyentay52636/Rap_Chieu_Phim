@@ -1,30 +1,33 @@
 package org.example.BUS;
 
+import org.example.DAO.HoaDonDAO;
 import org.example.DTO.HoaDonDTO;
 
 import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Stub invoice BUS. Stores invoices in memory only.
- */
 public class HoaDonBUS {
 
-    private final List<HoaDonDTO> list = new ArrayList<>();
-    private final List<String> cthdVe = new ArrayList<>();
-    private int nextId = 1;
-
     public int add(HoaDonDTO hoaDon) {
-        HoaDonDTO stored = new HoaDonDTO(nextId, hoaDon.getMaKH(), hoaDon.getMaNV(),
-                hoaDon.getNgayBan(), hoaDon.getSoLuongVe(), hoaDon.getTongTienVe(),
-                hoaDon.getTongTienSanPham(), hoaDon.getMaKhuyenMai(),
-                hoaDon.getTongTienGiam(), hoaDon.getTongThanhToan());
-        list.add(stored);
-        return nextId++;
+        return HoaDonDAO.getInstance().add(hoaDon);
     }
 
     public void addCTHDVe(int maHoaDon, int maVe, int giaVe) {
-        cthdVe.add("HD" + maHoaDon + "-VE" + maVe + "-" + giaVe);
+        HoaDonDAO.getInstance().addCTHDVe(maHoaDon, maVe, giaVe);
+    }
+
+    public HoaDonDTO findById(int maHoaDon) {
+        return HoaDonDAO.getInstance().findById(maHoaDon);
+    }
+
+    public ArrayList<HoaDonDTO> search(String keyword) {
+        return HoaDonDAO.getInstance().search(keyword);
+    }
+    
+    public boolean update(HoaDonDTO hoaDon) {
+        return HoaDonDAO.getInstance().update(hoaDon);
+    }
+    
+    public boolean delete(int maHoaDon) {
+        return HoaDonDAO.getInstance().delete(maHoaDon);
     }
 }
-

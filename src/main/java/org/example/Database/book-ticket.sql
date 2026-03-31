@@ -122,6 +122,20 @@ CREATE TABLE ChiTietHoaDonSanPham (
     FOREIGN KEY (MaSanPham) REFERENCES SanPham(MaSanPham)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- TaiKhoan
+CREATE TABLE TaiKhoan (
+    MaTaiKhoan INT AUTO_INCREMENT PRIMARY KEY,
+    TenDangNhap VARCHAR(50) UNIQUE NOT NULL,
+    MatKhau VARCHAR(255) NOT NULL,
+    MaNV INT,
+    VaiTro VARCHAR(20) DEFAULT 'NhanVien', -- Admin / NhanVien
+    TrangThai VARCHAR(20) DEFAULT 'HoatDong', -- HoatDong / Khoa
+
+    FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+ALTER TABLE TaiKhoan 
+
+MODIFY VaiTro ENUM('Admin', 'Staff') DEFAULT 'Staff';
 
 USE bookticket;
 
@@ -260,3 +274,8 @@ VALUES
 (4, 'Deadpool & Wolverine', 128, 'Shawn Levy', 2024, 'https://picsum.photos/id/401/800/1200', '2025-07-10', 'DangChieu'),
 
 (5, 'Dune: Part Two', 166, 'Denis Villeneuve', 2024, 'https://picsum.photos/id/501/800/1200', '2026-03-01', 'DangChieu');
+
+INSERT INTO TaiKhoan (TenDangNhap, MatKhau, MaNV, VaiTro, TrangThai) VALUES
+('admin', '123456', 1, 'Admin', 'HoatDong'),
+('staff1', '123456', 2, 'Staff', 'HoatDong'),
+('staff2', '123456', 3, 'Staff', 'HoatDong');

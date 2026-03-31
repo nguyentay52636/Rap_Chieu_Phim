@@ -16,14 +16,13 @@ public class TheLoaiPhimDAO {
         List<TheLoaiPhimDTO> list = new ArrayList<>();
         String sql = "SELECT MaLoaiPhim, TenLoaiPhim FROM theloaiphim";
         try (Connection conn = UtilsJDBC.getConnectDB();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 TheLoaiPhimDTO theloai = new TheLoaiPhimDTO(
                         rs.getInt("MaLoaiPhim"),
-                        rs.getString("TenLoaiPhim")
-                );
+                        rs.getString("TenLoaiPhim"));
                 list.add(theloai);
             }
         } catch (SQLException e) {
@@ -36,7 +35,7 @@ public class TheLoaiPhimDAO {
     public boolean insert(TheLoaiPhimDTO theloai) {
         String sql = "INSERT INTO theloaiphim (TenLoaiPhim) VALUES (?)";
         try (Connection conn = UtilsJDBC.getConnectDB();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, theloai.getTenLoaiPhim());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -48,7 +47,7 @@ public class TheLoaiPhimDAO {
     public boolean update(TheLoaiPhimDTO theloai) {
         String sql = "UPDATE theloaiphim SET TenLoaiPhim = ? WHERE MaLoaiPhim = ?";
         try (Connection conn = UtilsJDBC.getConnectDB();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, theloai.getTenLoaiPhim());
             ps.setInt(2, theloai.getMaLoaiPhim());
             return ps.executeUpdate() > 0;
@@ -61,7 +60,7 @@ public class TheLoaiPhimDAO {
     public boolean delete(int maLoaiPhim) {
         String sql = "DELETE FROM theloaiphim WHERE MaLoaiPhim = ?";
         try (Connection conn = UtilsJDBC.getConnectDB();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, maLoaiPhim);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

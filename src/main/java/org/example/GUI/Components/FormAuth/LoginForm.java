@@ -1,45 +1,33 @@
 package org.example.GUI.Components.FormAuth;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 import org.example.GUI.Application.Application;
-
+import org.example.BUS.TaiKhoanBUS;
+import org.example.DTO.TaiKhoanDTO;
 import net.miginfocom.swing.MigLayout;
 
 public class LoginForm extends JPanel {
     private JPanel Left;
     private JPanel Right;
     private JButton btnForgotPassword;
+    private JButton btnTogglePassword;
     private JButton btnLogin;
-    private JButton btnSignUp;
     private JLabel lblTitle;
-    private JLabel lblEmail;
+    private JLabel lblUser;
     private JLabel lblPassword;
     private JLabel lblLogo;
     private JLabel lblAppName;
     private JLabel lblFooter;
     private JPasswordField passwordField;
-    private JTextField emailField;
+    private JTextField userField;
+    
+    private final TaiKhoanBUS taiKhoanBUS = new TaiKhoanBUS();
 
     public LoginForm() {
         initComponents();
@@ -62,7 +50,6 @@ public class LoginForm extends JPanel {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                // Gradient mang tông màu rạp phim
                 GradientPaint gp = new GradientPaint(0, 0, new Color(30, 30, 60), 0, getHeight(),
                         new Color(120, 40, 120));
                 g2d.setPaint(gp);
@@ -72,9 +59,14 @@ public class LoginForm extends JPanel {
         Left.setLayout(new MigLayout("fill, al center center", "[grow]", "push[]50[]30[]push"));
         Left.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
-        lblLogo = new JLabel(new ImageIcon(getClass().getResource("/org/example/GUI/menu/logo/logojavawing.png")));
-        lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
-        Left.add(lblLogo, "center, wrap");
+        try {
+            java.net.URL logoUrl = getClass().getResource("/org/example/GUI/menu/logo/logojavawing.png");
+            if (logoUrl != null) {
+                lblLogo = new JLabel(new ImageIcon(logoUrl));
+                lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
+                Left.add(lblLogo, "center, wrap");
+            }
+        } catch (Exception e) {}
 
         lblAppName = new JLabel("ĐẶT VÉ XEM PHIM");
         lblAppName.setFont(new Font("Showcard Gothic", Font.BOLD, 24));
@@ -88,50 +80,53 @@ public class LoginForm extends JPanel {
         lblFooter.setHorizontalAlignment(SwingConstants.CENTER);
         Left.add(lblFooter, "center");
 
-        // Right Panel (Form đăng nhập đặt vé xem phim)
+        // Right Panel
         Right = new JPanel(new MigLayout("fill, al center center, wrap 1", "[grow]", "[]30[]15[]15[]20[]10[]"));
         Right.setBackground(Color.WHITE);
 
-        lblTitle = new JLabel("ĐĂNG NHẬP ĐẶT VÉ");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        lblTitle = new JLabel("ĐĂNG NHẬP HỆ THỐNG");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
         lblTitle.setForeground(new Color(0, 102, 102));
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         Right.add(lblTitle, "center");
 
-        // Email Field
-        JPanel emailPanel = new JPanel(new MigLayout("fill", "[]10[grow]", "[]")); // Sửa 'g娶ow' thành 'grow'
-        emailPanel.setBackground(Color.WHITE);
-        lblEmail = new JLabel("Email:");
-        lblEmail.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        lblEmail.setForeground(new Color(66, 80, 102));
-        emailPanel.add(lblEmail);
+        // User Field
+        JPanel userPanel = new JPanel(new MigLayout("fill", "[]10[grow]", "[]"));
+        userPanel.setBackground(Color.WHITE);
+        lblUser = new JLabel("Tên đăng nhập:");
+        lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblUser.setForeground(new Color(66, 80, 102));
+        userPanel.add(lblUser);
 
-        emailField = new JTextField();
-        emailField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        emailField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)));
-        emailField.setBackground(Color.WHITE);
-        emailField.addKeyListener(new KeyAdapter() {
+        userField = new JTextField();
+        userField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        userField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)));
+        userField.setBackground(Color.WHITE);
+        userField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    btnLogin.doClick();
+                    passwordField.requestFocusInWindow();
                 }
             }
         });
-        emailPanel.add(emailField, "growx");
-        Right.add(emailPanel, "width 300px, center");
+        userPanel.add(userField, "growx");
+        Right.add(userPanel, "width 320px, center");
 
         // Password Field
-        JPanel passwordPanel = new JPanel(new MigLayout("fill", "[]10[grow]", "[]")); // Sửa 'g娶ow' thành 'grow'
+        JPanel passwordPanel = new JPanel(new MigLayout("fill", "[]10[grow]", "[]"));
         passwordPanel.setBackground(Color.WHITE);
         lblPassword = new JLabel("Mật khẩu:");
-        lblPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lblPassword.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblPassword.setForeground(new Color(66, 80, 102));
         passwordPanel.add(lblPassword);
 
         passwordField = new JPasswordField();
         passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        passwordField.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)));
+        passwordField.setLayout(new BorderLayout());
+        passwordField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(5, 10, 5, 5)));
         passwordField.setBackground(Color.WHITE);
         passwordField.addKeyListener(new KeyAdapter() {
             @Override
@@ -141,30 +136,64 @@ public class LoginForm extends JPanel {
                 }
             }
         });
-        passwordPanel.add(passwordField, "growx");
-        Right.add(passwordPanel, "width 300px, center");
+        
+        btnTogglePassword = new JButton();
+        btnTogglePassword.setPreferredSize(new Dimension(20, 20));
+        btnTogglePassword.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnTogglePassword.setBorderPainted(false);
+        btnTogglePassword.setContentAreaFilled(false);
 
-        btnLogin = new JButton("Đăng nhập & vào rạp");
-        btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        try {
+            java.net.URL urlCLOSED = getClass().getResource("/org/example/GUI/resources/images/hide.png");
+            java.net.URL urlOPEN = getClass().getResource("/org/example/GUI/resources/images/view1.png");
+            if (urlCLOSED != null && urlOPEN != null) {
+                ImageIcon iconClosed = new ImageIcon(new ImageIcon(urlCLOSED).getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+                ImageIcon iconOpen = new ImageIcon(new ImageIcon(urlOPEN).getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+                btnTogglePassword.setIcon(iconClosed);
+                btnTogglePassword.addActionListener(e -> {
+                    if (passwordField.getEchoChar() != (char) 0) {
+                        passwordField.setEchoChar((char) 0);
+                        btnTogglePassword.setIcon(iconOpen);
+                    } else {
+                        passwordField.setEchoChar('•');
+                        btnTogglePassword.setIcon(iconClosed);
+                    }
+                });
+            }
+        } catch (Exception e) {}
+        
+        passwordField.add(btnTogglePassword, BorderLayout.EAST);
+        passwordPanel.add(passwordField, "growx");
+        Right.add(passwordPanel, "width 320px, center");
+
+        // Login Button
+        btnLogin = new JButton("ĐĂNG NHẬP");
+        btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btnLogin.setBackground(new Color(0, 102, 102));
         btnLogin.setForeground(Color.WHITE);
         btnLogin.setFocusPainted(false);
-        btnLogin.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btnLogin.setPreferredSize(new Dimension(0, 45));
         btnLogin.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnLogin.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                btnLogin.setBackground(new Color(0, 153, 153));
+        
+        btnLogin.addActionListener(e -> {
+            String username = userField.getText().trim();
+            String password = String.valueOf(passwordField.getPassword());
+            
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
             }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                btnLogin.setBackground(new Color(0, 102, 102));
+            
+            TaiKhoanDTO tk = taiKhoanBUS.login(username, password);
+            if (tk != null) {
+                JOptionPane.showMessageDialog(this, "✅ Đăng nhập thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                Application.login();
+            } else {
+                JOptionPane.showMessageDialog(this, "❌ Tên đăng nhập hoặc mật khẩu kô chính xác!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         });
-        // Bấm đăng nhập: chuyển sang màn hình chính Application
-        btnLogin.addActionListener(e -> Application.login());
-        Right.add(btnLogin, "center");
+        
+        Right.add(btnLogin, "width 320px, center, gaptop 20");
 
         btnForgotPassword = new JButton("Quên mật khẩu?");
         btnForgotPassword.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -172,11 +201,7 @@ public class LoginForm extends JPanel {
         btnForgotPassword.setBorderPainted(false);
         btnForgotPassword.setContentAreaFilled(false);
         btnForgotPassword.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnForgotPassword.addActionListener(e -> {
-        });
         Right.add(btnForgotPassword, "center");
-
- 
 
         container.add(Left, "grow");
         container.add(Right, "grow");
