@@ -78,23 +78,21 @@ public class MainForm extends JLayeredPane {
         menuButton.setIcon(new FlatSVGIcon("org/example/GUI/menu/mode/svg/" + icon, 0.8f));
     }
 
- 
-
     private void initMenuEvent() {
         menu.addMenuEvent((int index, int subIndex, MenuAction action) -> {
             switch (index) {
-            case 0 -> showForm(new FormPhim());
-            case 1 -> showForm(new FormPhongChieu()); 
-            case 2 -> showForm(new FormProduct());
-            case 3 -> showForm(new FormTypeProduct());
-            case 4 -> showForm(new FormShowTime());             
-            case 5 -> showForm(new FormTicket());
-            case 6 -> showForm(new FormHoaDon(" Hoá đơn"));
-            case 7 -> showForm(new FormCustomer());
-            case 8 -> showForm(new FormEmployee("Nhân viên"));
-            case 9 -> showForm(new FormThongKe());
-            case 10 -> Application.logout();                    
-            default -> action.cancel();
+                case 0 -> showForm(new FormPhim());
+                case 1 -> showForm(new FormPhongChieu());
+                case 2 -> showForm(new FormProduct());
+                case 3 -> showForm(new FormTypeProduct());
+                case 4 -> showForm(new FormShowTime());
+                case 5 -> showForm(new FormTicket());
+                case 6 -> showForm(new FormHoaDon(" Hoá đơn"));
+                case 7 -> showForm(new FormCustomer());
+                case 8 -> showForm(new FormEmployee("Nhân viên"));
+                case 9 -> showForm(new FormThongKe());
+                case 10 -> Application.logout();
+                default -> action.cancel();
             }
         });
     }

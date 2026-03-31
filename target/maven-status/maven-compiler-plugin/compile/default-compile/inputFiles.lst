@@ -24,7 +24,6 @@
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Application/other/BeginForm.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormPhim/Dialog/DialogAddPhim.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/PhongChieu/Form/FormChiTietPhongChieu.java
-/Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormPhongChieu/ModernColorPicker.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DAO/SuatChieuPhimDAO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/BUS/KhachHangBUS.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/menu/MenuAction.java
@@ -51,6 +50,7 @@
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DAO/HoaDonDAO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Application/other/MainForm.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormShowTime/ScAdvancedSearchDialog.java
+/Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DAO/ThongKeDAO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormBooking/components/DatVeDialog.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormAuth/LoginForm.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/menu/mode/LightDarkMode.java
@@ -70,6 +70,7 @@
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormHoaDon/FormHoaDon.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DTO/SuatChieuPhimDTO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormCustomer/FormCustomer.java
+/Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/BUS/ThongKeBUS.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormEmployee/FormEmployee.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormAccount/FormAccount.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormTicket/DialogChonSuatChieu.java

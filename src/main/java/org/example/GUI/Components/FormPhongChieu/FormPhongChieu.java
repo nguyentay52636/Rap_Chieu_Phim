@@ -22,12 +22,11 @@ public class FormPhongChieu extends JPanel {
     public FormPhongChieu() {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(10, 10, 10, 10));
-        setBackground(new Color(245, 245, 250));
 
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(new Color(245, 245, 250));
         topPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)), "Quản Lý Phòng Chiếu", TitledBorder.LEFT, TitledBorder.TOP));
+                BorderFactory.createLineBorder(new Color(200, 200, 200)), "Quản Lý Phòng Chiếu", TitledBorder.LEFT,
+                TitledBorder.TOP));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
         buttonPanel.setOpaque(false);
@@ -35,16 +34,17 @@ public class FormPhongChieu extends JPanel {
         JButton btnEdit = createStyledButton("Sửa", new Color(255, 193, 7), Color.BLACK);
         JButton btnDelete = createStyledButton("Xóa", new Color(220, 53, 69), Color.WHITE);
         JButton btnView = createStyledButton("Xem", new Color(0, 123, 255), Color.WHITE);
-        buttonPanel.add(btnView);
+        buttonPanel.add(btnAdd);
         buttonPanel.add(btnEdit);
         buttonPanel.add(btnDelete);
-        buttonPanel.add(btnAdd);
+        buttonPanel.add(btnView);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         searchPanel.setOpaque(false);
         searchPanel.add(new JLabel("Tìm:"));
 
-        JComboBox<String> optLoaiTimKiem = createStyledComboBox(new String[]{"Mã", "Tên", "Loại Phòng", "Số Hàng", "Ghế/Hàng"});
+        JComboBox<String> optLoaiTimKiem = createStyledComboBox(
+                new String[] { "Mã", "Tên", "Loại Phòng", "Số Hàng", "Ghế/Hàng" });
         searchPanel.add(optLoaiTimKiem);
 
         JPanel inputCardPanel = new JPanel(new CardLayout());
@@ -52,7 +52,7 @@ public class FormPhongChieu extends JPanel {
         JTextField txtSearch = createStyledTextField();
         inputCardPanel.add(txtSearch, "TEXT");
 
-        JComboBox<String> optSearchLoai = createStyledComboBox(new String[]{"2D", "3D", "4DX", "IMAX"});
+        JComboBox<String> optSearchLoai = createStyledComboBox(new String[] { "2D", "3D", "4DX", "IMAX" });
         optSearchLoai.setPreferredSize(new Dimension(150, 35));
         inputCardPanel.add(optSearchLoai, "COMBO");
         searchPanel.add(inputCardPanel);
@@ -81,7 +81,7 @@ public class FormPhongChieu extends JPanel {
         topPanel.add(buttonPanel, BorderLayout.WEST);
         topPanel.add(searchPanel, BorderLayout.EAST);
 
-        String[] columnNames = {"Mã Phòng", "Tên Phòng", "Loại Phòng", "Số Hàng", "Ghế/Hàng"};
+        String[] columnNames = { "Mã Phòng", "Tên Phòng", "Loại Phòng", "Số Hàng", "Ghế/Hàng" };
         model = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -144,7 +144,8 @@ public class FormPhongChieu extends JPanel {
     public void loadDataToTable(List<PhongChieuDTO> list) {
         model.setRowCount(0);
         for (PhongChieuDTO pc : list) {
-            model.addRow(new Object[]{pc.getMaPhong(), pc.getTenPhong(), pc.getLoaiPhong(), pc.getSoHang(), pc.getSoGheMoiHang()});
+            model.addRow(new Object[] { pc.getMaPhong(), pc.getTenPhong(), pc.getLoaiPhong(), pc.getSoHang(),
+                    pc.getSoGheMoiHang() });
         }
     }
 
@@ -178,7 +179,8 @@ public class FormPhongChieu extends JPanel {
         if (iconPath != null) {
             java.net.URL imgURL = getClass().getResource(iconPath);
             if (imgURL != null) {
-                btn.setIcon(new ImageIcon(new ImageIcon(imgURL).getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
+                btn.setIcon(
+                        new ImageIcon(new ImageIcon(imgURL).getImage().getScaledInstance(24, 24, Image.SCALE_SMOOTH)));
             }
         }
         btn.setBackground(bgColor);
@@ -196,7 +198,7 @@ public class FormPhongChieu extends JPanel {
         // Combine a soft gray rounded border with inner padding (Margins)
         txt.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(204, 204, 204), 1, true), // Outer: 1px rounded gray line
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)                      // Inner: 5px top/bottom, 10px left/right
+                BorderFactory.createEmptyBorder(5, 10, 5, 10) // Inner: 5px top/bottom, 10px left/right
         ));
 
         return txt;
@@ -211,8 +213,7 @@ public class FormPhongChieu extends JPanel {
         txt.setForeground(new Color(33, 37, 41));
         txt.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(204, 204, 204), 1, true),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
-        ));
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
 
         return txt;
     }
