@@ -1,23 +1,23 @@
 package org.example.GUI.Components.FormPhongChieu;
 
-import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.util.List;
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-
 import org.example.BUS.LoaiGheBUS;
 import org.example.BUS.PhongChieuBUS;
 import org.example.DTO.PhongChieuDTO;
 
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.List;
+
 public class FormPhongChieu extends JPanel {
-    private DefaultTableModel model;
-    private JTable tablePhongChieu;
     private final PhongChieuBUS pcBUS = new PhongChieuBUS();
     private final LoaiGheBUS lgBUS = new LoaiGheBUS();
+    private final DefaultTableModel model;
+    private final JTable tablePhongChieu;
 
     public FormPhongChieu() {
         setLayout(new BorderLayout(10, 10));
@@ -35,7 +35,10 @@ public class FormPhongChieu extends JPanel {
         JButton btnEdit = createStyledButton("Sửa", new Color(255, 193, 7), Color.BLACK);
         JButton btnDelete = createStyledButton("Xóa", new Color(220, 53, 69), Color.WHITE);
         JButton btnView = createStyledButton("Xem", new Color(0, 123, 255), Color.WHITE);
-        buttonPanel.add(btnAdd); buttonPanel.add(btnEdit); buttonPanel.add(btnDelete); buttonPanel.add(btnView);
+        buttonPanel.add(btnView);
+        buttonPanel.add(btnEdit);
+        buttonPanel.add(btnDelete);
+        buttonPanel.add(btnAdd);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         searchPanel.setOpaque(false);
@@ -62,7 +65,9 @@ public class FormPhongChieu extends JPanel {
         JButton btnSearch = createStyledButton("Tìm", new Color(24, 223, 140), Color.WHITE);
         JButton btnAdvSearch = createSquareButton("/org/example/GUI/resources/images/filter_icon1.png", 40, new Color(100, 181, 246));
         JButton btnRefresh = createSquareButton("/org/example/GUI/resources/images/reload.png", 40, new Color(100, 181, 246));
-        searchPanel.add(btnSearch); searchPanel.add(btnAdvSearch); searchPanel.add(btnRefresh);
+        searchPanel.add(btnSearch);
+        searchPanel.add(btnAdvSearch);
+        searchPanel.add(btnRefresh);
 
         txtSearch.addKeyListener(new KeyAdapter() {
             @Override
@@ -78,7 +83,10 @@ public class FormPhongChieu extends JPanel {
 
         String[] columnNames = {"Mã Phòng", "Tên Phòng", "Loại Phòng", "Số Hàng", "Ghế/Hàng"};
         model = new DefaultTableModel(columnNames, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         tablePhongChieu = new JTable(model);
         tablePhongChieu.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -89,7 +97,8 @@ public class FormPhongChieu extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(tablePhongChieu);
         scrollPane.getViewport().setBackground(Color.WHITE);
-        add(topPanel, BorderLayout.NORTH); add(scrollPane, BorderLayout.CENTER);
+        add(topPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
 
         // --- GỌI CÁC CLASS XỬ LÝ ---
         loadDataToTable();
@@ -105,16 +114,33 @@ public class FormPhongChieu extends JPanel {
             SearchRoomHandler.searchBasic(this, keyword, searchType);
         });
         btnAdvSearch.addActionListener(e -> SearchRoomHandler.openAdvancedSearchDialog(this));
-        btnRefresh.addActionListener(e -> { txtSearch.setText(""); loadDataToTable(); });
+        btnRefresh.addActionListener(e -> {
+            txtSearch.setText("");
+            loadDataToTable();
+        });
     }
 
     // --- CÁC HÀM GETTER & HỖ TRỢ UI CHO CÁC CLASS KHÁC GỌI ---
-    public PhongChieuBUS getPcBUS() { return pcBUS; }
-    public LoaiGheBUS getLgBUS() { return lgBUS; }
-    public JTable getTablePhongChieu() { return tablePhongChieu; }
-    public DefaultTableModel getModel() { return model; }
+    public PhongChieuBUS getPcBUS() {
+        return pcBUS;
+    }
 
-    public void loadDataToTable() { loadDataToTable(pcBUS.getList()); }
+    public LoaiGheBUS getLgBUS() {
+        return lgBUS;
+    }
+
+    public JTable getTablePhongChieu() {
+        return tablePhongChieu;
+    }
+
+    public DefaultTableModel getModel() {
+        return model;
+    }
+
+    public void loadDataToTable() {
+        loadDataToTable(pcBUS.getList());
+    }
+
     public void loadDataToTable(List<PhongChieuDTO> list) {
         model.setRowCount(0);
         for (PhongChieuDTO pc : list) {
@@ -156,7 +182,8 @@ public class FormPhongChieu extends JPanel {
             }
         }
         btn.setBackground(bgColor);
-        btn.setFocusPainted(false); btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
         return btn;
     }
 

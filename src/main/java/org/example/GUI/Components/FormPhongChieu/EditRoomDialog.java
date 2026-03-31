@@ -6,7 +6,6 @@ import org.example.DTO.PhongChieuDTO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
@@ -67,7 +66,8 @@ public class EditRoomDialog {
         String[] dsLoaiGhe = listLoaiGhe.stream().map(LoaiGheDTO::getTenLoaiGhe).toArray(String[]::new);
         JComboBox<String> optLoaiGhe = parent.createStyledComboBox(dsLoaiGhe);
         JButton btnApplySeatType = parent.createStyledButton("Đổi", new Color(255, 193, 7), Color.BLACK);
-        chairPanel.add(optLoaiGhe); chairPanel.add(btnApplySeatType);
+        chairPanel.add(optLoaiGhe);
+        chairPanel.add(btnApplySeatType);
 
         // Kích thước
         JPanel dimPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
@@ -75,8 +75,11 @@ public class EditRoomDialog {
         JTextField txtSoHang = parent.createStyledTextField(String.valueOf(currentDim[0]), 3);
         JTextField txtSoGhe = parent.createStyledTextField(String.valueOf(currentDim[1]), 3);
         JButton btnApplySize = parent.createStyledButton("Tạo lại", new Color(0, 123, 255), Color.WHITE);
-        dimPanel.add(parent.createLabel("Hàng:")); dimPanel.add(txtSoHang);
-        dimPanel.add(parent.createLabel("Ghế:")); dimPanel.add(txtSoGhe); dimPanel.add(btnApplySize);
+        dimPanel.add(parent.createLabel("Hàng:"));
+        dimPanel.add(txtSoHang);
+        dimPanel.add(parent.createLabel("Ghế:"));
+        dimPanel.add(txtSoGhe);
+        dimPanel.add(btnApplySize);
 
         // Chọn nhanh
         JPanel selectionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
@@ -97,16 +100,21 @@ public class EditRoomDialog {
         selectionPanel.add(optRowSelect);
         selectionPanel.add(btnSelectRow);
 
-        leftControls.add(chairPanel); leftControls.add(dimPanel); leftControls.add(selectionPanel);
+        leftControls.add(chairPanel);
+        leftControls.add(dimPanel);
+        leftControls.add(selectionPanel);
 
         JScrollPane scrollLeftControls = new JScrollPane(leftControls);
-        scrollLeftControls.setBorder(null); scrollLeftControls.setOpaque(false); scrollLeftControls.getViewport().setOpaque(false);
+        scrollLeftControls.setBorder(null);
+        scrollLeftControls.setOpaque(false);
+        scrollLeftControls.getViewport().setOpaque(false);
 
         JPanel rightControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
         rightControls.setBorder(BorderFactory.createTitledBorder("Thoát"));
         JButton btnCancel = parent.createStyledButton("Hủy", new Color(108, 117, 125), Color.WHITE);
         JButton btnSave = parent.createStyledButton("Lưu", new Color(40, 167, 69), Color.WHITE);
-        rightControls.add(btnCancel); rightControls.add(btnSave);
+        rightControls.add(btnCancel);
+        rightControls.add(btnSave);
 
         topPanel.add(scrollLeftControls, BorderLayout.CENTER);
         topPanel.add(rightControls, BorderLayout.EAST);
@@ -127,7 +135,10 @@ public class EditRoomDialog {
         JScrollPane scrollGrid = new JScrollPane(grid);
 
         DefaultTableModel seatModel = new DefaultTableModel(new String[]{"Mã Ghế", "Hàng", "Số", "Loại", "Trạng thái"}, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         JTable seatTable = new JTable(seatModel);
         seatTable.setRowHeight(30);
@@ -144,9 +155,10 @@ public class EditRoomDialog {
         Runnable renderGrid = () -> {
             grid.removeAll();
             grid.setLayout(new GridLayout(currentDim[0], currentDim[1], 8, 8));
-            seatModel.setRowCount(0); selectedSeats.clear();
+            seatModel.setRowCount(0);
+            selectedSeats.clear();
             optRowSelect.removeAllItems();
-            for (int i = 0; i < currentDim[0]; i++) optRowSelect.addItem(String.valueOf((char)('A'+i)));
+            for (int i = 0; i < currentDim[0]; i++) optRowSelect.addItem(String.valueOf((char) ('A' + i)));
 
             for (int i = 0; i < currentDim[0]; i++) {
                 char hang = (char) ('A' + i);
@@ -164,24 +176,36 @@ public class EditRoomDialog {
                     }
 
                     String tenLoai = "Unknown";
-                    for (LoaiGheDTO l : listLoaiGhe) { if (l.getMaLoaiGhe() == gheDb.getMaLoaiGhe()) tenLoai = l.getTenLoaiGhe(); }
+                    for (LoaiGheDTO l : listLoaiGhe) {
+                        if (l.getMaLoaiGhe() == gheDb.getMaLoaiGhe()) tenLoai = l.getTenLoaiGhe();
+                    }
 
-                    btn.setBackground(colorThuong); btn.setForeground(Color.WHITE);
+                    btn.setBackground(colorThuong);
+                    btn.setForeground(Color.WHITE);
                     btn.putClientProperty("originalColor", colorThuong);
                     seatModel.addRow(new Object[]{maGhe, String.valueOf(hang), finalJ, tenLoai, ""});
 
                     btn.addActionListener(e -> {
                         boolean isSel = !btn.getBackground().equals(colorSelected);
-                        if (isSel) { btn.setBackground(colorSelected); btn.setForeground(Color.BLACK); selectedSeats.add(maGhe); }
-                        else { btn.setBackground(colorThuong); btn.setForeground(Color.WHITE); selectedSeats.remove(maGhe); }
+                        if (isSel) {
+                            btn.setBackground(colorSelected);
+                            btn.setForeground(Color.BLACK);
+                            selectedSeats.add(maGhe);
+                        } else {
+                            btn.setBackground(colorThuong);
+                            btn.setForeground(Color.WHITE);
+                            selectedSeats.remove(maGhe);
+                        }
                         for (int r = 0; r < seatModel.getRowCount(); r++) {
-                            if (seatModel.getValueAt(r, 0).equals(maGhe)) seatModel.setValueAt(isSel ? "Đang chọn..." : "", r, 4);
+                            if (seatModel.getValueAt(r, 0).equals(maGhe))
+                                seatModel.setValueAt(isSel ? "Đang chọn..." : "", r, 4);
                         }
                     });
                     grid.add(btn);
                 }
             }
-            grid.revalidate(); grid.repaint();
+            grid.revalidate();
+            grid.repaint();
         };
         renderGrid.run();
 
@@ -191,17 +215,21 @@ public class EditRoomDialog {
                 int newRow = Integer.parseInt(txtSoHang.getText());
                 int newCol = Integer.parseInt(txtSoGhe.getText());
                 if (newRow <= 0 || newCol <= 0 || newRow > 26) throw new Exception();
-                currentDim[0] = newRow; currentDim[1] = newCol;
+                currentDim[0] = newRow;
+                currentDim[1] = newCol;
                 localSeats.removeIf(g -> g.getHangGhe().charAt(0) > ('A' + currentDim[0] - 1) || g.getSoGhe() > currentDim[1]);
                 renderGrid.run();
-            } catch (Exception ex) { JOptionPane.showMessageDialog(root, "Lỗi kích thước!"); }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(root, "Lỗi kích thước!");
+            }
         });
 
         btnApplySeatType.addActionListener(e -> {
-            if(selectedSeats.isEmpty()) return;
+            if (selectedSeats.isEmpty()) return;
             int maLoai = listLoaiGhe.get(optLoaiGhe.getSelectedIndex()).getMaLoaiGhe();
-            for(String s : selectedSeats) {
-                String h = String.valueOf(s.charAt(0)); int num = Integer.parseInt(s.substring(1));
+            for (String s : selectedSeats) {
+                String h = String.valueOf(s.charAt(0));
+                int num = Integer.parseInt(s.substring(1));
                 localSeats.stream().filter(g -> g.getHangGhe().equals(h) && g.getSoGhe() == num).forEach(g -> g.setMaLoaiGhe(maLoai));
             }
             renderGrid.run();
@@ -268,12 +296,15 @@ public class EditRoomDialog {
             updatedRoom.setGheList(localSeats);
             if (parent.getPcBUS().updateRoomAndSeats(updatedRoom)) {
                 JOptionPane.showMessageDialog(root, "Thành công!");
-                parent.loadDataToTable(); SwingUtilities.getWindowAncestor(root).dispose();
+                parent.loadDataToTable();
+                SwingUtilities.getWindowAncestor(root).dispose();
             }
         });
 
         JPanel leftPanel = new JPanel(new BorderLayout(0, 10));
-        leftPanel.setOpaque(false); leftPanel.add(screen, BorderLayout.NORTH); leftPanel.add(scrollGrid, BorderLayout.CENTER);
+        leftPanel.setOpaque(false);
+        leftPanel.add(screen, BorderLayout.NORTH);
+        leftPanel.add(scrollGrid, BorderLayout.CENTER);
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, scrollTable);
         split.setResizeWeight(0.75);
         seatArea.add(split, BorderLayout.CENTER);

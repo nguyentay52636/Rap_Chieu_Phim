@@ -18,7 +18,7 @@ public class DeleteRoomHandler {
 
         for (int i = 0; i < selectedRows.length; i++) {
             int modelRow = table.convertRowIndexToModel(selectedRows[i]);
-            for(int j=0; j<5; j++) data[i][j] = parent.getModel().getValueAt(modelRow, j);
+            for (int j = 0; j < 5; j++) data[i][j] = parent.getModel().getValueAt(modelRow, j);
         }
 
         JTable previewTable = new JTable(data, columns);
