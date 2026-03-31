@@ -140,10 +140,10 @@ public class SuatChieuPhimDAO {
     public java.util.List<org.example.DTO.TrangThaiGheDTO> layTrangThaiGhe(int maSuatChieu, int maPhong) {
         java.util.List<org.example.DTO.TrangThaiGheDTO> list = new java.util.ArrayList<>();
 
-        // 1. Thêm g.MaGhe vào đầu câu SELECT
+        // --- ĐÃ SỬA LẠI CÂU SQL: Thêm điều kiện chặn vé "Đã Hủy" ở dòng LEFT JOIN ---
         String sql = "SELECT g.MaGhe, g.HangGhe, g.SoGhe, COALESCE(v.TrangThai, 'Trong') AS TrangThai " +
                 "FROM Ghe g " +
-                "LEFT JOIN Ve v ON g.MaGhe = v.MaGhe AND v.MaSuatChieu = ? " +
+                "LEFT JOIN Ve v ON g.MaGhe = v.MaGhe AND v.MaSuatChieu = ? AND v.TrangThai != 'Đã Hủy' " +
                 "WHERE g.MaPhong = ? " +
                 "ORDER BY g.HangGhe ASC, g.SoGhe ASC";
 
@@ -155,9 +155,8 @@ public class SuatChieuPhimDAO {
 
             try (java.sql.ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    // 2. Truyền đủ 4 tham số vào đây
                     list.add(new org.example.DTO.TrangThaiGheDTO(
-                            rs.getInt("MaGhe"),     // Dòng bạn đang bị thiếu là đây
+                            rs.getInt("MaGhe"),
                             rs.getString("HangGhe"),
                             rs.getInt("SoGhe"),
                             rs.getString("TrangThai")
