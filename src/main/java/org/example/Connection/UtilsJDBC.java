@@ -3,9 +3,10 @@ package org.example.Connection;
 import java.sql.Connection;
 
 public class UtilsJDBC {
+
     private static final String URL = "jdbc:mysql://localhost:3306/bookticket?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false";
     private static final String USER = "root";
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "Lamquetran7777.";
 
     private static Connection connection = null;
 

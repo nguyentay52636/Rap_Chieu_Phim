@@ -10,6 +10,8 @@ import javax.swing.*;
 import org.example.GUI.Application.Application;
 import org.example.BUS.TaiKhoanBUS;
 import org.example.DTO.TaiKhoanDTO;
+import org.example.GUI.Components.FormAuth.ForgetPassword.CodeVerificationForm;
+import org.example.Services.EmailServices;
 import net.miginfocom.swing.MigLayout;
 
 public class LoginForm extends JPanel {
@@ -28,6 +30,7 @@ public class LoginForm extends JPanel {
     private JTextField userField;
     
     private final TaiKhoanBUS taiKhoanBUS = new TaiKhoanBUS();
+    private final org.example.DAO.TaiKhoanDAO taiKhoanDAO = new org.example.DAO.TaiKhoanDAO();
 
     public LoginForm() {
         initComponents();
@@ -201,6 +204,48 @@ public class LoginForm extends JPanel {
         btnForgotPassword.setBorderPainted(false);
         btnForgotPassword.setContentAreaFilled(false);
         btnForgotPassword.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnForgotPassword.addActionListener(e -> {
+            String username = JOptionPane.showInputDialog(this, "Nhập tên tài khoản của bạn:", "Xác minh tài khoản", JOptionPane.QUESTION_MESSAGE);
+            
+            if (username == null || username.trim().isEmpty()) {
+                return;
+            }
+
+            TaiKhoanDTO tk = taiKhoanDAO.getTaiKhoanByUsername(username.trim());
+            
+            if (tk == null) {
+                JOptionPane.showMessageDialog(this, "❌ Tài khoản không tồn tại trên hệ thống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!tk.getVaiTro().equalsIgnoreCase("Admin")) {
+                JOptionPane.showMessageDialog(this, "⚠️ Bạn không có quyền Admin. Liên hệ quản lý để được hỗ trợ!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Hiển thị thông báo đang gửi
+            setCursor(new Cursor(Cursor.WAIT_CURSOR));
+            
+            String adminEmail = "ngoctrinhcute52636@gmail.com";
+            String code = EmailServices.generateCode();
+            String subject = "Mã OTP khôi phục mật khẩu hệ thống - " + username;
+            String htmlPath = "src/main/java/org/example/Services/email-content.html";
+            
+            // Chạy trong luồng riêng để không bị đơ GUI
+            new Thread(() -> {
+                boolean Success = EmailServices.sendEmail(adminEmail, subject, htmlPath, code);
+                
+                SwingUtilities.invokeLater(() -> {
+                    setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                    if (Success) {
+                        JOptionPane.showMessageDialog(this, "✅ Đã gửi mã OTP tới Email Admin!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                        new CodeVerificationForm(username.trim(), code).setVisible(true);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "❌ Lỗi khi gửi Email. Kiểm tra cấu hình!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+            }).start();
+        });
         Right.add(btnForgotPassword, "center");
 
         container.add(Left, "grow");

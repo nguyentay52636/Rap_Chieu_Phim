@@ -12,6 +12,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class HoaDonDAO {
+    private static HoaDonDAO instance;
+
+    public static HoaDonDAO getInstance() {
+        if (instance == null) {
+            instance = new HoaDonDAO();
+        }
+        return instance;
+    }
 
     private static final String BASE_SELECT =
             "SELECT hd.MaHoaDon, hd.MaKH, hd.MaNV, kh.HoTen AS TenKhachHang, nv.HoTen AS TenNhanVien, " +

@@ -23,6 +23,12 @@ public class TaiKhoanBUS {
         return currentAccount;
     }
 
+    public boolean updatePassword(String username, String newPassword) {
+        if (username == null || username.trim().isEmpty()) return false;
+        if (newPassword == null || newPassword.isEmpty()) return false;
+        return taiKhoanDAO.updatePasswordByUserName(username, newPassword);
+    }
+
     public static void logout() {
         currentAccount = null;
     }

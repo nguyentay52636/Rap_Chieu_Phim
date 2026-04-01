@@ -34,77 +34,48 @@ public class EmployeeBUS
 
 
     //---VALIDATE DỮ LIỆU NHÂN VIÊN (Dùng chung cho Thêm và Sửa)
-   
-public boolean validate (EmployeeDTO emp) 
-{
-    // 1. Kiểm tra rỗng và âm
-    if (emp.getHoTen() == null || emp.getHoTen().trim().isEmpty()) 
-        return false;
-    if (emp.getLuongCoBan() < 0) 
-        return false;
-
-    // 2. Logic Ngày vào làm phải SAU ngày sinh và ngày sinh phải hợp lý (sau 1920 để tránh lỗi tuổi âm do sai định dạng ngày tháng)
-    if (emp.getNgayVaoLam().before(emp.getNgaySinh()))
-        return false;
-    if (emp.getNgaySinh().before(java.sql.Date.valueOf("1961-01-01"))) 
-        return false;
-
-    // 3. Logic ĐỘ TUỔI (Lấy năm trừ năm)
-    int namSinh = emp.getNgaySinh().toLocalDate().getYear();
-    int namVaoLam = emp.getNgayVaoLam().toLocalDate().getYear();
-    
-    int soTuoi = namVaoLam - namSinh;
-
-    
-    if (soTuoi < 15) 
-        return false; 
-    return true;
-
-
-}
-
-// --- TÌM KIẾM NHÂN VIÊN CHUẨN 
-    public ArrayList<EmployeeDTO> timKiem(String keyword, String type) 
+    public boolean validate (EmployeeDTO emp) 
     {
-        ArrayList<EmployeeDTO> result = new ArrayList<>();
-        keyword = keyword.toLowerCase().trim();
+        // 1. Kiểm tra rỗng và âm
+        if (emp.getHoTen() == null || emp.getHoTen().trim().isEmpty()) 
+            return false;
+        if (emp.getLuongCoBan() < 0) 
+            return false;
 
-        // Định dạng ngày và tiền giống giao diện để dễ tìm kiếm
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+        // 2. Logic Ngày vào làm phải SAU ngày sinh và ngày sinh phải hợp lý (sau 1920 để tránh lỗi tuổi âm do sai định dạng ngày tháng)
+        if (emp.getNgayVaoLam().before(emp.getNgaySinh()))
+            return false;
+        if (emp.getNgaySinh().before(java.sql.Date.valueOf("1961-01-01"))) 
+            return false;
 
-        for (EmployeeDTO emp : listEmployee) 
-        {
-            String maNV = String.valueOf(emp.getMaNV());
-            String hoTen = emp.getHoTen().toLowerCase();
-            String ngaySinh = emp.getNgaySinh() != null ? sdf.format(emp.getNgaySinh()) : "";// 
-            String ngayVaoLam = emp.getNgayVaoLam() != null ? sdf.format(emp.getNgayVaoLam()) : "";
-            String luongFormat = String.format("%,.0f VNĐ", emp.getLuongCoBan()).toLowerCase();
-            String luongTron = String.format("%.0f", emp.getLuongCoBan());
-
-            boolean match = false;
-
-            switch (type) 
-            {
-                case "Mã NV": match = maNV.contains(keyword); break;
-                case "Họ Tên": match = hoTen.contains(keyword); break;
-                case "Ngày Sinh": match = ngaySinh.contains(keyword); break;
-                case "Ngày Vào Làm": match = ngayVaoLam.contains(keyword); break;
-                case "Lương Cơ Bản": match = luongFormat.contains(keyword) || luongTron.contains(keyword); break;
-                default: // "Tất cả"
-                    match = maNV.contains(keyword) || hoTen.contains(keyword) || 
-                            ngaySinh.contains(keyword) || ngayVaoLam.contains(keyword) || 
-                            luongFormat.contains(keyword) || luongTron.contains(keyword);
-                    break;
-            }
-
-            if (match) 
-                result.add(emp);
+        // 3. Logic ĐỘ TUỔI (Lấy năm trừ năm)
+        int namSinh = emp.getNgaySinh().toLocalDate().getYear();
+        int namVaoLam = emp.getNgayVaoLam().toLocalDate().getYear();
         
-        }
-        return result;
+        int soTuoi = namVaoLam - namSinh;
+
+        
+        if (soTuoi < 15) 
+            return false; 
+        return true;
     }
 
-//thêm nhân viên với validate
+    // --- TÌM KIẾM NHÂN VIÊN (Lọc hoàn toàn bằng SQL dưới Database)
+    public ArrayList<EmployeeDTO> timKiem(String keyword, String type) 
+    {
+        keyword = keyword.trim();
+        
+        // Nếu người dùng xóa hết từ khóa (để trống), trả về toàn bộ danh sách gốc
+        if (keyword.isEmpty()) 
+        {
+            return getDanhSach(); 
+        }
+
+        // Gọi thẳng xuống DAO để lấy kết quả truy vấn từ Database
+        return employeeDAO.timKiemNhanVienDAO(keyword, type);
+    }
+    
+    //thêm nhân viên với validate
     public boolean themNhanVien(EmployeeDTO emp) 
     {
         if (!validate(emp)) 
@@ -118,7 +89,7 @@ public boolean validate (EmployeeDTO emp)
         return false;
     }
 
-//sửa nhân viên với validate 
+    //sửa nhân viên với validate 
     public boolean suaNhanVien(EmployeeDTO emp) 
     {
         if (!validate(emp)) 
@@ -130,7 +101,8 @@ public boolean validate (EmployeeDTO emp)
         }
         return false;
     }
-//xóa nhân viên với xử lý ngoại lệ khi nhân viên đã lập hóa đơn
+
+    //xóa nhân viên với xử lý ngoại lệ khi nhân viên đã lập hóa đơn
     public boolean xoaNhanVien(int maNV) 
     {
         if (employeeDAO.delete(maNV)) 
@@ -142,7 +114,7 @@ public boolean validate (EmployeeDTO emp)
     }
 
 
-//--- XUẤT EXCEL (Dùng thư viện Apache POI)
+    //--- XUẤT EXCEL (Dùng thư viện Apache POI)
     public boolean exportExcel(String filePath) 
     {
         try (Workbook workbook = new XSSFWorkbook()) 

@@ -53,10 +53,8 @@ public class FormProduct extends JPanel {
     public FormProduct() {
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
-        setBackground(new Color(245, 245, 250));
 
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(new Color(245, 245, 250));
         topPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200)),
                 "Quản Lý Sản Phẩm",
@@ -157,7 +155,6 @@ public class FormProduct extends JPanel {
         });
 
         JScrollPane scrollPane = new JScrollPane(tableSanPham);
-        scrollPane.getViewport().setBackground(Color.WHITE);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
 
         // Panel trung tâm chứa bảng + khu vực chi tiết ở dưới
@@ -171,12 +168,10 @@ public class FormProduct extends JPanel {
                 "Chi tiết sản phẩm",
                 TitledBorder.LEFT,
                 TitledBorder.TOP));
-        detailMainPanel.setBackground(new Color(245, 245, 250));
 
         // Panel bên trái: hình ảnh sản phẩm
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setPreferredSize(new Dimension(220, 220));
-        imagePanel.setBackground(Color.WHITE);
         // Border dày ~1.5px màu đen
         imagePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -246,7 +241,7 @@ public class FormProduct extends JPanel {
     private void loadTableData() {
         model.setRowCount(0);
         for (SanPhamDTO sp : sanPhamBUS.getList()) {
-            model.addRow(new Object[]{
+            model.addRow(new Object[] {
                     sp.getMaSanPham(),
                     sp.getTenSanPham(),
                     sp.getHinhAnh(),
@@ -289,7 +284,8 @@ public class FormProduct extends JPanel {
     private void applyFilterAndRender() {
         String keyword = txtTimKiem != null ? txtTimKiem.getText().trim().toLowerCase() : "";
         String field = comboBoxTimKiem != null ? String.valueOf(comboBoxTimKiem.getSelectedItem()) : "Tất cả";
-        String statusFilter = comboTrangThaiFilter != null ? String.valueOf(comboTrangThaiFilter.getSelectedItem()) : "Tất cả";
+        String statusFilter = comboTrangThaiFilter != null ? String.valueOf(comboTrangThaiFilter.getSelectedItem())
+                : "Tất cả";
 
         model.setRowCount(0);
         for (SanPhamDTO sp : sanPhamBUS.getList()) {
@@ -299,7 +295,7 @@ public class FormProduct extends JPanel {
             if (!matchesKeyword(sp, field, keyword)) {
                 continue;
             }
-            model.addRow(new Object[]{
+            model.addRow(new Object[] {
                     sp.getMaSanPham(),
                     sp.getTenSanPham(),
                     sp.getHinhAnh(),
@@ -316,7 +312,8 @@ public class FormProduct extends JPanel {
             return true;
         }
         String tt = sp.getTrangThai() == null ? "" : sp.getTrangThai().trim().toLowerCase();
-        // Map: "Đang bán" -> any contains "đang", "ban"; "Không bán" -> contains "không" or "ngừng"
+        // Map: "Đang bán" -> any contains "đang", "ban"; "Không bán" -> contains
+        // "không" or "ngừng"
         if (statusFilter.equalsIgnoreCase("Đang bán")) {
             return tt.contains("đang") || tt.contains("dang") || tt.contains("bán") || tt.contains("ban");
         }
@@ -381,7 +378,8 @@ public class FormProduct extends JPanel {
         panel.add(field);
     }
 
-    // Hiển thị chi tiết sản phẩm khi chọn 1 dòng trong bảng (đổ vào khu vực bên dưới)
+    // Hiển thị chi tiết sản phẩm khi chọn 1 dòng trong bảng (đổ vào khu vực bên
+    // dưới)
     private void showSelectedProductDetail() {
         int selectedRow = tableSanPham.getSelectedRow();
         if (selectedRow == -1) {
@@ -511,13 +509,19 @@ public class FormProduct extends JPanel {
         }
     }
 
-    /** Tải ảnh sản phẩm: ưu tiên classpath, sau đó thư mục imageTopic cạnh thư mục chạy app. */
+    /**
+     * Tải ảnh sản phẩm: ưu tiên classpath, sau đó thư mục imageTopic cạnh thư mục
+     * chạy app.
+     */
     private ImageIcon loadProductImageIcon(String fileAnh) {
-        if (fileAnh == null || fileAnh.isEmpty()) return null;
+        if (fileAnh == null || fileAnh.isEmpty())
+            return null;
         java.net.URL imgURL = getClass().getResource("/org/example/GUI/resources/imageTopic/" + fileAnh);
-        if (imgURL != null) return new ImageIcon(imgURL);
+        if (imgURL != null)
+            return new ImageIcon(imgURL);
         File file = new File(System.getProperty("user.dir"), "imageTopic" + File.separator + fileAnh);
-        if (file.isFile()) return new ImageIcon(file.getAbsolutePath());
+        if (file.isFile())
+            return new ImageIcon(file.getAbsolutePath());
         return null;
     }
 
@@ -532,4 +536,3 @@ public class FormProduct extends JPanel {
         imageLabel.setText("");
     }
 }
-
