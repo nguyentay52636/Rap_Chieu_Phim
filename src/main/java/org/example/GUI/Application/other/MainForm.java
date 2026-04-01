@@ -92,7 +92,11 @@ public class MainForm extends JLayeredPane {
                 case 7 -> showForm(new FormCustomer());
                 case 8 -> showForm(new FormEmployee("Nhân viên"));
                 case 9 -> showForm(new FormThongKe());
+<<<<<<< HEAD
                 case 10 -> logout();
+=======
+                case 10 -> Application.logout();
+>>>>>>> origin/main
                 default -> action.cancel();
             }
         });

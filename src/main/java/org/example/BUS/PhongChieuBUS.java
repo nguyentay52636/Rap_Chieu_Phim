@@ -46,79 +46,18 @@ public class PhongChieuBUS {
         return ok;
     }
 
-    // Lấy danh sách ghế theo mã phòng
-    public ArrayList<GheDTO> getListGheTheoPhong(int maPhong) {
-        ArrayList<GheDTO> listGhe = new ArrayList<>();
-        String sql = "SELECT MaGhe, MaPhong, MaLoaiGhe, HangGhe, SoGhe FROM Ghe WHERE MaPhong = ?";
-
-        try (Connection con = UtilsJDBC.getConnectDB();
-             PreparedStatement pst = con.prepareStatement(sql)) {
-
-            pst.setInt(1, maPhong);
-
-            try (ResultSet rs = pst.executeQuery()) {
-                while (rs.next()) {
-                    GheDTO ghe = new GheDTO(
-                            rs.getInt("MaGhe"),
-                            rs.getInt("MaPhong"),
-                            rs.getInt("MaLoaiGhe"),
-                            rs.getString("HangGhe"),
-                            rs.getInt("SoGhe")
-                    );
-                    listGhe.add(ghe);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println("Lỗi lấy danh sách Ghế cho Phòng: " + maPhong);
-        }
-        return listGhe;
-    }
-
-    // Lấy chi tiết 1 phòng chiếu (BAO GỒM CẢ DANH SÁCH GHẾ)
     public PhongChieuDTO getPhongChieuById(int maPhong) {
-        PhongChieuDTO room = null;
-        String sql = "SELECT MaPhong, TenPhong, LoaiPhong, SoHang, SoGheMoiHang FROM PhongChieu WHERE MaPhong = ?";
-
-        try (Connection con = UtilsJDBC.getConnectDB();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, maPhong);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    // 1. Lấy thông tin cơ bản của phòng
-                    room = new PhongChieuDTO(
-                            rs.getInt("MaPhong"),
-                            rs.getString("TenPhong"),
-                            rs.getString("LoaiPhong"),
-                            rs.getInt("SoHang"),
-                            rs.getInt("SoGheMoiHang")
-                    );
-
-                    // 2. Lấy danh sách ghế và gắn vào phòng
-                    ArrayList<GheDTO> listGhe = getListGheTheoPhong(maPhong);
-                    room.setGheList(listGhe);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return room;
+        return phongChieuDAO.getPhongChieuById(maPhong);
     }
 
     public boolean add(PhongChieuDTO pc) {
         boolean ok = phongChieuDAO.insert(pc);
         if (ok) {
-            refreshList(); // Cập nhật lại list ở BUS
+            refreshList();
         }
         return ok;
     }
 
-    public boolean updateChairType(int maPhong, List<String> selectedSeats, int maLoaiGheMoi) {
-        return phongChieuDAO.updateChairTypeBatch(maPhong, selectedSeats, maLoaiGheMoi);
-    }
-
-    // Gọi lệnh cập nhật phòng và danh sách ghế
     public boolean updateRoomAndSeats(PhongChieuDTO pc) {
         boolean ok = phongChieuDAO.updateRoomAndSeatsTransaction(pc);
         if (ok) {
@@ -127,11 +66,10 @@ public class PhongChieuBUS {
         return ok;
     }
 
-    // Thêm phòng chiếu và tự tạo ghế
     public boolean addRoomWithSeats(PhongChieuDTO pc, int defaultMaLoaiGhe) {
         boolean ok = phongChieuDAO.insertRoomAndSeatsTransaction(pc, defaultMaLoaiGhe);
         if (ok) {
-            refreshList(); // Cập nhật lại list ở BUS
+            refreshList();
         }
         return ok;
     }
