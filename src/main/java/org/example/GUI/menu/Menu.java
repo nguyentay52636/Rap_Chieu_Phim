@@ -43,7 +43,8 @@ public class Menu extends JPanel {
             { "Hóa đơn" },
             { "Khách hàng" },
             { "Nhân viên" },
-            { "Thống kê" }
+            { "Thống kê" },
+            { "Đăng xuất" }
     };
 
     public boolean isMenuFull() {

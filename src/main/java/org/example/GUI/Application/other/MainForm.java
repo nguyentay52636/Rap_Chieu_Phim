@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -91,7 +92,7 @@ public class MainForm extends JLayeredPane {
                 case 7 -> showForm(new FormCustomer());
                 case 8 -> showForm(new FormEmployee("Nhân viên"));
                 case 9 -> showForm(new FormThongKe());
-                case 10 -> Application.logout();
+                case 10 -> logout();
                 default -> action.cancel();
             }
         });
@@ -107,6 +108,18 @@ public class MainForm extends JLayeredPane {
         menuButton.setIcon(new FlatSVGIcon("org/example/GUI/menu/mode/svg/" + icon, 0.8f));
         menu.setMenuFull(full);
         revalidate();
+    }
+
+    private void logout() {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Bạn có chắc chắn muốn đăng xuất?",
+                "Xác nhận đăng xuất",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            Application.logout();
+        }
     }
 
     public void hideMenu() {

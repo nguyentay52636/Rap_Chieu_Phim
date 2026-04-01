@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cấp lại tài khoản</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #007BFF;
+            text-align: center;
+            font-size: 40px;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .footer p {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .reset-image {
+            display: block;
+            margin: 20px auto;
+            max-width: 500px;
+            height: auto;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Xin chào!</h1>
+        <p>Chúng tôi đã nhận được yêu cầu cấp lại tài khoản của bạn.</p>
+        <p class="code">Mã xác thực của bạn là: <strong style="font-size :40px">${code}</strong></p>
+        <p>Vui lòng nhấp vào liên kết bên dưới để đặt lại mật khẩu:</p>
+        <p><a href="http://example.com/reset-password">Đặt lại mật khẩu</a></p>
+        <p>Hoặc sao chép và dán liên kết sau vào trình duyệt của bạn:</p>
+        <p><code>http://example.com/reset-password</code></p>
+        <img src="../../image/self-service-password-reset.webp" alt="Reset Password" class="reset-image" />
+        <p>Trân trọng,</p>
+        <p>Đội ngũ hỗ trợ</p>
+        <div class="footer">
+            <p>Đây là email tự động, vui lòng không trả lời.</p>
+        </div>
+    </div>
+</body>
+
+</html>

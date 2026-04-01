@@ -1,3 +1,4 @@
+/Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormAuth/ForgetPassword/PasswordResetUI.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormEmployee/AddEmployeeDialog.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DAO/LoaiGheDAO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormCustomer/AdvancedSearchCustomerDialog.java
@@ -39,6 +40,7 @@
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormTicket/DialogThanhToan.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormEmployee/EditEmployeeDialog.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DAO/PhimDAO.java
+/Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/Services/EmailServices.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormPhim/Dialog/DialogEditPhim.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/menu/MenuAnimation.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/menu/Menu.java
@@ -67,6 +69,7 @@
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DTO/HoaDonDTO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormPhongChieu/ViewRoomDialog.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormProduct/DetailProductDialog.java
+/Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormAuth/ForgetPassword/EmailInputForm.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormHoaDon/FormHoaDon.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DTO/SuatChieuPhimDTO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormCustomer/FormCustomer.java
@@ -85,6 +88,7 @@
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormPhongChieu/SearchRoomHandler.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DAO/KhachHangDAO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DAO/SanPhamDAO.java
+/Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormAuth/ForgetPassword/CodeVerificationForm.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DTO/KhachHangDTO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DAO/EmployeeDAO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormProduct/AddProductDialog.java
@@ -97,7 +101,6 @@
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/DAO/TheLoaiPhimDAO.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormProduct/FormProduct.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormProduct/EditProductDialog.java
-/Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/BUS/AccountBUS.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormTicket/DialogChiTietVe.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormPhim/FormPhim.java
 /Users/m1lt43/Desktop/java-2026/Book-Ticket/src/main/java/org/example/GUI/Components/FormCustomer/AddCustomerDialog.java
