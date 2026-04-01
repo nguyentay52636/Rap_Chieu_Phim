@@ -154,6 +154,67 @@ public class PhongChieuDAO {
         }
     }
 
+
+    // Lấy danh sách ghế theo mã phòng
+    public ArrayList<GheDTO> getListGheTheoPhong(int maPhong) {
+        ArrayList<GheDTO> listGhe = new ArrayList<>();
+        String sql = "SELECT MaGhe, MaPhong, MaLoaiGhe, HangGhe, SoGhe FROM Ghe WHERE MaPhong = ?";
+
+        try (Connection con = UtilsJDBC.getConnectDB();
+             PreparedStatement pst = con.prepareStatement(sql)) {
+
+            pst.setInt(1, maPhong);
+
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    GheDTO ghe = new GheDTO(
+                            rs.getInt("MaGhe"),
+                            rs.getInt("MaPhong"),
+                            rs.getInt("MaLoaiGhe"),
+                            rs.getString("HangGhe"),
+                            rs.getInt("SoGhe")
+                    );
+                    listGhe.add(ghe);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi lấy danh sách Ghế cho Phòng: " + maPhong);
+        }
+        return listGhe;
+    }
+
+    // Lấy chi tiết 1 phòng chiếu (BAO GỒM CẢ DANH SÁCH GHẾ)
+    public PhongChieuDTO getPhongChieuById(int maPhong) {
+        PhongChieuDTO room = null;
+        String sql = "SELECT MaPhong, TenPhong, LoaiPhong, SoHang, SoGheMoiHang FROM PhongChieu WHERE MaPhong = ?";
+
+        try (Connection con = UtilsJDBC.getConnectDB();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, maPhong);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // 1. Lấy thông tin cơ bản của phòng
+                    room = new PhongChieuDTO(
+                            rs.getInt("MaPhong"),
+                            rs.getString("TenPhong"),
+                            rs.getString("LoaiPhong"),
+                            rs.getInt("SoHang"),
+                            rs.getInt("SoGheMoiHang")
+                    );
+
+                    // 2. Lấy danh sách ghế và gắn vào phòng
+                    ArrayList<GheDTO> listGhe = getListGheTheoPhong(maPhong);
+                    room.setGheList(listGhe);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return room;
+    }
+
     public boolean insert(PhongChieuDTO pc) {
         String sql = "INSERT INTO PhongChieu (TenPhong, LoaiPhong, SoHang, SoGheMoiHang) VALUES (?, ?, ?, ?)";
         try (Connection con = UtilsJDBC.getConnectDB();
@@ -279,7 +340,7 @@ public class PhongChieuDAO {
 
         try (Connection con = UtilsJDBC.getConnectDB()) {
             con.setAutoCommit(false); // Bắt đầu Transaction
-            int newRoomId = -1;
+            int newRoomId;
 
             // 1. Thêm phòng chiếu và yêu cầu CSDL trả về ID vừa được tự động tạo
             try (PreparedStatement psRoom = con.prepareStatement(insertRoomSql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
