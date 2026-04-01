@@ -38,7 +38,7 @@ public class FormPhim extends JPanel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         setBackground(new Color(245, 245, 250));
         setLayout(new BorderLayout(15, 15));
         initUI();
@@ -48,7 +48,6 @@ public class FormPhim extends JPanel {
     private void initUI() {
         // Header
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(245, 245, 250));
         header.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
 
         JLabel lblTitle = new JLabel("QUẢN LÝ PHIM", SwingConstants.CENTER);
@@ -59,8 +58,8 @@ public class FormPhim extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         searchPanel.setOpaque(false);
 
-        cbFilterTrangThai = new JComboBox<>(new String[]{
-            "Tất cả trạng thái", "Đang chiếu", "Sắp chiếu", "Ngừng chiếu"
+        cbFilterTrangThai = new JComboBox<>(new String[] {
+                "Tất cả trạng thái", "Đang chiếu", "Sắp chiếu", "Ngừng chiếu"
         });
         cbFilterTrangThai.setPreferredSize(new Dimension(180, 40));
         cbFilterTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -70,7 +69,7 @@ public class FormPhim extends JPanel {
         txtSearch.setPreferredSize(new Dimension(250, 40));
         txtSearch.setToolTipText("Tìm theo tên phim...");
         btnTimKiem = createStyledButton("Tìm kiếm", new Color(0, 123, 255), Color.WHITE);
-        
+
         searchPanel.add(new JLabel("Lọc:"));
         searchPanel.add(cbFilterTrangThai);
         searchPanel.add(txtSearch);
@@ -79,15 +78,18 @@ public class FormPhim extends JPanel {
         add(header, BorderLayout.NORTH);
 
         // Table
-        String[] columns = {"Mã Phim", "Tên Phim", "Thể Loại", "Thời Lượng", "Đạo Diễn", "Năm SX", "Ngày Khởi Chiếu", "Trạng Thái"};
+        String[] columns = { "Mã Phim", "Tên Phim", "Thể Loại", "Thời Lượng", "Đạo Diễn", "Năm SX", "Ngày Khởi Chiếu",
+                "Trạng Thái" };
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         table = new JTable(tableModel);
         table.setRowHeight(50);
         JScrollPane scrollPane = new JScrollPane(table);
-        
+
         // Poster Panel
         JPanel posterPanel = new JPanel(new BorderLayout());
         posterPanel.setPreferredSize(new Dimension(350, 0));
@@ -101,7 +103,10 @@ public class FormPhim extends JPanel {
         btnSua = createStyledButton("Sửa Phim", new Color(255, 193, 7), Color.BLACK);
         btnXoa = createStyledButton("Xóa Phim", new Color(220, 53, 69), Color.WHITE);
         btnLamMoi = createStyledButton("Làm mới", new Color(108, 117, 125), Color.WHITE);
-        toolbar.add(btnThem); toolbar.add(btnSua); toolbar.add(btnXoa); toolbar.add(btnLamMoi);
+        toolbar.add(btnThem);
+        toolbar.add(btnSua);
+        toolbar.add(btnXoa);
+        toolbar.add(btnLamMoi);
 
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(scrollPane, BorderLayout.CENTER);
@@ -114,18 +119,20 @@ public class FormPhim extends JPanel {
         btnThem.addActionListener(e -> themPhimDialog());
         btnSua.addActionListener(e -> suaPhimDialog());
         btnLamMoi.addActionListener(e -> {
-            if (phimBUS != null) phimBUS.refreshList();
+            if (phimBUS != null)
+                phimBUS.refreshList();
             loadFromBus();
         });
         btnXoa.addActionListener(e -> xoaPhim());
         btnTimKiem.addActionListener(e -> locPhim());
         cbFilterTrangThai.addActionListener(e -> locPhim());
-        
+
         table.getSelectionModel().addListSelectionListener(e -> showPoster());
-        
+
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (e.getClickCount() == 2) suaPhimDialog();
+                if (e.getClickCount() == 2)
+                    suaPhimDialog();
             }
         });
 
@@ -138,7 +145,8 @@ public class FormPhim extends JPanel {
     }
 
     private void loadFromBus() {
-        if (phimBUS == null || theLoaiPhimBUS == null) return;
+        if (phimBUS == null || theLoaiPhimBUS == null)
+            return;
         displayOnTable(phimBUS.getList());
     }
 
@@ -155,7 +163,7 @@ public class FormPhim extends JPanel {
                         .map(TheLoaiPhimDTO::getTenLoaiPhim)
                         .orElse("Mã: " + p.getMaTheLoaiPhim());
             }
-            tableModel.addRow(new Object[]{
+            tableModel.addRow(new Object[] {
                     p.getMaPhim(), p.getTenPhim(), tenTheLoai, p.getThoiLuong() + " phút",
                     p.getDaoDien(), p.getNamSanXuat(), p.getNgayKhoiChieu(), p.getTrangThai()
             });
@@ -166,23 +174,23 @@ public class FormPhim extends JPanel {
     private void locPhim() {
         String keyword = txtSearch.getText().trim().toLowerCase();
         String trangThaiSelected = (String) cbFilterTrangThai.getSelectedItem();
-        
+
         List<PhimDTO> filteredList = phimBUS.getList();
-        
+
         // Lọc theo tên phim
         if (!keyword.isEmpty()) {
             filteredList = filteredList.stream()
                     .filter(p -> p.getTenPhim().toLowerCase().contains(keyword))
                     .collect(Collectors.toList());
         }
-        
+
         // Lọc theo trạng thái
         if (!trangThaiSelected.equals("Tất cả trạng thái")) {
             filteredList = filteredList.stream()
                     .filter(p -> p.getTrangThai().equalsIgnoreCase(trangThaiSelected))
                     .collect(Collectors.toList());
         }
-        
+
         displayOnTable(filteredList);
     }
 
@@ -218,7 +226,8 @@ public class FormPhim extends JPanel {
 
     private void suaPhimDialog() {
         int row = table.getSelectedRow();
-        if (row == -1) return;
+        if (row == -1)
+            return;
         int maPhim = (int) tableModel.getValueAt(row, 0);
         String tenPhim = (String) tableModel.getValueAt(row, 1);
         String theLoai = (String) tableModel.getValueAt(row, 2);
@@ -230,7 +239,8 @@ public class FormPhim extends JPanel {
         String poster = posterMap.get(maPhim);
 
         Window owner = SwingUtilities.getWindowAncestor(this);
-        DialogEditPhim dialog = new DialogEditPhim(owner, tenPhim, theLoai, thoiLuongStr, daoDien, namStr, ngayKC, trangThai, poster);
+        DialogEditPhim dialog = new DialogEditPhim(owner, tenPhim, theLoai, thoiLuongStr, daoDien, namStr, ngayKC,
+                trangThai, poster);
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
@@ -262,9 +272,11 @@ public class FormPhim extends JPanel {
 
     private void xoaPhim() {
         int row = table.getSelectedRow();
-        if (row == -1) return;
+        if (row == -1)
+            return;
         int maPhim = (int) tableModel.getValueAt(row, 0);
-        if (JOptionPane.showConfirmDialog(this, "Xóa phim này?", "Xác nhận", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+        if (JOptionPane.showConfirmDialog(this, "Xóa phim này?", "Xác nhận",
+                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             if (phimBUS.delete(maPhim)) {
                 JOptionPane.showMessageDialog(this, "Đã xóa!");
                 loadFromBus();
@@ -274,7 +286,8 @@ public class FormPhim extends JPanel {
 
     private void showPoster() {
         int row = table.getSelectedRow();
-        if (row == -1) return;
+        if (row == -1)
+            return;
         String fileName = posterMap.get((int) tableModel.getValueAt(row, 0));
         lblPoster.setIcon(null);
         if (fileName == null || fileName.isEmpty()) {
@@ -291,13 +304,15 @@ public class FormPhim extends JPanel {
                 } else {
                     SwingUtilities.invokeLater(() -> lblPoster.setText("Không tìm thấy file ảnh"));
                 }
-            } catch (Exception ex) {}
+            } catch (Exception ex) {
+            }
         }).start();
     }
 
     private JButton createStyledButton(String text, Color bg, Color fg) {
         JButton btn = new JButton(text);
-        btn.setBackground(bg); btn.setForeground(fg);
+        btn.setBackground(bg);
+        btn.setForeground(fg);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setFocusPainted(false);
         return btn;
