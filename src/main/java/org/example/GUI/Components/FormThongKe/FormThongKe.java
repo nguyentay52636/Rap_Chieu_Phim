@@ -1,11 +1,12 @@
 package org.example.GUI.Components.FormThongKe;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
+import org.example.BUS.ThongKeBUS;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,23 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-
-import org.example.BUS.ThongKeBUS;
 
 public class FormThongKe extends JPanel {
 
@@ -212,11 +196,11 @@ public class FormThongKe extends JPanel {
 
         for (Object[] row : dsThongKe) {
             model.addRow(new Object[]{
-                row[0],
-                row[1],
-                row[2],
-                row[3],
-                formatCurrency(((Number) row[4]).longValue())
+                    row[0],
+                    row[1],
+                    row[2],
+                    row[3],
+                    formatCurrency(((Number) row[4]).longValue())
             });
         }
     }
@@ -287,12 +271,12 @@ public class FormThongKe extends JPanel {
     }
 
     private void ghiFileExcel(File file,
-            String tuNgay,
-            String denNgay,
-            long tongDoanhThu,
-            int tongSoVeBan,
-            int tongSoSanPhamBan,
-            List<Object[]> dsThongKe) throws IOException {
+                              String tuNgay,
+                              String denNgay,
+                              long tongDoanhThu,
+                              int tongSoVeBan,
+                              int tongSoSanPhamBan,
+                              List<Object[]> dsThongKe) throws IOException {
 
         List<List<ExcelCell>> summaryRows = taoDuLieuSheetTongHop(
                 tuNgay,
@@ -319,10 +303,10 @@ public class FormThongKe extends JPanel {
     }
 
     private List<List<ExcelCell>> taoDuLieuSheetTongHop(String tuNgay,
-            String denNgay,
-            long tongDoanhThu,
-            int tongSoVeBan,
-            int tongSoSanPhamBan) {
+                                                        String denNgay,
+                                                        long tongDoanhThu,
+                                                        int tongSoVeBan,
+                                                        int tongSoSanPhamBan) {
         List<List<ExcelCell>> rows = new ArrayList<>();
 
         rows.add(List.of(
@@ -529,9 +513,9 @@ public class FormThongKe extends JPanel {
     }
 
     private String buildSheetXml(List<List<ExcelCell>> rows,
-            List<Double> widths,
-            List<String> mergeRefs,
-            String autoFilterRef) {
+                                 List<Double> widths,
+                                 List<String> mergeRefs,
+                                 String autoFilterRef) {
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         sb.append("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n");
@@ -667,7 +651,6 @@ public class FormThongKe extends JPanel {
     }
 
     private static class ExcelCell {
-
         private final Object value;
         private final int styleIndex;
         private final boolean isNumber;

@@ -1,5 +1,23 @@
 package org.example.GUI.Components.FormHoaDon;
 
+import org.example.BUS.HoaDonBUS;
+import org.example.DTO.HoaDonDTO;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -22,25 +40,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
-
-import org.example.BUS.HoaDonBUS;
-import org.example.DTO.HoaDonDTO;
 
 public class FormHoaDon extends JPanel {
 
@@ -233,11 +232,11 @@ public class FormHoaDon extends JPanel {
 
         for (HoaDonDTO hd : dsHoaDon) {
             model.addRow(new Object[]{
-                hd.getMaHoaDon(),
-                buildDisplayName(hd.getTenKhachHang(), hd.getMaKH()),
-                buildDisplayName(hd.getTenNhanVien(), hd.getMaNV()),
-                formatDateTime(hd.getNgayLapHoaDon()),
-                formatCurrency(hd.getTongThanhToan())
+                    hd.getMaHoaDon(),
+                    buildDisplayName(hd.getTenKhachHang(), hd.getMaKH()),
+                    buildDisplayName(hd.getTenNhanVien(), hd.getMaNV()),
+                    formatDateTime(hd.getNgayLapHoaDon()),
+                    formatCurrency(hd.getTongThanhToan())
             });
         }
 
@@ -294,13 +293,13 @@ public class FormHoaDon extends JPanel {
             return;
         }
 
-        String detail = "Mã hóa đơn: " + hd.getMaHoaDon()
-                + "\nKhách hàng: " + buildDisplayName(hd.getTenKhachHang(), hd.getMaKH())
-                + "\nNhân viên: " + buildDisplayName(hd.getTenNhanVien(), hd.getMaNV())
-                + "\nNgày lập hóa đơn: " + formatDateTime(hd.getNgayLapHoaDon())
-                + "\nTổng tiền vé: " + formatCurrency(hd.getTongTienVe())
-                + "\nTổng tiền sản phẩm: " + formatCurrency(hd.getTongTienSanPham())
-                + "\nTổng thanh toán: " + formatCurrency(hd.getTongThanhToan());
+        String detail = "Mã hóa đơn: " + hd.getMaHoaDon() +
+                "\nKhách hàng: " + buildDisplayName(hd.getTenKhachHang(), hd.getMaKH()) +
+                "\nNhân viên: " + buildDisplayName(hd.getTenNhanVien(), hd.getMaNV()) +
+                "\nNgày lập hóa đơn: " + formatDateTime(hd.getNgayLapHoaDon()) +
+                "\nTổng tiền vé: " + formatCurrency(hd.getTongTienVe()) +
+                "\nTổng tiền sản phẩm: " + formatCurrency(hd.getTongTienSanPham()) +
+                "\nTổng thanh toán: " + formatCurrency(hd.getTongThanhToan());
 
         JOptionPane.showMessageDialog(this, detail, "Chi tiết hóa đơn", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -591,9 +590,9 @@ public class FormHoaDon extends JPanel {
     }
 
     private String buildSheetXml(List<List<ExcelCell>> rows,
-            List<Double> widths,
-            List<String> mergeRefs,
-            String autoFilterRef) {
+                                 List<Double> widths,
+                                 List<String> mergeRefs,
+                                 String autoFilterRef) {
         StringBuilder sb = new StringBuilder();
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         sb.append("<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n");
@@ -761,7 +760,6 @@ public class FormHoaDon extends JPanel {
     }
 
     private static class ExcelCell {
-
         private final Object value;
         private final int styleIndex;
         private final boolean isNumber;
