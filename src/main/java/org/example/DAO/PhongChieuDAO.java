@@ -60,7 +60,7 @@ public class PhongChieuDAO {
     }
 
 
-    // Xóa Chi Tiết Hóa Đơn Vé dựa trên mã phòng (Xóa tầng sâu nhất)
+    // Xóa Chi Tiết Hóa Đơn Vé dựa trên mã phòng
     public boolean deleteBill(Connection con, int maPhong) throws SQLException {
         String sql = "DELETE c FROM ChiTietHoaDonVe c " +
                 "JOIN Ve v ON c.MaVe = v.MaVe " +
@@ -69,10 +69,14 @@ public class PhongChieuDAO {
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, maPhong);
             return ps.executeUpdate() >= 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi xóa hóa đơn!");
+            return false;
         }
     }
 
-    // Xóa Vé dựa trên mã phòng (Xóa tầng thứ 2)
+    // Xóa Vé dựa trên mã phòng
     public boolean deleteTicket(Connection con, int maPhong) throws SQLException {
         String sql = "DELETE v FROM Ve v " +
                 "JOIN Ghe g ON v.MaGhe = g.MaGhe " +
@@ -80,23 +84,36 @@ public class PhongChieuDAO {
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, maPhong);
             return ps.executeUpdate() >= 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi xóa vé!");
+            return false;
         }
     }
 
-    // Xóa Ghế dựa trên mã phòng (Xóa tầng thứ 3)
+    // Xóa Ghế dựa trên mã phòng
     public boolean deleteChair(Connection con, int maPhong) throws SQLException {
         String sql = "DELETE FROM Ghe WHERE MaPhong = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, maPhong);
             return ps.executeUpdate() >= 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi xóa ghế!");
+            return false;
         }
     }
 
+    // Xóa Suất Chiếu dựa trên mã phòng
     public boolean deleteShowtime(Connection con, int maPhong) throws SQLException {
         String sql = "DELETE FROM SuatChieu WHERE MaPhong = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, maPhong);
             return ps.executeUpdate() >= 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi xóa Phòng chiếu!");
+            return false;
         }
     }
 
@@ -109,7 +126,6 @@ public class PhongChieuDAO {
             con = UtilsJDBC.getConnectDB();
             con.setAutoCommit(false); // Bắt đầu Transaction
 
-            // Thực thi xóa theo thứ tự từ dưới lên trên để không vi phạm khóa ngoại
             // 1. Xóa Chi Tiết Hóa Đơn
             deleteBill(con, maPhong);
 
@@ -119,10 +135,10 @@ public class PhongChieuDAO {
             // 3. Xóa Ghế
             deleteChair(con, maPhong);
 
-            // 4. Xóa Suất Chiếu (Bổ sung vào đây)
+            // 4. Xóa Suất Chiếu
             deleteShowtime(con, maPhong);
 
-            // 5. Xóa phòng chiếu (Tầng cao nhất)
+            // 5. Xóa phòng chiếu
             boolean isRoomDeleted = false;
             try (PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setInt(1, maPhong);
@@ -232,37 +248,6 @@ public class PhongChieuDAO {
         }
     }
 
-    // Cập nhật loại ghế cho một danh sách các ghế được chọn
-    public boolean updateChairTypeBatch(int maPhong, List<String> selectedSeats, int maLoaiGheMoi) {
-        String sql = "UPDATE Ghe SET MaLoaiGhe = ? WHERE MaPhong = ? AND HangGhe = ? AND SoGhe = ?";
-
-        try (Connection con = UtilsJDBC.getConnectDB();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            con.setAutoCommit(false); // Bắt đầu Transaction
-
-            for (String seatCode : selectedSeats) {
-                // Tách "A01" -> HangGhe là mã ASCII của 'A' (65), SoGhe là 1
-                String hangGheDb = String.valueOf(seatCode.charAt(0));
-                int soGheDb = Integer.parseInt(seatCode.substring(1));
-
-                ps.setInt(1, maLoaiGheMoi);
-                ps.setInt(2, maPhong);
-                ps.setString(3, hangGheDb);
-                ps.setInt(4, soGheDb);
-                ps.addBatch();
-            }
-
-            ps.executeBatch();
-            con.commit();
-            return true;
-
-        } catch (SQLException | NumberFormatException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     // Cập nhật phòng và sơ đồ ghế thông minh (Bảo vệ dữ liệu lịch sử)
     public boolean updateRoomAndSeatsTransaction(PhongChieuDTO pc) {
         String updateRoomSql = "UPDATE PhongChieu SET SoHang = ?, SoGheMoiHang = ? WHERE MaPhong = ?";
@@ -270,7 +255,7 @@ public class PhongChieuDAO {
         // Tính toán ký tự hàng lớn nhất (VD: Phòng có 5 hàng thì max là 'E')
         String maxHangGhe = String.valueOf((char) ('A' + pc.getSoHang() - 1));
 
-        // CÂU LỆNH QUAN TRỌNG: Chỉ xóa những ghế nằm ngoài ranh giới kích thước mới
+        // xóa những ghế nằm ngoài ranh giới kích thước mới
         String deleteOutdatedSeatsSql = "DELETE FROM Ghe WHERE MaPhong = ? AND (HangGhe > ? OR SoGhe > ?)";
 
         // Lệnh Cập nhật và Thêm mới

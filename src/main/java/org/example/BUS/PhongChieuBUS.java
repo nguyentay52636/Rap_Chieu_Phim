@@ -46,10 +46,6 @@ public class PhongChieuBUS {
         return ok;
     }
 
-    public ArrayList<GheDTO> getListGheTheoPhong(int maPhong) {
-        return phongChieuDAO.getListGheTheoPhong(maPhong);
-    }
-
     public PhongChieuDTO getPhongChieuById(int maPhong) {
         return phongChieuDAO.getPhongChieuById(maPhong);
     }
@@ -60,10 +56,6 @@ public class PhongChieuBUS {
             refreshList();
         }
         return ok;
-    }
-
-    public boolean updateChairType(int maPhong, List<String> selectedSeats, int maLoaiGheMoi) {
-        return phongChieuDAO.updateChairTypeBatch(maPhong, selectedSeats, maLoaiGheMoi);
     }
 
     public boolean updateRoomAndSeats(PhongChieuDTO pc) {
